@@ -58,6 +58,7 @@ func (s *Server) setupRoutes() {
 	portfolioClient := portfolio.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
 	portfolioHandler := portfolio.NewHandler(portfolio.NewGetUseCase(portfolioClient))
 	protected.GET("/screens/portfolio", portfolioHandler.Get)
+	protected.POST("/actions/portfolio/include_closed", portfolio.NewIncludeClosedHandler(portfolioClient).Post)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
