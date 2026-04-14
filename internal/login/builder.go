@@ -48,7 +48,7 @@ func BuildScreen(lang string) components.Component {
 		components.Text("register-prompt", i18n.T(lang, "auth.no_account_prompt"), "sm", "normal"),
 		components.ButtonFull(
 			"register-link", i18n.T(lang, "auth.register_link"),
-			"", "link", "ghost",
+			"", "secondary", "ghost",
 			components.Navigate("/screens/register"),
 		),
 	)
