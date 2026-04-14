@@ -29,7 +29,7 @@
 |---|---|
 | [Shell](shell.md) | App shell: navigation slots, platform adaptation |
 | [API Contract](api.md) | Middleend endpoints (shell, screens, actions) — TBD |
-| [SDUI Components](sdui.md) | Custom components beyond the base set — TBD |
+| [SDUI Custom Components](sdui-custom-components.md) | Custom SDUI components (line_chart, etc.) |
 | [Security](security.md) | JWT validation, login/register proxy, auth response extension |
 | [Error Handling](errors.md) | Error categories and behavior — TBD |
 | [Acceptance Criteria](acceptance.md) | Testable completion criteria — TBD |
