@@ -11,11 +11,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testLoginRedirect = "/screens/login"
+
 func setupRouter(t *testing.T, secret string, leeway time.Duration) *gin.Engine {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.Use(RequireAuth(secret, leeway))
+	r.Use(RequireAuth(secret, leeway, testLoginRedirect))
 	r.GET("/protected", func(c *gin.Context) {
 		uid := c.GetString("user_id")
 		c.JSON(http.StatusOK, gin.H{"user_id": uid})
@@ -30,7 +32,8 @@ func TestRequireAuth_MissingHeader(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	assert.Contains(t, w.Body.String(), "UNAUTHORIZED")
+	assert.Contains(t, w.Body.String(), `"error":"unauthorized"`)
+	assert.Contains(t, w.Body.String(), `"redirect":"/screens/login"`)
 }
 
 func TestRequireAuth_MalformedHeader(t *testing.T) {
@@ -41,6 +44,7 @@ func TestRequireAuth_MalformedHeader(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.Contains(t, w.Body.String(), `"redirect":"/screens/login"`)
 }
 
 func TestRequireAuth_InvalidToken(t *testing.T) {
@@ -51,6 +55,7 @@ func TestRequireAuth_InvalidToken(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.Contains(t, w.Body.String(), `"redirect":"/screens/login"`)
 }
 
 func TestRequireAuth_ValidTokenSetsUserID(t *testing.T) {

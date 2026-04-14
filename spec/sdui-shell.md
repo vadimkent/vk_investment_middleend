@@ -168,7 +168,11 @@ func NavItemsForRole(role string) []NavItem {
 
 ## 8. Rules
 
-- Shell requires authentication. Return `401` if no token.
+- Shell requires authentication. Return `401` with redirect if no token:
+  ```go
+  shared.RespondUnauthorized(c, "/screens/login")
+  ```
+  Response: `{ "error": "unauthorized", "redirect": "/screens/login" }`. The frontend reads `redirect` and navigates there. This pattern applies to any endpoint, not just shell.
 - Auth screens (login, register) render without the shell — they are standalone screens.
 - Nav items are dynamic — the middleend decides what to show based on user context.
 - All text in the shell uses i18n — no hardcoded strings. Use `i18n.T(lang, key)`.

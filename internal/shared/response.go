@@ -12,3 +12,13 @@ func RespondError(c *gin.Context, status int, err error) {
 		"error": err.Error(),
 	})
 }
+
+// RespondUnauthorized aborts the request with 401 and a redirect hint for the
+// frontend. The middleend decides where unauthenticated users should land; the
+// frontend reads `redirect` and navigates there.
+func RespondUnauthorized(c *gin.Context, redirect string) {
+	c.AbortWithStatusJSON(401, gin.H{
+		"error":    "unauthorized",
+		"redirect": redirect,
+	})
+}

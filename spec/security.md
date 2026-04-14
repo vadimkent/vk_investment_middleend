@@ -21,7 +21,13 @@ The backend owns auth: registration, credential check, and JWT issuance (HS256 w
 - Validates signature (HS256 with `JWT_SECRET`) and `exp` claim locally — no round-trip to the backend.
 - Clock-skew leeway on `exp` and `iat`: 30 seconds (configurable).
 - On success: sets `user_id` (from `sub` claim) into the request context for logging and downstream use.
-- On failure (missing, malformed, bad signature, expired): returns `401` with error code `UNAUTHORIZED`.
+- On failure (missing, malformed, bad signature, expired): aborts with `401` and a redirect hint for the frontend:
+
+  ```json
+  { "error": "unauthorized", "redirect": "/screens/login" }
+  ```
+
+  The login route is decided by the middleend (configured at wiring time), not hardcoded in the frontend. The frontend reads `redirect` and navigates there. This pattern applies to any protected endpoint (shell, screens, actions). Helper: `shared.RespondUnauthorized(c, redirect)`.
 
 ## Login flow
 
@@ -91,15 +97,15 @@ All auth errors follow the standard middleend error envelope (TBD in `errors.md`
 
 | Status | Code                    | When                                           |
 |--------|-------------------------|------------------------------------------------|
-| 401    | `UNAUTHORIZED`          | Missing, malformed, invalid, or expired JWT    |
+| 401    | `unauthorized` + `redirect` | Missing, malformed, invalid, or expired JWT (body includes `redirect` to the login route) |
 | 401    | `INVALID_CREDENTIALS`   | Relayed from backend on login                  |
 | 403    | `REGISTRATION_DISABLED` | Relayed from backend on register               |
 
 ## Acceptance criteria
 
-- [ ] Protected endpoint without `Authorization` header returns `401 UNAUTHORIZED`.
-- [ ] Protected endpoint with malformed or tampered token returns `401 UNAUTHORIZED`.
-- [ ] Protected endpoint with expired token returns `401 UNAUTHORIZED`.
+- [ ] Protected endpoint without `Authorization` header returns `401` with `redirect` body.
+- [ ] Protected endpoint with malformed or tampered token returns `401` with `redirect` body.
+- [ ] Protected endpoint with expired token returns `401` with `redirect` body.
 - [ ] Protected endpoint with valid token proceeds and exposes `user_id` downstream.
 - [ ] Token within `JWT_LEEWAY_SECONDS` past `exp` is accepted.
 - [ ] `POST /actions/login` with valid credentials returns an `ActionResponse` containing an `auth` field (`token`, `expires_at`) and a `navigate` action.
