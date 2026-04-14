@@ -13,10 +13,17 @@ type Action struct {
 
 // ActionResponse is the standard response for submit/reload actions.
 type ActionResponse struct {
-	Action   string     `json:"action"`
-	TargetID string     `json:"target_id,omitempty"`
-	Tree     *Component `json:"tree,omitempty"`
-	Feedback *Component `json:"feedback,omitempty"`
+	Action   string       `json:"action"`
+	TargetID string       `json:"target_id,omitempty"`
+	Tree     *Component   `json:"tree,omitempty"`
+	Feedback *Component   `json:"feedback,omitempty"`
+	Auth     *AuthPayload `json:"auth,omitempty"`
+}
+
+// AuthPayload carries JWT info for the frontend to persist after login.
+type AuthPayload struct {
+	Token     string `json:"token"`
+	ExpiresAt string `json:"expires_at"`
 }
 
 // Navigate creates a navigation action.
