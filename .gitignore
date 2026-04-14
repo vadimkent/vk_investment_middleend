@@ -1,0 +1,12 @@
+.env
+/bin/
+/tmp/
+be_specs/
+legacy_fe_specs/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out

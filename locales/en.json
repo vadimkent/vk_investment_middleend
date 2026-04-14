@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "VK Investment Tracker"
+  },
+  "nav": {
+    "portfolio": "Portfolio",
+    "assets": "Assets",
+    "trades": "Trades",
+    "snapshots": "Snapshots",
+    "import": "Import",
+    "analysis": "Analysis",
+    "logout": "Log out"
+  },
+  "home": {
+    "welcome_title": "Welcome to VK Investment Tracker",
+    "subtitle": "This is a scaffolded middleend serving SDUI components."
+  }
+}

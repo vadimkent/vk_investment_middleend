@@ -1,0 +1,157 @@
+#!/bin/sh
+set -e
+
+COMMAND="$1"
+shift 2>/dev/null || true
+
+case "$COMMAND" in
+  run)
+    if [ -f .env ]; then
+      set -a
+      . ./.env
+      set +a
+    fi
+    go run ./cmd/server "$@"
+    ;;
+  build)
+    go build -o bin/server ./cmd/server "$@"
+    echo '{"command":"build","status":"success","summary":"Binary built at bin/server","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
+    ;;
+  test)
+    go test -json ./... 2>&1
+    ;;
+  lint)
+    OUTPUT=$(golangci-lint run ./... 2>&1) && STATUS="success" || STATUS="failure"
+    echo '{"command":"lint","status":"'"$STATUS"'","summary":"'"$(echo "$OUTPUT" | head -1)"'","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
+    ;;
+  health)
+    RESPONSE=$(curl -s http://localhost:8080/health)
+    echo '{"command":"health","status":"success","summary":"Health check complete","details":'"$RESPONSE"',"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
+    ;;
+  info)
+    echo '{"command":"info","status":"success","summary":"vk-investment-middleend","details":{"name":"vk-investment-middleend","type":"middleend","stack":"go","framework":"gin"},"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
+    ;;
+  generate)
+    SUBCMD="$1"
+    NAME="$2"
+    if [ -z "$NAME" ]; then
+      echo '{"command":"generate","status":"error","summary":"Usage: cli generate screen <name>","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
+      exit 2
+    fi
+    case "$SUBCMD" in
+      screen)
+        mkdir -p "internal/${NAME}"
+        cat > "internal/${NAME}/handler.go" << 'GOEOF'
+package NAME_PKG
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/project/vk-investment-middleend/internal/shared"
+)
+
+type Handler struct {
+	getUC *GetUseCase
+}
+
+func NewHandler(getUC *GetUseCase) *Handler {
+	return &Handler{getUC: getUC}
+}
+
+func (h *Handler) Get(c *gin.Context) {
+	screen, err := h.getUC.Execute(c.Request.Context())
+	if err != nil {
+		shared.RespondError(c, http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, screen)
+}
+GOEOF
+        sed -i '' "s/NAME_PKG/${NAME}/g" "internal/${NAME}/handler.go"
+        cat > "internal/${NAME}/get_usecase.go" << 'GOEOF'
+package NAME_PKG
+
+import (
+	"context"
+
+	"github.com/project/vk-investment-middleend/internal/components"
+)
+
+type GetUseCase struct {
+	client *Client
+}
+
+func NewGetUseCase(client *Client) *GetUseCase {
+	return &GetUseCase{client: client}
+}
+
+func (uc *GetUseCase) Execute(ctx context.Context) (components.Component, error) {
+	// TODO: fetch data from backend via uc.client
+	return BuildScreen(), nil
+}
+GOEOF
+        sed -i '' "s/NAME_PKG/${NAME}/g" "internal/${NAME}/get_usecase.go"
+        cat > "internal/${NAME}/get_usecase_test.go" << 'GOEOF'
+package NAME_PKG
+
+import (
+	"context"
+	"testing"
+)
+
+func TestGetUseCase_Execute(t *testing.T) {
+	client := NewClient("http://localhost:8080")
+	uc := NewGetUseCase(client)
+	screen, err := uc.Execute(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if screen.Type != "screen" {
+		t.Fatalf("expected screen type, got %s", screen.Type)
+	}
+}
+GOEOF
+        sed -i '' "s/NAME_PKG/${NAME}/g" "internal/${NAME}/get_usecase_test.go"
+        cat > "internal/${NAME}/builder.go" << 'GOEOF'
+package NAME_PKG
+
+import "github.com/project/vk-investment-middleend/internal/components"
+
+func BuildScreen() components.Component {
+	return components.Screen("NAME_PKG", "NAME_PKG",
+		components.Text("title", "TODO: implement NAME_PKG screen", "xl", "bold"),
+	)
+}
+GOEOF
+        sed -i '' "s/NAME_PKG/${NAME}/g" "internal/${NAME}/builder.go"
+        cat > "internal/${NAME}/client.go" << 'GOEOF'
+package NAME_PKG
+
+import "net/http"
+
+type Client struct {
+	backendURL string
+	httpClient *http.Client
+}
+
+func NewClient(backendURL string) *Client {
+	return &Client{backendURL: backendURL, httpClient: &http.Client{}}
+}
+GOEOF
+        sed -i '' "s/NAME_PKG/${NAME}/g" "internal/${NAME}/client.go"
+        echo '{"command":"generate screen","status":"success","summary":"Generated screen '"${NAME}"'","details":{"files":["internal/'"${NAME}"'/handler.go","internal/'"${NAME}"'/get_usecase.go","internal/'"${NAME}"'/get_usecase_test.go","internal/'"${NAME}"'/builder.go","internal/'"${NAME}"'/client.go"]},"timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
+        ;;
+      *) echo '{"command":"generate","status":"error","summary":"Usage: cli generate screen <name>","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'; exit 2 ;;
+    esac
+    ;;
+  clean)
+    rm -rf bin/ tmp/
+    echo '{"command":"clean","status":"success","summary":"Build artifacts removed","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
+    ;;
+  *)
+    echo '{"command":"unknown","status":"error","summary":"Usage: cli [run|build|test|lint|health|info|generate|clean]","timestamp":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}'
+    exit 2
+    ;;
+esac
