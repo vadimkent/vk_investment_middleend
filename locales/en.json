@@ -21,6 +21,34 @@
     "no_account_prompt": "Don't have an account?",
     "register_link": "Sign up"
   },
+  "portfolio": {
+    "title": "Portfolio",
+    "total_value": "Total Value",
+    "empty_title": "No positions yet",
+    "empty_subtitle": "Register your first trade or snapshot.",
+    "col": {
+      "ticker": "Ticker",
+      "name": "Name",
+      "type": "Type",
+      "quantity": "Quantity",
+      "avg_cost": "Avg Cost",
+      "total_cost": "Total Cost",
+      "market_value": "Market Value",
+      "unrealized_pnl": "Unrealized P&L",
+      "pnl_pct": "% P&L",
+      "realized_pnl": "Realized P&L",
+      "last_snapshot": "Last Snapshot"
+    }
+  },
+  "time": {
+    "relative": {
+      "just_now": "just now",
+      "seconds_ago": "{n} seconds ago",
+      "minutes_ago": "{n} minutes ago",
+      "hours_ago": "{n} hours ago",
+      "days_ago": "{n} days ago"
+    }
+  },
   "home": {
     "welcome_title": "Welcome to VK Investment Tracker",
     "subtitle": "This is a scaffolded middleend serving SDUI components."
