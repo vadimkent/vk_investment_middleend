@@ -45,7 +45,7 @@ func BuildScreen(positions []Position, evolution []EvolutionPoint, lang string, 
 
 	metrics := ComputeMetrics(positions, evolution)
 	summary := buildSummaryRow(metrics, lang)
-	table := buildTable(positions, lang, now)
+	table := BuildPositionsTable(positions, lang, now)
 
 	root := components.ColumnWithGap("portfolio-root", "lg", summary, table)
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
@@ -161,7 +161,7 @@ func coloredValue(id, content, color string) components.Component {
 	return components.TextStyled(id, content, "xl", "bold", "", color, "", "")
 }
 
-func buildTable(ps []Position, lang string, now time.Time) components.Component {
+func BuildPositionsTable(ps []Position, lang string, now time.Time) components.Component {
 	headerCells := make([]components.Component, 0, 11)
 	for i, key := range columnKeys {
 		cell := components.Text("col-"+columnShortID(i), i18n.T(lang, key), "sm", "bold")

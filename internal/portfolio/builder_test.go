@@ -242,3 +242,18 @@ func findDescendantByID(c components.Component, id string) *components.Component
 	}
 	return nil
 }
+
+func TestBuildPositionsTable_ReturnsCardWithExpectedID(t *testing.T) {
+	ps := samplePositions()
+	card := BuildPositionsTable(ps, "en", time.Now())
+
+	assert.Equal(t, "card", card.Type)
+	assert.Equal(t, "positions-table-card", card.ID)
+
+	header := findDescendantByID(card, "positions-header")
+	require.NotNil(t, header)
+	body := findDescendantByID(card, "positions-body")
+	require.NotNil(t, body)
+	assert.Equal(t, "list", body.Type)
+	assert.Len(t, body.Children, len(ps))
+}
