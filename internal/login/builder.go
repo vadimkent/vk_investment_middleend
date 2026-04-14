@@ -26,6 +26,7 @@ func BuildScreen(lang string) components.Component {
 		"login-submit", i18n.T(lang, "auth.submit"),
 		components.Submit("/actions/login", "POST", "login-form"),
 	)
+	submit.Props["align_self"] = "right"
 
 	form := components.Form("login-form",
 		components.ColumnWithGap("login-fields", "12px",
@@ -34,7 +35,7 @@ func BuildScreen(lang string) components.Component {
 		),
 		submit,
 	)
-	form.Props["gap"] = "20px"
+	form.Props["gap"] = "28px"
 
 	registerRow := components.RowWithGap("register-row", []string{"auto", "auto"}, "8px",
 		components.Text("register-prompt", i18n.T(lang, "auth.no_account_prompt"), "sm", "normal"),
