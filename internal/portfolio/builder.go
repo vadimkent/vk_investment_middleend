@@ -82,7 +82,12 @@ func buildSummary(ps []Position, lang string) components.Component {
 	}
 
 	inner := components.ColumnWithGap("portfolio-summary", "sm", label, totals)
-	return components.Card("portfolio-summary-card", inner)
+	card := components.Card("portfolio-summary-card", inner)
+	// Wrap in a row with auto + 1fr so the card shrinks to content width.
+	return components.Row("portfolio-summary-row", []string{"auto", "1fr"},
+		card,
+		components.Column("portfolio-summary-spacer"),
+	)
 }
 
 func totalsByCurrency(ps []Position) map[string]float64 {
