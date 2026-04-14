@@ -3,11 +3,13 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
+	"github.com/project/vk-investment-middleend/internal/auth"
 	"github.com/project/vk-investment-middleend/internal/config"
 	"github.com/project/vk-investment-middleend/internal/home"
 	"github.com/project/vk-investment-middleend/internal/shell"
@@ -23,28 +25,32 @@ func New(cfg *config.Config) *Server {
 	router.Use(gin.Recovery())
 	router.Use(otelgin.Middleware("vk-investment-middleend"))
 
-	s := &Server{
-		cfg:    cfg,
-		router: router,
-	}
-
+	s := &Server{cfg: cfg, router: router}
 	s.setupRoutes()
 	return s
 }
 
 func (s *Server) setupRoutes() {
+	// Public routes (no auth).
 	s.router.GET("/health", s.healthHandler)
 
-	// Shell — app frame with navigation
+	authClient := auth.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	s.router.POST("/actions/login", auth.NewLoginHandler(authClient).Post)
+	s.router.POST("/actions/register", auth.NewRegisterHandler(authClient).Post)
+
+	// Protected routes.
+	leeway := time.Duration(s.cfg.JWTLeewaySeconds) * time.Second
+	protected := s.router.Group("")
+	protected.Use(auth.RequireAuth(s.cfg.JWTSecret, leeway))
+
 	shellUC := shell.NewGetUseCase()
 	shellHandler := shell.NewHandler(shellUC)
-	s.router.GET("/shell", shellHandler.Get)
+	protected.GET("/shell", shellHandler.Get)
 
-	// Screen handlers: client → use case → handler
 	homeClient := home.NewClient(s.cfg.BackendURL)
 	homeUC := home.NewGetUseCase(homeClient)
 	homeHandler := home.NewHandler(homeUC)
-	s.router.GET("/screens/home", homeHandler.Get)
+	protected.GET("/screens/home", homeHandler.Get)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {

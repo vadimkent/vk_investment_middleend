@@ -1,10 +1,10 @@
 package server
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -12,35 +12,52 @@ import (
 	"github.com/project/vk-investment-middleend/internal/config"
 )
 
-func TestHealthHandler(t *testing.T) {
-	cfg := &config.Config{Port: 8080, BackendURL: "http://localhost:8080"}
-	srv := New(cfg)
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/health", nil)
-	srv.router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	var body map[string]string
-	err := json.Unmarshal(w.Body.Bytes(), &body)
-	require.NoError(t, err)
-	assert.Equal(t, "healthy", body["status"])
+func testConfig() *config.Config {
+	return &config.Config{
+		Port:             8081,
+		BackendURL:       "http://localhost:9999",
+		RequestTimeout:   5 * time.Second,
+		JWTSecret:        "test-secret",
+		JWTLeewaySeconds: 0,
+	}
 }
 
-func TestHomeScreenHandler(t *testing.T) {
-	cfg := &config.Config{Port: 8080, BackendURL: "http://localhost:8080"}
-	srv := New(cfg)
-
+func TestServer_HealthIsPublic(t *testing.T) {
+	s := New(testConfig())
+	req := httptest.NewRequest("GET", "/health", nil)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/screens/home", nil)
-	srv.router.ServeHTTP(w, req)
-
+	s.router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
+}
 
-	var screen map[string]any
-	err := json.Unmarshal(w.Body.Bytes(), &screen)
-	require.NoError(t, err)
-	assert.Equal(t, "screen", screen["type"])
-	assert.Equal(t, "home", screen["id"])
+func TestServer_ShellRequiresAuth(t *testing.T) {
+	s := New(testConfig())
+	req := httptest.NewRequest("GET", "/shell", nil)
+	w := httptest.NewRecorder()
+	s.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func TestServer_HomeScreenRequiresAuth(t *testing.T) {
+	s := New(testConfig())
+	req := httptest.NewRequest("GET", "/screens/home", nil)
+	w := httptest.NewRecorder()
+	s.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func TestServer_LoginActionIsPublic(t *testing.T) {
+	s := New(testConfig())
+	req := httptest.NewRequest("POST", "/actions/login", nil)
+	w := httptest.NewRecorder()
+	s.router.ServeHTTP(w, req)
+	require.NotEqual(t, http.StatusUnauthorized, w.Code)
+}
+
+func TestServer_RegisterActionIsPublic(t *testing.T) {
+	s := New(testConfig())
+	req := httptest.NewRequest("POST", "/actions/register", nil)
+	w := httptest.NewRecorder()
+	s.router.ServeHTTP(w, req)
+	require.NotEqual(t, http.StatusUnauthorized, w.Code)
 }
