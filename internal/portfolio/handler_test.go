@@ -24,7 +24,11 @@ func (s *stubFetcher) GetPositions(ctx context.Context, auth string) ([]Position
 	return s.positions, s.err
 }
 
-func setupHandlerRouter(f positionsFetcher) *gin.Engine {
+func (s *stubFetcher) GetEvolutionLast(ctx context.Context, auth string, n int) ([]EvolutionPoint, error) {
+	return nil, nil
+}
+
+func setupHandlerRouter(f portfolioFetcher) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	h := NewHandler(NewGetUseCase(f))

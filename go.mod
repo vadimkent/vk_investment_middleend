@@ -1,6 +1,6 @@
 module github.com/project/vk-investment-middleend
 
-go 1.23
+go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
@@ -11,6 +11,7 @@ require (
 	go.opentelemetry.io/otel v1.32.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.32.0
 	go.opentelemetry.io/otel/sdk v1.32.0
+	golang.org/x/sync v0.20.0
 )
 
 require (

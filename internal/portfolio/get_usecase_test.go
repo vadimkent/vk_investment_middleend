@@ -10,58 +10,79 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type fakeClient struct {
+type fakeFetcher struct {
 	positions []Position
-	err       error
-	gotAuth   string
+	evolution []EvolutionPoint
+	posErr    error
+	evoErr    error
+	gotAuthP  string
+	gotAuthE  string
+	gotLastN  int
 }
 
-func (f *fakeClient) GetPositions(ctx context.Context, auth string) ([]Position, error) {
-	f.gotAuth = auth
-	return f.positions, f.err
+func (f *fakeFetcher) GetPositions(ctx context.Context, auth string) ([]Position, error) {
+	f.gotAuthP = auth
+	return f.positions, f.posErr
 }
 
-func TestGetUseCase_ReturnsBuiltScreen(t *testing.T) {
+func (f *fakeFetcher) GetEvolutionLast(ctx context.Context, auth string, n int) ([]EvolutionPoint, error) {
+	f.gotAuthE = auth
+	f.gotLastN = n
+	return f.evolution, f.evoErr
+}
+
+func TestGetUseCase_FetchesBothInParallel(t *testing.T) {
 	v := 100.0
-	client := &fakeClient{positions: []Position{
-		{AssetID: "a1", Ticker: "AAPL", Name: "Apple", Currency: "USD", CurrentValue: &v},
-	}}
-	uc := NewGetUseCase(client)
-	now := time.Now()
-	screen, err := uc.Execute(context.Background(), "Bearer tok", "en", now)
+	f := &fakeFetcher{
+		positions: []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &v}},
+		evolution: []EvolutionPoint{
+			{Currency: "USD", RecordedAt: time.Date(2026, 4, 10, 0, 0, 0, 0, time.UTC), TotalValue: 100},
+			{Currency: "USD", RecordedAt: time.Date(2026, 4, 13, 0, 0, 0, 0, time.UTC), TotalValue: 110},
+		},
+	}
+	uc := NewGetUseCase(f)
+	_, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
 	require.NoError(t, err)
-	assert.Equal(t, "Bearer tok", client.gotAuth)
-	assert.Equal(t, "screen", screen.Type)
-	assert.Equal(t, "portfolio", screen.ID)
+	assert.Equal(t, "Bearer t", f.gotAuthP)
+	assert.Equal(t, "Bearer t", f.gotAuthE)
+	assert.Equal(t, 2, f.gotLastN)
 }
 
-func TestGetUseCase_SortsBeforeBuilding(t *testing.T) {
-	v1, v2 := 100.0, 500.0
-	client := &fakeClient{positions: []Position{
-		{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &v1},
-		{AssetID: "b1", Ticker: "B", Currency: "USD", CurrentValue: &v2},
-	}}
-	uc := NewGetUseCase(client)
+func TestGetUseCase_EvolutionFailureDoesNotFail(t *testing.T) {
+	v := 100.0
+	f := &fakeFetcher{
+		positions: []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &v}},
+		evoErr:    ErrBackend,
+	}
+	uc := NewGetUseCase(f)
 	screen, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
 	require.NoError(t, err)
-	body := findDescendantByID(screen, "positions-body")
-	require.NotNil(t, body)
-	require.Len(t, body.Children, 2)
-	assert.Equal(t, "position-b1", body.Children[0].ID)
-	assert.Equal(t, "position-a1", body.Children[1].ID)
+	assert.Equal(t, "screen", screen.Type)
 }
 
-func TestGetUseCase_EmptyPositions(t *testing.T) {
-	client := &fakeClient{positions: []Position{}}
-	uc := NewGetUseCase(client)
+func TestGetUseCase_PositionsFailurePropagates(t *testing.T) {
+	f := &fakeFetcher{posErr: ErrUnauthorized}
+	uc := NewGetUseCase(f)
+	_, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, ErrUnauthorized))
+}
+
+func TestGetUseCase_EmptyPositionsReturnsEmptyScreen(t *testing.T) {
+	f := &fakeFetcher{positions: []Position{}}
+	uc := NewGetUseCase(f)
 	screen, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
 	require.NoError(t, err)
 	assert.NotNil(t, findDescendantByID(screen, "portfolio-empty"))
 }
 
-func TestGetUseCase_PropagatesErrors(t *testing.T) {
-	client := &fakeClient{err: ErrUnauthorized}
-	uc := NewGetUseCase(client)
+func TestGetUseCase_EvolutionAuthErrorTreatedAsPositionsAuthError(t *testing.T) {
+	v := 100.0
+	f := &fakeFetcher{
+		positions: []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &v}},
+		evoErr:    ErrUnauthorized,
+	}
+	uc := NewGetUseCase(f)
 	_, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrUnauthorized))

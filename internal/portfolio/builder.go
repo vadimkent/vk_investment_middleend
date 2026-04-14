@@ -1,7 +1,7 @@
 package portfolio
 
 import (
-	"sort"
+	"strconv"
 	"time"
 
 	"github.com/project/vk-investment-middleend/internal/components"
@@ -36,14 +36,15 @@ var columnKeys = []string{
 	"portfolio.col.last_snapshot",
 }
 
-// BuildScreen builds the portfolio tree for the given positions.
-// now is used to format relative times.
-func BuildScreen(positions []Position, lang string, now time.Time) components.Component {
+// BuildScreen builds the portfolio tree for the given positions and evolution
+// points. now is used to format relative times.
+func BuildScreen(positions []Position, evolution []EvolutionPoint, lang string, now time.Time) components.Component {
 	if len(positions) == 0 {
 		return BuildEmpty(lang)
 	}
 
-	summary := buildSummary(positions, lang)
+	metrics := ComputeMetrics(positions, evolution)
+	summary := buildSummaryRow(metrics, lang)
 	table := buildTable(positions, lang, now)
 
 	root := components.ColumnWithGap("portfolio-root", "lg", summary, table)
@@ -59,46 +60,103 @@ func BuildEmpty(lang string) components.Component {
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
 }
 
-func buildSummary(ps []Position, lang string) components.Component {
-	label := components.TextStyled("summary-label", i18n.T(lang, "portfolio.total_value"), "sm", "normal", "", "muted", "", "")
-
-	totals := components.Column("total-values")
-	byCurrency := totalsByCurrency(ps)
-	if len(byCurrency) == 0 {
-		totals.Children = append(totals.Children, components.Text("total-value-empty", "—", "xl", "bold"))
-	} else {
-		codes := make([]string, 0, len(byCurrency))
-		for c := range byCurrency {
-			codes = append(codes, c)
-		}
-		sort.Slice(codes, func(i, j int) bool {
-			return byCurrency[codes[i]] > byCurrency[codes[j]]
-		})
-		for _, c := range codes {
-			v := byCurrency[c]
-			totals.Children = append(totals.Children,
-				components.Text("total-value-"+c, FormatMoney(&v, c, lang), "xl", "bold"))
-		}
+func buildSummaryRow(m SummaryMetrics, lang string) components.Component {
+	cards := []components.Component{
+		buildTotalValueCard(m, lang),
+		buildTotalPnLCard(m, lang),
+		buildPerformanceCard(m, lang),
+		buildSnapshotChangeCard(m, lang),
+		buildOpenPositionsCard(m, lang),
 	}
-
-	inner := components.ColumnWithGap("portfolio-summary", "sm", label, totals)
-	card := components.Card("portfolio-summary-card", inner)
-	// Wrap in a row with auto + 1fr so the card shrinks to content width.
-	return components.Row("portfolio-summary-row", []string{"auto", "1fr"},
-		card,
-		components.Column("portfolio-summary-spacer"),
-	)
+	return components.Row("portfolio-summary-row", []string{"1fr", "1fr", "1fr", "1fr", "1fr"}, cards...)
 }
 
-func totalsByCurrency(ps []Position) map[string]float64 {
-	out := map[string]float64{}
-	for _, p := range ps {
-		if p.CurrentValue == nil {
-			continue
+func buildTotalValueCard(m SummaryMetrics, lang string) components.Component {
+	values := components.Column("summary-values-total-value")
+	if len(m.CurrencyOrder) == 0 || !anyHasValue(m.TotalValue, m.CurrencyOrder) {
+		values.Children = append(values.Children, components.Text("summary-value-total-value-empty", "—", "xl", "bold"))
+	} else {
+		for _, c := range m.CurrencyOrder {
+			v, ok := m.TotalValue[c]
+			if !ok {
+				continue
+			}
+			values.Children = append(values.Children,
+				components.Text("summary-value-total-value-"+c, FormatMoney(&v, c, lang), "xl", "bold"))
 		}
-		out[p.Currency] += *p.CurrentValue
 	}
-	return out
+	return wrapCard("total-value", "portfolio.total_value", lang, values)
+}
+
+func buildTotalPnLCard(m SummaryMetrics, lang string) components.Component {
+	values := components.Column("summary-values-total-pnl")
+	if len(m.CurrencyOrder) == 0 {
+		values.Children = append(values.Children, components.Text("summary-value-total-pnl-empty", "—", "xl", "bold"))
+	} else {
+		for _, c := range m.CurrencyOrder {
+			v := m.TotalPnL[c]
+			values.Children = append(values.Children,
+				coloredValue("summary-value-total-pnl-"+c, FormatSignedMoney(&v, c, lang), pnlColor(&v)))
+		}
+	}
+	return wrapCard("total-pnl", "portfolio.total_pnl", lang, values)
+}
+
+func buildPerformanceCard(m SummaryMetrics, lang string) components.Component {
+	values := components.Column("summary-values-performance")
+	if len(m.CurrencyOrder) == 0 {
+		values.Children = append(values.Children, components.Text("summary-value-performance-empty", "—", "xl", "bold"))
+	} else {
+		for _, c := range m.CurrencyOrder {
+			pct := m.Performance[c]
+			values.Children = append(values.Children,
+				coloredValue("summary-value-performance-"+c, FormatSignedPercent(pct, lang), pnlColor(pct)))
+		}
+	}
+	return wrapCard("performance", "portfolio.performance", lang, values)
+}
+
+func buildSnapshotChangeCard(m SummaryMetrics, lang string) components.Component {
+	values := components.Column("summary-values-snapshot-change")
+	if len(m.CurrencyOrder) == 0 {
+		values.Children = append(values.Children, components.Text("summary-value-snapshot-change-empty", "—", "xl", "bold"))
+	} else {
+		for _, c := range m.CurrencyOrder {
+			pct := m.SnapshotChange[c]
+			values.Children = append(values.Children,
+				coloredValue("summary-value-snapshot-change-"+c, FormatSignedPercent(pct, lang), pnlColor(pct)))
+		}
+	}
+	return wrapCard("snapshot-change", "portfolio.snapshot_change", lang, values)
+}
+
+func buildOpenPositionsCard(m SummaryMetrics, lang string) components.Component {
+	values := components.Column("summary-values-open-positions",
+		components.Text("summary-value-open-positions", strconv.Itoa(m.OpenPositions), "xl", "bold"),
+	)
+	return wrapCard("open-positions", "portfolio.open_positions", lang, values)
+}
+
+func wrapCard(id, labelKey, lang string, valuesCol components.Component) components.Component {
+	label := components.TextStyled("summary-label-"+id, i18n.T(lang, labelKey), "sm", "normal", "", "muted", "", "")
+	content := components.ColumnWithGap("summary-card-content-"+id, "sm", label, valuesCol)
+	return components.Card("summary-card-"+id, content)
+}
+
+func anyHasValue(byCurrency map[string]float64, order []string) bool {
+	for _, c := range order {
+		if _, ok := byCurrency[c]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+func coloredValue(id, content, color string) components.Component {
+	if color == "" {
+		return components.Text(id, content, "xl", "bold")
+	}
+	return components.TextStyled(id, content, "xl", "bold", "", color, "", "")
 }
 
 func buildTable(ps []Position, lang string, now time.Time) components.Component {
@@ -136,9 +194,9 @@ func buildPositionItem(p Position, lang string, now time.Time) components.Compon
 		components.Text("cell-avg-cost", FormatMoney(p.AvgCost, p.Currency, lang), "sm", "normal"),
 		components.Text("cell-total-cost", FormatMoney(p.TotalCost, p.Currency, lang), "sm", "normal"),
 		components.Text("cell-market-value", FormatMoney(p.CurrentValue, p.Currency, lang), "sm", "normal"),
-		colored("cell-unrealized-pnl", FormatSignedMoney(p.UnrealizedPnL, p.Currency, lang), pnlColor(p.UnrealizedPnL)),
-		colored("cell-pnl-pct", FormatSignedPercent(pct, lang), pnlColor(pct)),
-		colored("cell-realized-pnl", FormatSignedMoney(&realized, p.Currency, lang), pnlColor(&realized)),
+		coloredCell("cell-unrealized-pnl", FormatSignedMoney(p.UnrealizedPnL, p.Currency, lang), pnlColor(p.UnrealizedPnL)),
+		coloredCell("cell-pnl-pct", FormatSignedPercent(pct, lang), pnlColor(pct)),
+		coloredCell("cell-realized-pnl", FormatSignedMoney(&realized, p.Currency, lang), pnlColor(&realized)),
 		components.Text("cell-last-snapshot", FormatRelativeTime(p.LastSnapshotAt, now, lang), "sm", "normal"),
 	}
 	row := components.Row("position-"+p.AssetID+"-row", columnWidths, cells...)
@@ -156,7 +214,7 @@ func pnlColor(v *float64) string {
 	return "negative"
 }
 
-func colored(id, content, color string) components.Component {
+func coloredCell(id, content, color string) components.Component {
 	if color == "" {
 		return components.Text(id, content, "sm", "normal")
 	}

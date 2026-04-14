@@ -24,6 +24,10 @@
   "portfolio": {
     "title": "Portafolio",
     "total_value": "Valor total",
+    "total_pnl": "G/P total",
+    "performance": "Rendimiento total",
+    "snapshot_change": "Cambio último snapshot",
+    "open_positions": "Posiciones abiertas",
     "empty_title": "Aún no hay posiciones",
     "empty_subtitle": "Registrá tu primer trade o snapshot.",
     "col": {
