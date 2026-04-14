@@ -257,3 +257,45 @@ func TestBuildPositionsTable_ReturnsCardWithExpectedID(t *testing.T) {
 	assert.Equal(t, "list", body.Type)
 	assert.Len(t, body.Children, len(ps))
 }
+
+func TestBuildScreen_IncludeClosedFormPresent(t *testing.T) {
+	s := BuildScreen(samplePositions(), nil, "en", time.Now())
+
+	form := findDescendantByID(s, "include-closed-form")
+	require.NotNil(t, form)
+	assert.Equal(t, "form", form.Type)
+
+	cb := findDescendantByID(s, "include-closed-checkbox")
+	require.NotNil(t, cb)
+	assert.Equal(t, "checkbox", cb.Type)
+	assert.Equal(t, "include_closed", cb.Props["name"])
+	assert.Equal(t, "Include closed positions", cb.Props["label"])
+
+	require.Len(t, cb.Actions, 1)
+	a := cb.Actions[0]
+	assert.Equal(t, "change", a.Trigger)
+	assert.Equal(t, "submit", a.Type)
+	assert.Equal(t, "/actions/portfolio/include_closed", a.Endpoint)
+	assert.Equal(t, "POST", a.Method)
+	assert.Equal(t, "include-closed-form", a.TargetID)
+}
+
+func TestBuildScreen_CheckboxOutsidePositionsTableCard(t *testing.T) {
+	s := BuildScreen(samplePositions(), nil, "en", time.Now())
+	tableCard := findDescendantByID(s, "positions-table-card")
+	require.NotNil(t, tableCard)
+	assert.Nil(t, findDescendantByID(*tableCard, "include-closed-checkbox"))
+	assert.Nil(t, findDescendantByID(*tableCard, "include-closed-form"))
+}
+
+func TestBuildScreen_IncludeClosedLocalizedEs(t *testing.T) {
+	s := BuildScreen(samplePositions(), nil, "es", time.Now())
+	cb := findDescendantByID(s, "include-closed-checkbox")
+	require.NotNil(t, cb)
+	assert.Equal(t, "Incluir posiciones cerradas", cb.Props["label"])
+}
+
+func TestBuildScreen_EmptyHasNoIncludeClosedForm(t *testing.T) {
+	s := BuildScreen(nil, nil, "en", time.Now())
+	assert.Nil(t, findDescendantByID(s, "include-closed-form"))
+}

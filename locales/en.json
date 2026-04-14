@@ -28,6 +28,7 @@
     "performance": "Total Performance",
     "snapshot_change": "Snapshot Change",
     "open_positions": "Open Positions",
+    "include_closed": "Include closed positions",
     "empty_title": "No positions yet",
     "empty_subtitle": "Register your first trade or snapshot.",
     "col": {

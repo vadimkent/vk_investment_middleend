@@ -45,9 +45,10 @@ func BuildScreen(positions []Position, evolution []EvolutionPoint, lang string, 
 
 	metrics := ComputeMetrics(positions, evolution)
 	summary := buildSummaryRow(metrics, lang)
+	controls := buildIncludeClosedForm(lang)
 	table := BuildPositionsTable(positions, lang, now)
 
-	root := components.ColumnWithGap("portfolio-root", "lg", summary, table)
+	root := components.ColumnWithGap("portfolio-root", "lg", summary, controls, table)
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
 }
 
@@ -58,6 +59,27 @@ func BuildEmpty(lang string) components.Component {
 	empty := components.ColumnWithGap("portfolio-empty", "sm", title, subtitle)
 	root := components.ColumnWithGap("portfolio-root", "lg", empty)
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
+}
+
+func buildIncludeClosedForm(lang string) components.Component {
+	checkbox := components.Component{
+		Type: "checkbox",
+		ID:   "include-closed-checkbox",
+		Props: map[string]any{
+			"name":  "include_closed",
+			"label": i18n.T(lang, "portfolio.include_closed"),
+		},
+		Actions: []components.Action{
+			{
+				Trigger:  "change",
+				Type:     "submit",
+				Endpoint: "/actions/portfolio/include_closed",
+				Method:   "POST",
+				TargetID: "include-closed-form",
+			},
+		},
+	}
+	return components.Form("include-closed-form", checkbox)
 }
 
 func buildSummaryRow(m SummaryMetrics, lang string) components.Component {
