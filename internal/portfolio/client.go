@@ -103,3 +103,57 @@ func (c *Client) GetEvolutionLast(ctx context.Context, authorization string, n i
 		return nil, fmt.Errorf("%w: status %d", ErrBackend, resp.StatusCode)
 	}
 }
+
+// EvolutionQuery parameterizes GetEvolution.
+type EvolutionQuery struct {
+	From     *time.Time
+	Points   int
+	Currency string
+}
+
+// GetEvolution calls GET /v1/portfolio/evolution with the given query. Same
+// error semantics as GetPositions.
+func (c *Client) GetEvolution(ctx context.Context, authorization string, q EvolutionQuery) ([]EvolutionPoint, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/portfolio/evolution", nil)
+	if err != nil {
+		return nil, err
+	}
+	qs := req.URL.Query()
+	if q.From != nil {
+		qs.Set("from", q.From.Format(time.RFC3339))
+	}
+	if q.Points > 0 {
+		qs.Set("points", fmt.Sprintf("%d", q.Points))
+	}
+	if q.Currency != "" {
+		qs.Set("currency", q.Currency)
+	}
+	req.URL.RawQuery = qs.Encode()
+	if authorization != "" {
+		req.Header.Set("Authorization", authorization)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrBackend, err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("%w: read body: %v", ErrBackend, err)
+	}
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		points, err := ParseEvolution(body)
+		if err != nil {
+			return nil, fmt.Errorf("%w: parse: %v", ErrBackend, err)
+		}
+		return points, nil
+	case http.StatusUnauthorized:
+		return nil, ErrUnauthorized
+	default:
+		return nil, fmt.Errorf("%w: status %d", ErrBackend, resp.StatusCode)
+	}
+}
