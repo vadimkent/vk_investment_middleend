@@ -26,14 +26,19 @@ func BuildScreen(lang string) components.Component {
 		"login-submit", i18n.T(lang, "auth.submit"),
 		components.Submit("/actions/login", "POST", "login-form"),
 	)
-	submit.Props["align_self"] = "right"
+
+	// 1fr spacer pushes the submit button to the right.
+	submitRow := components.Row("login-submit-row", []string{"1fr", "auto"},
+		components.Column("login-submit-spacer"),
+		submit,
+	)
 
 	form := components.Form("login-form",
 		components.ColumnWithGap("login-fields", "12px",
 			emailInput,
 			passwordInput,
 		),
-		submit,
+		submitRow,
 	)
 	form.Props["gap"] = "28px"
 
