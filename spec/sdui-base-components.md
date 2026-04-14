@@ -18,7 +18,7 @@ type Component struct {
 
 ### screen
 
-Top-level container. Every screen endpoint returns one.
+Top-level container. Every screen endpoint returns one. The frontend renders it as a full-viewport container (`min-h-screen`). To center content (e.g. a login card), use a `column` child with `align_items: center` and `justify_items: center`.
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
