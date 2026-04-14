@@ -157,8 +157,6 @@ Visual grouping container with border/shadow.
 |------|------|----------|-------------|
 | `elevation` | string | no | `none` / `sm` / `md` / `lg` |
 | `border_radius` | string | no | Border radius value |
-| `padding` | string | no | Internal padding (e.g. `"24px"`, `"32px"`) applied on all sides |
-| `width` | string | no | Explicit width (e.g. `"420px"`, `"100%"`). If omitted, the card sizes to its content |
 
 ```go
 Card(id string, children ...Component) Component

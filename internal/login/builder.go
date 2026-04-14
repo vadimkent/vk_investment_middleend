@@ -50,16 +50,29 @@ func BuildScreen(lang string) components.Component {
 	logo := components.Image("login-logo", "/logo.svg", i18n.T(lang, "app.name"))
 	title := components.Text("login-title", i18n.T(lang, "auth.login_title"), "xl", "bold")
 
+	content := components.ColumnWithGap("login-content", "20px",
+		logo,
+		title,
+		form,
+		registerRow,
+	)
+
+	// Horizontal padding via a row with fixed-width side columns acting as
+	// gutters. Vertical padding via Spacer siblings above and below.
+	// Card width equals the row's total widths (40 + 360 + 40 = 440px).
+	padded := components.Row("login-padded", []string{"40px", "360px", "40px"},
+		components.Column("login-pad-left"),
+		content,
+		components.Column("login-pad-right"),
+	)
+
 	card := components.Card("login-card",
-		components.ColumnWithGap("login-content", "20px",
-			logo,
-			title,
-			form,
-			registerRow,
+		components.Column("login-card-inner",
+			components.Spacer("login-pad-top", "32px"),
+			padded,
+			components.Spacer("login-pad-bottom", "32px"),
 		),
 	)
-	card.Props["width"] = "440px"
-	card.Props["padding"] = "40px"
 
 	root := components.Column("login-root", card)
 	root.Props["align_items"] = "center"
