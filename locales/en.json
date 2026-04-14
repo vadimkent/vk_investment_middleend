@@ -43,6 +43,25 @@
       "pnl_pct": "% P&L",
       "realized_pnl": "Realized P&L",
       "last_snapshot": "Last Snapshot"
+    },
+    "chart": {
+      "series": {
+        "value": "Value"
+      },
+      "timeframe": {
+        "1m": "1M",
+        "3m": "3M",
+        "6m": "6M",
+        "ytd": "YTD",
+        "1y": "1Y",
+        "all": "All"
+      },
+      "mode": {
+        "abs": "$",
+        "pct": "%"
+      },
+      "not_enough_data": "Record at least two snapshots to see the chart.",
+      "no_cost_data": "No cost data available."
     }
   },
   "time": {

@@ -43,6 +43,25 @@
       "pnl_pct": "% G/P",
       "realized_pnl": "G/P realizada",
       "last_snapshot": "Último snapshot"
+    },
+    "chart": {
+      "series": {
+        "value": "Valor"
+      },
+      "timeframe": {
+        "1m": "1M",
+        "3m": "3M",
+        "6m": "6M",
+        "ytd": "AÑO",
+        "1y": "1A",
+        "all": "Todo"
+      },
+      "mode": {
+        "abs": "$",
+        "pct": "%"
+      },
+      "not_enough_data": "Registrá al menos dos snapshots para ver el gráfico.",
+      "no_cost_data": "Sin datos de costo."
     }
   },
   "time": {
