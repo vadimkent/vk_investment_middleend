@@ -60,3 +60,42 @@ func (c *Client) GetPositions(ctx context.Context, authorization string) ([]Posi
 		return nil, fmt.Errorf("%w: status %d", ErrBackend, resp.StatusCode)
 	}
 }
+
+// GetEvolutionLast calls GET /v1/portfolio/evolution?last=N with the caller's
+// Authorization header forwarded verbatim. Same error semantics as GetPositions.
+func (c *Client) GetEvolutionLast(ctx context.Context, authorization string, n int) ([]EvolutionPoint, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/portfolio/evolution", nil)
+	if err != nil {
+		return nil, err
+	}
+	q := req.URL.Query()
+	q.Set("last", fmt.Sprintf("%d", n))
+	req.URL.RawQuery = q.Encode()
+	if authorization != "" {
+		req.Header.Set("Authorization", authorization)
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrBackend, err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("%w: read body: %v", ErrBackend, err)
+	}
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		points, err := ParseEvolution(body)
+		if err != nil {
+			return nil, fmt.Errorf("%w: parse: %v", ErrBackend, err)
+		}
+		return points, nil
+	case http.StatusUnauthorized:
+		return nil, ErrUnauthorized
+	default:
+		return nil, fmt.Errorf("%w: status %d", ErrBackend, resp.StatusCode)
+	}
+}
