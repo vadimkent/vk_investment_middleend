@@ -31,24 +31,27 @@ func BuildScreen(lang string) components.Component {
 		components.ColumnWithGap("login-fields", "12px",
 			emailInput,
 			passwordInput,
-			submit,
 		),
+		submit,
 	)
+	form.Props["gap"] = "16px"
 
-	registerRow := components.Row("register-row", []string{"auto", "auto"},
+	registerRow := components.RowWithGap("register-row", []string{"auto", "auto"}, "8px",
 		components.Text("register-prompt", i18n.T(lang, "auth.no_account_prompt"), "sm", "normal"),
 		components.ButtonFull(
 			"register-link", i18n.T(lang, "auth.register_link"),
-			"", "link", "solid",
+			"", "link", "ghost",
 			components.Navigate("/screens/register"),
 		),
 	)
+	registerRow.Props["align_items"] = "center"
+	registerRow.Props["justify_items"] = "center"
 
 	logo := components.Image("login-logo", "/logo.svg", i18n.T(lang, "app.name"))
 	title := components.Text("login-title", i18n.T(lang, "auth.login_title"), "xl", "bold")
 
 	card := components.Card("login-card",
-		components.ColumnWithGap("login-content", "16px",
+		components.ColumnWithGap("login-content", "20px",
 			logo,
 			title,
 			form,
