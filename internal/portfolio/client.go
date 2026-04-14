@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -25,13 +26,16 @@ func NewClient(baseURL string, timeout time.Duration) *Client {
 }
 
 // GetPositions calls GET /v1/portfolio with the caller's Authorization header
-// forwarded verbatim. Returns ErrUnauthorized on 401, ErrBackend on 5xx or
-// malformed response.
-func (c *Client) GetPositions(ctx context.Context, authorization string) ([]Position, error) {
+// forwarded verbatim and an include_closed query param. Returns
+// ErrUnauthorized on 401, ErrBackend on 5xx or malformed response.
+func (c *Client) GetPositions(ctx context.Context, authorization string, includeClosed bool) ([]Position, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/portfolio", nil)
 	if err != nil {
 		return nil, err
 	}
+	q := req.URL.Query()
+	q.Set("include_closed", strconv.FormatBool(includeClosed))
+	req.URL.RawQuery = q.Encode()
 	if authorization != "" {
 		req.Header.Set("Authorization", authorization)
 	}

@@ -19,7 +19,7 @@ type stubFetcher struct {
 	gotAuth   string
 }
 
-func (s *stubFetcher) GetPositions(ctx context.Context, auth string) ([]Position, error) {
+func (s *stubFetcher) GetPositions(ctx context.Context, auth string, includeClosed bool) ([]Position, error) {
 	s.gotAuth = auth
 	return s.positions, s.err
 }

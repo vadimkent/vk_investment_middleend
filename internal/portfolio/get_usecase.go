@@ -12,7 +12,7 @@ import (
 
 // portfolioFetcher is the interface the use case depends on; *Client satisfies it.
 type portfolioFetcher interface {
-	GetPositions(ctx context.Context, authorization string) ([]Position, error)
+	GetPositions(ctx context.Context, authorization string, includeClosed bool) ([]Position, error)
 	GetEvolutionLast(ctx context.Context, authorization string, n int) ([]EvolutionPoint, error)
 }
 
@@ -35,7 +35,7 @@ func (uc *GetUseCase) Execute(ctx context.Context, authorization, lang string, n
 	g, gctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		p, err := uc.client.GetPositions(gctx, authorization)
+		p, err := uc.client.GetPositions(gctx, authorization, false)
 		if err != nil {
 			return err
 		}

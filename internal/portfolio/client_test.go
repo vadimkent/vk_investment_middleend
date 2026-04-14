@@ -22,7 +22,7 @@ func TestClient_GetPositions_ForwardsAuthorization(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	positions, err := c.GetPositions(context.Background(), "Bearer abc")
+	positions, err := c.GetPositions(context.Background(), "Bearer abc", false)
 	require.NoError(t, err)
 	require.Len(t, positions, 1)
 	assert.Equal(t, "AAPL", positions[0].Ticker)
@@ -35,7 +35,7 @@ func TestClient_GetPositions_Unauthorized(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	_, err := c.GetPositions(context.Background(), "Bearer bad")
+	_, err := c.GetPositions(context.Background(), "Bearer bad", false)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrUnauthorized))
 }
@@ -47,7 +47,7 @@ func TestClient_GetPositions_BackendError(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	_, err := c.GetPositions(context.Background(), "Bearer x")
+	_, err := c.GetPositions(context.Background(), "Bearer x", false)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrBackend))
 }
@@ -60,7 +60,7 @@ func TestClient_GetPositions_MalformedJSON(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	_, err := c.GetPositions(context.Background(), "Bearer x")
+	_, err := c.GetPositions(context.Background(), "Bearer x", false)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrBackend))
 }
@@ -117,4 +117,23 @@ func TestClient_GetEvolutionLast_MalformedJSON(t *testing.T) {
 	_, err := c.GetEvolutionLast(context.Background(), "Bearer x", 2)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrBackend))
+}
+
+func TestClient_GetPositions_ForwardsIncludeClosed(t *testing.T) {
+	var gotQuery string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotQuery = r.URL.RawQuery
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"positions":[]}`))
+	}))
+	defer srv.Close()
+
+	c := NewClient(srv.URL, 5*time.Second)
+	_, err := c.GetPositions(context.Background(), "Bearer t", true)
+	require.NoError(t, err)
+	assert.Equal(t, "include_closed=true", gotQuery)
+
+	_, err = c.GetPositions(context.Background(), "Bearer t", false)
+	require.NoError(t, err)
+	assert.Equal(t, "include_closed=false", gotQuery)
 }

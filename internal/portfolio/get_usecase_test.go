@@ -11,17 +11,19 @@ import (
 )
 
 type fakeFetcher struct {
-	positions []Position
-	evolution []EvolutionPoint
-	posErr    error
-	evoErr    error
-	gotAuthP  string
-	gotAuthE  string
-	gotLastN  int
+	positions        []Position
+	evolution        []EvolutionPoint
+	posErr           error
+	evoErr           error
+	gotAuthP         string
+	gotAuthE         string
+	gotLastN         int
+	gotIncludeClosed bool
 }
 
-func (f *fakeFetcher) GetPositions(ctx context.Context, auth string) ([]Position, error) {
+func (f *fakeFetcher) GetPositions(ctx context.Context, auth string, includeClosed bool) ([]Position, error) {
 	f.gotAuthP = auth
+	f.gotIncludeClosed = includeClosed
 	return f.positions, f.posErr
 }
 
@@ -86,4 +88,13 @@ func TestGetUseCase_EvolutionAuthErrorTreatedAsPositionsAuthError(t *testing.T) 
 	_, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrUnauthorized))
+}
+
+func TestGetUseCase_PassesIncludeClosedFalse(t *testing.T) {
+	v := 100.0
+	f := &fakeFetcher{positions: []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &v}}}
+	uc := NewGetUseCase(f)
+	_, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
+	require.NoError(t, err)
+	assert.False(t, f.gotIncludeClosed)
 }
