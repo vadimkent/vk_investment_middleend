@@ -28,6 +28,10 @@ func (s *stubFetcher) GetEvolutionLast(ctx context.Context, auth string, n int) 
 	return nil, nil
 }
 
+func (s *stubFetcher) GetEvolution(ctx context.Context, auth string, q EvolutionQuery) ([]EvolutionPoint, error) {
+	return nil, nil
+}
+
 func setupHandlerRouter(f portfolioFetcher) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()

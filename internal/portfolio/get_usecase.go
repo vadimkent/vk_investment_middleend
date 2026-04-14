@@ -14,6 +14,7 @@ import (
 type portfolioFetcher interface {
 	GetPositions(ctx context.Context, authorization string, includeClosed bool) ([]Position, error)
 	GetEvolutionLast(ctx context.Context, authorization string, n int) ([]EvolutionPoint, error)
+	GetEvolution(ctx context.Context, authorization string, q EvolutionQuery) ([]EvolutionPoint, error)
 }
 
 type GetUseCase struct {
@@ -30,7 +31,8 @@ func NewGetUseCase(client portfolioFetcher) *GetUseCase {
 // tolerated and results in an empty evolution list.
 func (uc *GetUseCase) Execute(ctx context.Context, authorization, lang string, now time.Time) (components.Component, error) {
 	var positions []Position
-	var evolution []EvolutionPoint
+	var evolutionLast []EvolutionPoint
+	var chartPoints []EvolutionPoint
 
 	g, gctx := errgroup.WithContext(ctx)
 
@@ -49,10 +51,21 @@ func (uc *GetUseCase) Execute(ctx context.Context, authorization, lang string, n
 			if errors.Is(err, ErrUnauthorized) {
 				return err
 			}
-			// Non-auth evolution failure: tolerated.
 			return nil
 		}
-		evolution = e
+		evolutionLast = e
+		return nil
+	})
+
+	g.Go(func() error {
+		e, err := uc.client.GetEvolution(gctx, authorization, EvolutionQuery{Points: 100})
+		if err != nil {
+			if errors.Is(err, ErrUnauthorized) {
+				return err
+			}
+			return nil
+		}
+		chartPoints = e
 		return nil
 	})
 
@@ -61,5 +74,5 @@ func (uc *GetUseCase) Execute(ctx context.Context, authorization, lang string, n
 	}
 
 	SortPositions(positions)
-	return BuildScreen(positions, evolution, lang, now), nil
+	return BuildScreen(positions, evolutionLast, chartPoints, lang, now), nil
 }

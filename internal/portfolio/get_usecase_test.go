@@ -13,12 +13,15 @@ import (
 type fakeFetcher struct {
 	positions        []Position
 	evolution        []EvolutionPoint
+	chart            []EvolutionPoint
 	posErr           error
 	evoErr           error
+	chartErr         error
 	gotAuthP         string
 	gotAuthE         string
 	gotLastN         int
 	gotIncludeClosed bool
+	gotChartQuery    EvolutionQuery
 }
 
 func (f *fakeFetcher) GetPositions(ctx context.Context, auth string, includeClosed bool) ([]Position, error) {
@@ -31,6 +34,11 @@ func (f *fakeFetcher) GetEvolutionLast(ctx context.Context, auth string, n int) 
 	f.gotAuthE = auth
 	f.gotLastN = n
 	return f.evolution, f.evoErr
+}
+
+func (f *fakeFetcher) GetEvolution(ctx context.Context, auth string, q EvolutionQuery) ([]EvolutionPoint, error) {
+	f.gotChartQuery = q
+	return f.chart, f.chartErr
 }
 
 func TestGetUseCase_FetchesBothInParallel(t *testing.T) {
@@ -97,4 +105,39 @@ func TestGetUseCase_PassesIncludeClosedFalse(t *testing.T) {
 	_, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
 	require.NoError(t, err)
 	assert.False(t, f.gotIncludeClosed)
+}
+
+func TestGetUseCase_FetchesChartEvolutionWith100Points(t *testing.T) {
+	v := 100.0
+	f := &fakeFetcher{positions: []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &v}}}
+	uc := NewGetUseCase(f)
+	_, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
+	require.NoError(t, err)
+	assert.Equal(t, 100, f.gotChartQuery.Points)
+	assert.Nil(t, f.gotChartQuery.From)
+	assert.Equal(t, "", f.gotChartQuery.Currency)
+}
+
+func TestGetUseCase_ChartFetchFailureDoesNotFail(t *testing.T) {
+	v := 100.0
+	f := &fakeFetcher{
+		positions: []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &v}},
+		chartErr:  ErrBackend,
+	}
+	uc := NewGetUseCase(f)
+	screen, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
+	require.NoError(t, err)
+	assert.Equal(t, "screen", screen.Type)
+}
+
+func TestGetUseCase_ChartAuthErrorPropagates(t *testing.T) {
+	v := 100.0
+	f := &fakeFetcher{
+		positions: []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &v}},
+		chartErr:  ErrUnauthorized,
+	}
+	uc := NewGetUseCase(f)
+	_, err := uc.Execute(context.Background(), "Bearer t", "en", time.Now())
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, ErrUnauthorized))
 }

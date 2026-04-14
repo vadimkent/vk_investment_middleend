@@ -38,7 +38,7 @@ var columnKeys = []string{
 
 // BuildScreen builds the portfolio tree for the given positions and evolution
 // points. now is used to format relative times.
-func BuildScreen(positions []Position, evolution []EvolutionPoint, lang string, now time.Time) components.Component {
+func BuildScreen(positions []Position, evolution []EvolutionPoint, chartPoints []EvolutionPoint, lang string, now time.Time) components.Component {
 	if len(positions) == 0 {
 		return BuildEmpty(lang)
 	}
@@ -48,7 +48,8 @@ func BuildScreen(positions []Position, evolution []EvolutionPoint, lang string, 
 	controls := buildIncludeClosedForm(lang)
 	table := BuildPositionsTable(positions, lang, now)
 
-	root := components.ColumnWithGap("portfolio-root", "lg", summary, controls, table)
+	chart := buildInitialChartCard(chartPoints, positions, lang)
+	root := components.ColumnWithGap("portfolio-root", "lg", summary, controls, table, chart)
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
 }
 
@@ -243,4 +244,17 @@ func coloredCell(id, content, color string) components.Component {
 		return components.Text(id, content, "sm", "normal")
 	}
 	return components.TextStyled(id, content, "sm", "normal", "", color, "", "")
+}
+
+// buildInitialChartCard produces the chart-value-over-time-card for the initial
+// screen render. Chooses default currency from positions (highest total value).
+func buildInitialChartCard(chartPoints []EvolutionPoint, positions []Position, lang string) components.Component {
+	metrics := ComputeMetrics(positions, nil)
+	currencies := metrics.CurrencyOrder
+	defaultCurrency := ""
+	if len(currencies) > 0 {
+		defaultCurrency = currencies[0]
+	}
+	state := ChartState{Timeframe: "all", Mode: "abs", Currency: defaultCurrency}
+	return BuildValueOverTimeCard(chartPoints, state, currencies, lang)
 }
