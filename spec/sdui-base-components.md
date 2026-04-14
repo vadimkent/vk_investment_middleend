@@ -20,12 +20,14 @@ type Component struct {
 
 Top-level container. Every screen endpoint returns one. The frontend renders it as a full-viewport container (`min-h-screen`). To center content (e.g. a login card), use a `column` child with `align_items: center` and `justify_items: center`.
 
+Screen props are **metadata** — they are not rendered as visible UI by the screen itself. If you want a visible heading inside the screen, add a `text` component to the tree. The shell may read `title`/`subtitle`/`icon` to display them in a header area next to the content slot.
+
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
-| `title` | string | yes | Screen title |
-| `subtitle` | string | no | Secondary title |
-| `icon` | string | no | Icon identifier |
-| `back_action` | bool | no | Whether back navigation is present (action attached) |
+| `title` | string | no | Screen title. Metadata — used for `document.title` (browser tab) and accessibility; optionally rendered by the shell header. Never rendered by the screen itself. |
+| `subtitle` | string | no | Secondary title. Metadata; same rules as `title`. |
+| `icon` | string | no | Icon identifier. Metadata; same rules as `title`. |
+| `back_action` | bool | no | Whether back navigation is present (action attached). Shell hint. |
 
 ```go
 Screen(id, title string, children ...Component) Component
