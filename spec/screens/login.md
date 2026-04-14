@@ -73,7 +73,7 @@ Public route registered alongside `/health`, `/actions/login`, `/actions/registe
 ## Submit response handling
 
 Out of scope for this screen. `POST /actions/login` (already implemented) returns:
-- On success: `ActionResponse{action: navigate, target_id: /shell}.WithAuth(token, expires_at)` with a success snackbar.
+- On success: `ActionResponse{action: navigate, target_id: /screens/home}.WithAuth(token, expires_at)` with a success snackbar. The navigate target is the default content screen (home today, portfolio once it exists); the shell is fetched independently by the frontend.
 - On failure: `ActionResponse{action: none, feedback: error snackbar}`.
 
 The frontend reads `auth` to persist the JWT and applies the `navigate` instruction.

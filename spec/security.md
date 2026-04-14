@@ -49,7 +49,7 @@ The SDUI `ActionResponse` is extended with an optional top-level `auth` field (`
 ```json
 {
   "action": "navigate",
-  "target_id": "/shell",
+  "target_id": "/screens/home",
   "feedback": { "type": "snackbar", "id": "login-ok", "props": { "message": "Welcome", "variant": "success" } },
   "auth": {
     "token": "<jwt>",
@@ -61,7 +61,7 @@ The SDUI `ActionResponse` is extended with an optional top-level `auth` field (`
 Frontend contract: when `auth` is present on a response, the frontend persists `token` and attaches `Authorization: Bearer <token>` on all subsequent requests until expiry, logout, or a new `auth` arrives.
 
 On success, the middleend returns:
-- `action: "navigate"`, `target_id: "/shell"` (or the default screen — TBD with login screen spec).
+- `action: "navigate"`, `target_id` pointing to the default content screen (currently `/screens/home`; will become `/screens/portfolio` once that screen exists). The shell itself is fetched independently by the frontend after login — it is not the navigate target.
 - `feedback`: success snackbar.
 - `auth`: token + expiry from backend.
 
