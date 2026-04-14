@@ -115,7 +115,8 @@ func buildTable(ps []Position, lang string, now time.Time) components.Component 
 	}
 	body := components.List("positions-body", listChildren...)
 
-	return components.ColumnWithGap("positions-table", "sm", header, body)
+	inner := components.ColumnWithGap("positions-table", "sm", header, body)
+	return components.Card("positions-table-card", inner)
 }
 
 func columnShortID(i int) string {
