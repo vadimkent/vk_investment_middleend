@@ -43,14 +43,20 @@ func BuildScreen(lang string) components.Component {
 		),
 	)
 
+	registerLink := components.Component{
+		Type: "button",
+		ID:   "register-link",
+		Props: map[string]any{
+			"label": i18n.T(lang, "auth.register_link"),
+			"style": "ghost",
+		},
+		Actions: []components.Action{components.Navigate("/screens/register")},
+	}
+
 	registerRow := components.RowWithGap("register-row", []string{"1fr", "auto", "auto"}, "sm",
 		components.Column("register-row-spacer"),
 		components.Text("register-prompt", i18n.T(lang, "auth.no_account_prompt"), "sm", "normal"),
-		components.ButtonFull(
-			"register-link", i18n.T(lang, "auth.register_link"),
-			"", "secondary", "ghost",
-			components.Navigate("/screens/register"),
-		),
+		registerLink,
 	)
 	registerRow.Props["align_items"] = "center"
 
