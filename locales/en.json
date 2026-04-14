@@ -11,6 +11,16 @@
     "analysis": "Analysis",
     "logout": "Log out"
   },
+  "auth": {
+    "login_title": "Log in",
+    "email_label": "Email",
+    "email_placeholder": "you@example.com",
+    "password_label": "Password",
+    "password_placeholder": "Your password",
+    "submit": "Log in",
+    "no_account_prompt": "Don't have an account?",
+    "register_link": "Sign up"
+  },
   "home": {
     "welcome_title": "Welcome to VK Investment Tracker",
     "subtitle": "This is a scaffolded middleend serving SDUI components."

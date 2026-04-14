@@ -11,6 +11,16 @@
     "analysis": "Análisis",
     "logout": "Cerrar sesión"
   },
+  "auth": {
+    "login_title": "Iniciar sesión",
+    "email_label": "Correo",
+    "email_placeholder": "vos@ejemplo.com",
+    "password_label": "Contraseña",
+    "password_placeholder": "Tu contraseña",
+    "submit": "Ingresar",
+    "no_account_prompt": "¿No tenés cuenta?",
+    "register_link": "Registrarme"
+  },
   "home": {
     "welcome_title": "Bienvenido a VK Investment Tracker",
     "subtitle": "Este es un middleend scaffoldeado que sirve componentes SDUI."
