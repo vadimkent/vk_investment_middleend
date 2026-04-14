@@ -43,7 +43,8 @@ func BuildScreen(lang string) components.Component {
 		),
 	)
 
-	registerRow := components.RowWithGap("register-row", []string{"auto", "auto"}, "sm",
+	registerRow := components.RowWithGap("register-row", []string{"1fr", "auto", "auto"}, "sm",
+		components.Column("register-row-spacer"),
 		components.Text("register-prompt", i18n.T(lang, "auth.no_account_prompt"), "sm", "normal"),
 		components.ButtonFull(
 			"register-link", i18n.T(lang, "auth.register_link"),
@@ -52,7 +53,6 @@ func BuildScreen(lang string) components.Component {
 		),
 	)
 	registerRow.Props["align_items"] = "center"
-	registerRow.Props["justify_items"] = "center"
 
 	logo := components.Image("login-logo", "/logo.svg", i18n.T(lang, "app.name"))
 	title := components.Text("login-title", i18n.T(lang, "auth.login_title"), "xl", "bold")
