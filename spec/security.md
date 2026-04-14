@@ -38,7 +38,7 @@ sequenceDiagram
 
 ### ActionResponse extension: `auth`
 
-The SDUI `ActionResponse` is extended with an optional top-level `auth` field used exclusively by the login flow:
+The SDUI `ActionResponse` is extended with an optional top-level `auth` field (`AuthInfo`) that any response can include (see `spec/sdui-actions.md`). In the login flow it carries the JWT issued by the backend:
 
 ```json
 {
