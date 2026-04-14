@@ -12,6 +12,7 @@ import (
 	"github.com/project/vk-investment-middleend/internal/auth"
 	"github.com/project/vk-investment-middleend/internal/config"
 	"github.com/project/vk-investment-middleend/internal/home"
+	"github.com/project/vk-investment-middleend/internal/login"
 	"github.com/project/vk-investment-middleend/internal/shell"
 )
 
@@ -33,6 +34,7 @@ func New(cfg *config.Config) *Server {
 func (s *Server) setupRoutes() {
 	// Public routes (no auth).
 	s.router.GET("/health", s.healthHandler)
+	s.router.GET("/screens/login", login.NewHandler().Get)
 
 	authClient := auth.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
 	s.router.POST("/actions/login", auth.NewLoginHandler(authClient).Post)

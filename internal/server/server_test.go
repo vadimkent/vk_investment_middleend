@@ -61,3 +61,11 @@ func TestServer_RegisterActionIsPublic(t *testing.T) {
 	s.router.ServeHTTP(w, req)
 	require.NotEqual(t, http.StatusUnauthorized, w.Code)
 }
+
+func TestServer_LoginScreenIsPublic(t *testing.T) {
+	s := New(testConfig())
+	req := httptest.NewRequest("GET", "/screens/login", nil)
+	w := httptest.NewRecorder()
+	s.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
