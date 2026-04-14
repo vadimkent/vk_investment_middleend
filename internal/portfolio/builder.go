@@ -81,7 +81,8 @@ func buildSummary(ps []Position, lang string) components.Component {
 		}
 	}
 
-	return components.ColumnWithGap("portfolio-summary", "sm", label, totals)
+	inner := components.ColumnWithGap("portfolio-summary", "sm", label, totals)
+	return components.Card("portfolio-summary-card", inner)
 }
 
 func totalsByCurrency(ps []Position) map[string]float64 {
