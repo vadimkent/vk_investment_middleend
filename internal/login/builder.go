@@ -35,6 +35,7 @@ func BuildScreen(lang string) components.Component {
 		submit,
 	)
 	form.Props["gap"] = "16px"
+	form.Props["align_items"] = "stretch"
 
 	registerRow := components.RowWithGap("register-row", []string{"auto", "auto"}, "8px",
 		components.Text("register-prompt", i18n.T(lang, "auth.no_account_prompt"), "sm", "normal"),
