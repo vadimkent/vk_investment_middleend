@@ -34,13 +34,14 @@ func BuildScreen(lang string) components.Component {
 	)
 
 	form := components.Form("login-form",
-		components.ColumnWithGap("login-fields", "sm",
-			emailInput,
-			passwordInput,
+		components.ColumnWithGap("login-form-stack", "lg",
+			components.ColumnWithGap("login-fields", "sm",
+				emailInput,
+				passwordInput,
+			),
+			submitRow,
 		),
-		submitRow,
 	)
-	form.Props["gap"] = "lg"
 
 	registerRow := components.RowWithGap("register-row", []string{"auto", "auto"}, "sm",
 		components.Text("register-prompt", i18n.T(lang, "auth.no_account_prompt"), "sm", "normal"),
