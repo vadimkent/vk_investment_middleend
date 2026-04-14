@@ -112,8 +112,8 @@ Displays text with configurable size, weight, color, and decoration.
 | `size` | string | yes | `xs` / `sm` / `md` / `lg` / `xl` / `2xl` |
 | `weight` | string | yes | `light` / `normal` / `medium` / `bold` |
 | `display` | string | no | `block` / `inline` |
-| `color` | string | no | `primary` / `secondary` / `muted` / `error` |
-| `hex_color` | string | no | Custom hex color (e.g. `#FF0000`) |
+| `color` | enum | no | `primary` / `secondary` / `muted` / `error` / `positive` / `negative`. `error` is reserved for validation / system failures. Use `positive` (gain, up) and `negative` (loss, down) for deltas and P&L. |
+| `hex_color` | string | no | Custom hex color (e.g. `#FF0000`). Deprecated-candidate — prefer `color` tokens for portability. |
 | `decoration` | string | no | `underline` / `strikethrough` / `none` |
 
 ```go
