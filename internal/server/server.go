@@ -13,6 +13,7 @@ import (
 	"github.com/project/vk-investment-middleend/internal/config"
 	"github.com/project/vk-investment-middleend/internal/home"
 	"github.com/project/vk-investment-middleend/internal/login"
+	"github.com/project/vk-investment-middleend/internal/portfolio"
 	"github.com/project/vk-investment-middleend/internal/shell"
 )
 
@@ -53,6 +54,10 @@ func (s *Server) setupRoutes() {
 	homeUC := home.NewGetUseCase(homeClient)
 	homeHandler := home.NewHandler(homeUC)
 	protected.GET("/screens/home", homeHandler.Get)
+
+	portfolioClient := portfolio.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	portfolioHandler := portfolio.NewHandler(portfolio.NewGetUseCase(portfolioClient))
+	protected.GET("/screens/portfolio", portfolioHandler.Get)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {

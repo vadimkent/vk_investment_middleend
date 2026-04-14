@@ -46,5 +46,5 @@ func (h *LoginHandler) Post(c *gin.Context) {
 	}
 
 	fb := components.Snackbar("login-ok", "Welcome", "success")
-	c.JSON(http.StatusOK, components.NavigateResponse("/screens/home", &fb).WithAuth(res.Token, res.ExpiresAt))
+	c.JSON(http.StatusOK, components.NavigateResponse("/screens/portfolio", &fb).WithAuth(res.Token, res.ExpiresAt))
 }
