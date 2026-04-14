@@ -43,13 +43,25 @@ Available on components with children.
 
 | Prop | Values | Description |
 |------|--------|-------------|
-| `gap` | string (e.g. `"16px"`, `"1rem"`) | Space between children |
+| `gap` | enum token (see below) | Space between children |
 
-The `RowWithGap` and `ColumnWithGap` helpers set `gap` automatically. For other containers, set it directly:
+`gap` is a semantic token. Raw CSS values (`"16px"`, `"1rem"`, etc.) are ignored by the frontend.
+
+| Token | px |
+|-------|-----|
+| `none` | 0 |
+| `xs`   | 4 |
+| `sm`   | 8 |
+| `md`   | 16 |
+| `lg`   | 24 |
+| `xl`   | 32 |
+| `2xl`  | 48 |
+
+The `RowWithGap` and `ColumnWithGap` helpers take a gap value. For other containers, set it directly:
 
 ```go
 card := components.Card("info")
-card.Props["gap"] = "12px"
+card.Props["gap"] = "md"
 ```
 
 ---

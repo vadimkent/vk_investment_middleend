@@ -134,10 +134,10 @@ Displays an image from a URL.
 |------|------|----------|-------------|
 | `src` | string | yes | Image URL |
 | `alt` | string | yes | Alt text |
-| `width` | string | no | Width value |
-| `height` | string | no | Height value |
-| `fit` | string | no | `cover` / `contain` / `fill` |
-| `border_radius` | string | no | Border radius value |
+| `width` | string | no | Free-form CSS width (`"120px"`, `"50%"`). Exact dimensions are legitimate for logos/avatars/illustrations. |
+| `height` | string | no | Free-form CSS height. Same rules as `width`. |
+| `fit` | enum | no | `cover` / `contain` / `fill` / `none` / `scale-down`. Other values are ignored by the frontend. |
+| `border_radius` | enum | no | `none` / `sm` (4) / `md` (8) / `lg` (16) / `full` (9999). Raw px values are ignored. |
 
 ```go
 Image(id, src, alt string) Component
@@ -146,7 +146,7 @@ ImageStyled(id, src, alt, width, height, fit, borderRadius string) Component
 
 ```go
 c := components.Image("avatar", "https://cdn.example.com/u/1.jpg", "User avatar")
-c := components.ImageStyled("thumb", "/img/product.jpg", "Product", "200px", "200px", "cover", "8px")
+c := components.ImageStyled("thumb", "/img/product.jpg", "Product", "200px", "200px", "cover", "md")
 ```
 
 ### card
@@ -155,8 +155,8 @@ Visual grouping container with border/shadow.
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
-| `elevation` | string | no | `none` / `sm` / `md` / `lg` |
-| `border_radius` | string | no | Border radius value |
+| `elevation` | enum | no | `none` / `sm` / `md` / `lg` |
+| `border_radius` | enum | no | `none` / `sm` (4) / `md` (8) / `lg` (16) / `full` (9999). Raw px values are ignored. |
 
 ```go
 Card(id string, children ...Component) Component
@@ -224,7 +224,7 @@ Invisible spacing element. No children.
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
-| `size` | string | yes | Size value (e.g. `"16px"`, `"2rem"`) |
+| `size` | enum | yes | `none` / `xs` (4) / `sm` (8) / `md` (16) / `lg` (24) / `xl` (32) / `2xl` (48). Raw px values are ignored. |
 
 ```go
 Spacer(id, size string) Component

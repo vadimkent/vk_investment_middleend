@@ -34,15 +34,15 @@ func BuildScreen(lang string) components.Component {
 	)
 
 	form := components.Form("login-form",
-		components.ColumnWithGap("login-fields", "12px",
+		components.ColumnWithGap("login-fields", "sm",
 			emailInput,
 			passwordInput,
 		),
 		submitRow,
 	)
-	form.Props["gap"] = "28px"
+	form.Props["gap"] = "lg"
 
-	registerRow := components.RowWithGap("register-row", []string{"auto", "auto"}, "8px",
+	registerRow := components.RowWithGap("register-row", []string{"auto", "auto"}, "sm",
 		components.Text("register-prompt", i18n.T(lang, "auth.no_account_prompt"), "sm", "normal"),
 		components.ButtonFull(
 			"register-link", i18n.T(lang, "auth.register_link"),
@@ -56,7 +56,7 @@ func BuildScreen(lang string) components.Component {
 	logo := components.Image("login-logo", "/logo.svg", i18n.T(lang, "app.name"))
 	title := components.Text("login-title", i18n.T(lang, "auth.login_title"), "xl", "bold")
 
-	content := components.ColumnWithGap("login-content", "20px",
+	content := components.ColumnWithGap("login-content", "lg",
 		logo,
 		title,
 		form,
@@ -74,9 +74,9 @@ func BuildScreen(lang string) components.Component {
 
 	card := components.Card("login-card",
 		components.Column("login-card-inner",
-			components.Spacer("login-pad-top", "32px"),
+			components.Spacer("login-pad-top", "xl"),
 			padded,
-			components.Spacer("login-pad-bottom", "32px"),
+			components.Spacer("login-pad-bottom", "xl"),
 		),
 	)
 
