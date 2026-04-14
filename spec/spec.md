@@ -38,6 +38,7 @@ Screens (one file per screen, added as SDD progresses):
 
 | Screen | File |
 |---|---|
+| Login | [`screens/login.md`](screens/login.md) |
 | Portfolio (home) | `screens/portfolio.md` — TBD |
 | Assets | `screens/assets.md` — TBD |
 | Trades | `screens/trades.md` — TBD |
