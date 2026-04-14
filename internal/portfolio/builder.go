@@ -68,7 +68,9 @@ func buildSummaryRow(m SummaryMetrics, lang string) components.Component {
 		buildSnapshotChangeCard(m, lang),
 		buildOpenPositionsCard(m, lang),
 	}
-	return components.Row("portfolio-summary-row", []string{"1fr", "1fr", "1fr", "1fr", "1fr"}, cards...)
+	row := components.Row("portfolio-summary-row", []string{"1fr", "1fr", "1fr", "1fr", "1fr"}, cards...)
+	row.Props["gap"] = "md"
+	return row
 }
 
 func buildTotalValueCard(m SummaryMetrics, lang string) components.Component {
