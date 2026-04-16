@@ -80,7 +80,7 @@ func buildLiveBanner(resp *PortfolioResponse, lang string, now time.Time) compon
 		Type: "button",
 		ID:   "live-refresh",
 		Props: map[string]any{
-			"image_src": "refresh",
+			"icon":    "refresh",
 			"variant":   "secondary",
 			"style":     "ghost",
 			"size":      "sm",

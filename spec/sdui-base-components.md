@@ -240,8 +240,9 @@ Clickable element. Must have actions.
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
-| `label` | string | no | Button text (required if no `image_src`) |
-| `image_src` | string | no | Button image (required if no `label`) |
+| `label` | string | no | Button text (required if no `icon` or `image_src`) |
+| `icon` | string | no | Icon token (e.g. `refresh`, `plus`, `delete`). Looked up in the frontend's icon registry and rendered as an SVG component. Takes priority over `image_src`. |
+| `image_src` | string | no | Fallback image URL. Only used when `icon` is absent. |
 | `variant` | string | yes | `primary` / `secondary` |
 | `style` | string | yes | `solid` / `ghost` / `outline` |
 | `disabled` | bool | no | Disable the button |
