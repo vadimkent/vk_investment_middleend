@@ -89,7 +89,8 @@ func buildLiveBanner(resp *PortfolioResponse, lang string, now time.Time) compon
 			{Trigger: "click", Type: "reload", Endpoint: "/actions/portfolio/live_data?live=true&refresh=true", TargetID: "live-data-section"},
 		},
 	}
-	row := components.Row("live-banner-row", []string{"auto", "auto"}, status, refresh)
+	spacer := components.Column("live-banner-spacer")
+	row := components.Row("live-banner-row", []string{"auto", "auto", "1fr"}, status, refresh, spacer)
 	row.Props["gap"] = "none"
 	row.Props["align_items"] = "center"
 	return components.Card("live-banner", row)
