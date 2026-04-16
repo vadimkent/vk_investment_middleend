@@ -104,6 +104,7 @@ func chartButton(id, label string, selected bool, endpoint string) components.Co
 			"label":   label,
 			"variant": variant,
 			"style":   style,
+			"size":    "sm",
 		},
 		Actions: []components.Action{
 			{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: "chart-value-over-time-card"},

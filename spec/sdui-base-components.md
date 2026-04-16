@@ -246,6 +246,7 @@ Clickable element. Must have actions.
 | `style` | string | yes | `solid` / `ghost` / `outline` |
 | `disabled` | bool | no | Disable the button |
 | `loading` | bool | no | Show loading state |
+| `size` | enum | no | `xs` / `sm` / `md` / `lg`. Controls label text size and button padding. Default `md`. |
 
 ```go
 Button(id, label string, actions ...Action) Component
