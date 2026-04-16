@@ -116,7 +116,7 @@ func chartButton(id, label string, selected bool, endpoint string) components.Co
 			"size":    "sm",
 		},
 		Actions: []components.Action{
-			{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: "charts-section"},
+			{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: "charts-section", Loading: "section"},
 		},
 	}
 }

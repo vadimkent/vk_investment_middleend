@@ -92,7 +92,7 @@ func allocationButton(id, label string, selected bool, endpoint string) componen
 			"size":    "sm",
 		},
 		Actions: []components.Action{
-			{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: "allocation-section"},
+			{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: "allocation-section", Loading: "section"},
 		},
 	}
 }

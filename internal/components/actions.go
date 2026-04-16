@@ -9,6 +9,7 @@ type Action struct {
 	Endpoint string `json:"endpoint,omitempty"`
 	Method   string `json:"method,omitempty"`
 	TargetID string `json:"target_id,omitempty"`
+	Loading  string `json:"loading,omitempty"`
 }
 
 // ActionResponse is the standard response for submit/reload actions.
@@ -49,12 +50,12 @@ func NavigateBack() Action {
 
 // Submit creates a form submission action.
 func Submit(endpoint, method, targetID string) Action {
-	return Action{Trigger: "click", Type: "submit", Endpoint: endpoint, Method: method, TargetID: targetID}
+	return Action{Trigger: "click", Type: "submit", Endpoint: endpoint, Method: method, TargetID: targetID, Loading: "section"}
 }
 
 // Reload creates a component reload action.
 func Reload(endpoint, targetID string) Action {
-	return Action{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: targetID}
+	return Action{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: targetID, Loading: "section"}
 }
 
 // Refresh creates a refresh action.

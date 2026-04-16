@@ -81,7 +81,7 @@ func buildLiveBanner(resp *PortfolioResponse, lang string, now time.Time) compon
 			"size":      "sm",
 		},
 		Actions: []components.Action{
-			{Trigger: "click", Type: "reload", Endpoint: "/actions/portfolio/live_data?live=true&refresh=true", TargetID: "live-data-section"},
+			{Trigger: "click", Type: "reload", Endpoint: "/actions/portfolio/live_data?live=true&refresh=true", TargetID: "live-data-section", Loading: "section"},
 		},
 	}
 	spacer := components.Column("live-banner-spacer")

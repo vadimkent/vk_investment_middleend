@@ -71,6 +71,7 @@ func buildIncludeClosedForm(lang string) components.Component {
 				Endpoint: "/actions/portfolio/include_closed",
 				Method:   "POST",
 				TargetID: "include-closed-form",
+				Loading:  "section",
 			},
 		},
 	}

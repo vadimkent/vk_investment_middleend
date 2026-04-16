@@ -15,6 +15,7 @@ type Action struct {
     Endpoint string `json:"endpoint,omitempty"`
     Method   string `json:"method,omitempty"`
     TargetID string `json:"target_id,omitempty"`
+    Loading  string `json:"loading,omitempty"`
 }
 ```
 
@@ -23,6 +24,30 @@ type Action struct {
 | `trigger` | string | yes | What triggers the action: `click`, `submit`, `change`, `longpress` |
 | `type` | string | yes | Action type identifier |
 | `...params` | varies | no | Action-specific parameters (see below) |
+
+## 2b. Loading Indicators
+
+Any action that hits the middleend (`submit`, `reload`) can declare a `loading` field to show a visual indicator while the request is in flight:
+
+| Value | Behavior |
+|---|---|
+| `"section"` | Renders a semi-transparent overlay with spinner on the subtree whose `id` matches `target_id`. |
+| `"full"` | Renders a fullscreen overlay (`z-50`) with spinner over the entire viewport. |
+| (absent) | No loading indicator. The action completes silently. |
+
+The middleend decides **when** to show loading and **what scope** — the frontend only implements the visual. Loading clears automatically when the action response arrives.
+
+Client-side-only actions (`toggle_sensitive`, `navigate`, `refresh`, etc.) ignore `loading`.
+
+```json
+{
+  "trigger": "click",
+  "type": "reload",
+  "endpoint": "/actions/portfolio/live_data?live=true",
+  "target_id": "live-data-section",
+  "loading": "section"
+}
+```
 
 ---
 
