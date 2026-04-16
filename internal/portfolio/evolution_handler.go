@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/project/vk-investment-middleend/internal/components"
-	"github.com/project/vk-investment-middleend/internal/i18n"
 	"github.com/project/vk-investment-middleend/internal/shared"
 )
 
@@ -64,14 +63,7 @@ func (h *EvolutionHandler) Get(c *gin.Context) {
 
 	state := ChartState{Timeframe: timeframe, Mode: mode, Currency: currency}
 	currencies := distinctCurrencies(points)
-
-	var tree components.Component
-	if mode == "pct" {
-		// EvolutionPoint has no total_cost yet. Surface the no-cost empty state.
-		tree = buildPctNoCostCard(state, currencies, lang)
-	} else {
-		tree = BuildValueOverTimeCard(points, state, currencies, lang)
-	}
+	tree := BuildValueOverTimeCard(points, state, currencies, lang)
 
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
@@ -138,27 +130,3 @@ func distinctCurrencies(points []EvolutionPoint) []string {
 	return out
 }
 
-// buildPctNoCostCard reproduces the chart card shape with the no-cost empty
-// message, preserving controls and their selected state.
-func buildPctNoCostCard(state ChartState, currencies []string, lang string) components.Component {
-	card := BuildValueOverTimeCard(nil, state, currencies, lang)
-	chart := findDescendantByIDRef(&card, "chart-value-over-time")
-	if chart != nil {
-		chart.Props["empty_message"] = i18n.T(lang, "portfolio.chart.no_cost_data")
-	}
-	return card
-}
-
-// findDescendantByIDRef walks the component tree returning a pointer so callers
-// can mutate Props.
-func findDescendantByIDRef(c *components.Component, id string) *components.Component {
-	if c.ID == id {
-		return c
-	}
-	for i := range c.Children {
-		if found := findDescendantByIDRef(&c.Children[i], id); found != nil {
-			return found
-		}
-	}
-	return nil
-}

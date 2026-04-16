@@ -122,14 +122,23 @@ func rowAutoWidths(n int) []string {
 
 func buildLineChart(points []EvolutionPoint, state ChartState, lang string) components.Component {
 	data := make([]map[string]any, 0, len(points))
+	anyCost := false
 	for _, p := range points {
 		if p.Currency != state.Currency {
 			continue
 		}
-		data = append(data, map[string]any{
-			"date":  p.RecordedAt.Format("2006-01-02"),
-			"value": p.TotalValue,
-		})
+		row := map[string]any{"date": p.RecordedAt.Format("2006-01-02")}
+		if state.Mode == "pct" {
+			if p.TotalCost != nil && *p.TotalCost != 0 {
+				anyCost = true
+				row["value"] = (p.TotalValue - *p.TotalCost) / *p.TotalCost * 100
+			} else {
+				row["value"] = nil
+			}
+		} else {
+			row["value"] = p.TotalValue
+		}
+		data = append(data, row)
 	}
 
 	valueFormat := "currency_compact"
@@ -146,7 +155,11 @@ func buildLineChart(points []EvolutionPoint, state ChartState, lang string) comp
 	}}
 
 	emptyMessage := ""
-	if len(data) < 2 {
+	switch {
+	case state.Mode == "pct" && len(data) > 0 && !anyCost:
+		data = data[:0]
+		emptyMessage = i18n.T(lang, "portfolio.chart.no_cost_data")
+	case len(data) < 2:
 		data = data[:0]
 		emptyMessage = i18n.T(lang, "portfolio.chart.not_enough_data")
 	}
