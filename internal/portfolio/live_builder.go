@@ -75,7 +75,7 @@ func buildLiveBanner(resp *PortfolioResponse, lang string, now time.Time) compon
 	if resp.PricesAsOf != nil {
 		statusText = strings.Replace(statusText, "{time}", FormatRelativeTime(resp.PricesAsOf, now, lang), 1)
 	}
-	status := components.TextStyled("live-status", statusText, "sm", "normal", "", "primary", "", "")
+	status := components.TextStyled("live-status", statusText, "sm", "normal", "", "positive", "", "")
 	refresh := components.Component{
 		Type: "button",
 		ID:   "live-refresh",
