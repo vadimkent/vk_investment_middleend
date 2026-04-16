@@ -92,11 +92,7 @@ func ParsePortfolioResponse(body []byte) (*PortfolioResponse, error) {
 	}
 
 	for _, rw := range r.Warnings {
-		resp.Warnings = append(resp.Warnings, LiveWarning{
-			AssetID: rw.AssetID,
-			Ticker:  rw.Ticker,
-			Error:   rw.Error,
-		})
+		resp.Warnings = append(resp.Warnings, LiveWarning(rw))
 	}
 
 	for _, rp := range r.Positions {

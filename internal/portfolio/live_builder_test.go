@@ -38,10 +38,6 @@ func sampleStandardResp() *PortfolioResponse {
 	}
 }
 
-func buildSection(resp *PortfolioResponse, liveState LiveState) interface{ ID() string } {
-	return nil // placeholder — not used; tests call BuildLiveDataSection directly
-}
-
 func TestBuildLiveDataSection_StandardMode_HasHeaderSummaryFormTable(t *testing.T) {
 	resp := sampleStandardResp()
 	metrics := ComputeMetrics(resp.Positions, nil)
