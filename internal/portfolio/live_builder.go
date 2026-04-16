@@ -76,21 +76,23 @@ func buildLiveBanner(resp *PortfolioResponse, lang string, now time.Time) compon
 		statusText = strings.Replace(statusText, "{time}", FormatRelativeTime(resp.PricesAsOf, now, lang), 1)
 	}
 	status := components.TextStyled("live-status", statusText, "sm", "normal", "", "primary", "", "")
-	spacer := components.Column("live-banner-spacer")
 	refresh := components.Component{
 		Type: "button",
 		ID:   "live-refresh",
 		Props: map[string]any{
-			"label":   i18n.T(lang, "portfolio.live.refresh"),
-			"variant": "secondary",
-			"style":   "outline",
-			"size":    "sm",
+			"image_src": "refresh",
+			"variant":   "secondary",
+			"style":     "ghost",
+			"size":      "sm",
 		},
 		Actions: []components.Action{
 			{Trigger: "click", Type: "reload", Endpoint: "/actions/portfolio/live_data?live=true&refresh=true", TargetID: "live-data-section"},
 		},
 	}
-	return components.Row("live-banner", []string{"auto", "1fr", "auto"}, status, spacer, refresh)
+	row := components.Row("live-banner-row", []string{"auto", "auto"}, status, refresh)
+	row.Props["gap"] = "sm"
+	row.Props["align_items"] = "center"
+	return components.Card("live-banner", row)
 }
 
 func buildLiveWarnings(warnings []LiveWarning, lang string) components.Component {
