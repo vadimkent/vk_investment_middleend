@@ -61,7 +61,13 @@
         "pct": "%"
       },
       "not_enough_data": "Registrá al menos dos snapshots para ver el gráfico.",
-      "no_cost_data": "Sin datos de costo."
+      "no_cost_data": "Sin datos de costo.",
+      "value_over_time": {
+        "title": "Valor del portafolio en el tiempo"
+      },
+      "asset_value_over_time": {
+        "title": "Valor por activo en el tiempo"
+      }
     }
   },
   "time": {

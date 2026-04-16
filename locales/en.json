@@ -61,7 +61,13 @@
         "pct": "%"
       },
       "not_enough_data": "Record at least two snapshots to see the chart.",
-      "no_cost_data": "No cost data available."
+      "no_cost_data": "No cost data available.",
+      "value_over_time": {
+        "title": "Portfolio Value Over Time"
+      },
+      "asset_value_over_time": {
+        "title": "Asset Value Over Time"
+      }
     }
   },
   "time": {
