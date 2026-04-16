@@ -68,6 +68,14 @@
       "asset_value_over_time": {
         "title": "Asset Value Over Time"
       }
+    },
+    "allocation": {
+      "title": "Allocation",
+      "group_by": {
+        "asset": "By asset",
+        "type": "By type"
+      },
+      "empty": "No positions with known value"
     }
   },
   "time": {

@@ -68,6 +68,14 @@
       "asset_value_over_time": {
         "title": "Valor por activo en el tiempo"
       }
+    },
+    "allocation": {
+      "title": "Distribución",
+      "group_by": {
+        "asset": "Por activo",
+        "type": "Por tipo"
+      },
+      "empty": "Sin posiciones con valor conocido"
     }
   },
   "time": {
