@@ -36,21 +36,25 @@ var columnKeys = []string{
 	"portfolio.col.last_snapshot",
 }
 
-// BuildScreen builds the portfolio tree for the given positions and evolution
+// BuildScreen builds the portfolio tree for the given response and evolution
 // points. now is used to format relative times.
-func BuildScreen(positions []Position, evolution []EvolutionPoint, chartPoints []EvolutionPoint, lang string, now time.Time) components.Component {
-	if len(positions) == 0 {
+func BuildScreen(resp *PortfolioResponse, evolution []EvolutionPoint, chartPoints []EvolutionPoint, lang string, now time.Time) components.Component {
+	if len(resp.Positions) == 0 {
 		return BuildEmpty(lang)
 	}
 
-	metrics := ComputeMetrics(positions, evolution)
-	summary := buildSummaryRow(metrics, lang)
-	controls := buildIncludeClosedForm(lang)
-	table := BuildPositionsTable(positions, lang, now, false)
+	positions := resp.Positions
+	SortPositions(positions)
 
+	metrics := ComputeMetrics(positions, evolution)
+	currencies := metrics.CurrencyOrder
+
+	liveState := LiveState{Live: resp.IsLive}
+	liveDataSection := BuildLiveDataSection(resp, metrics, liveState, currencies, lang, now)
 	chartsSection := buildInitialChartsSection(chartPoints, positions, lang)
-	allocation := buildInitialAllocationSection(positions, lang)
-	root := components.ColumnWithGap("portfolio-root", "lg", summary, controls, table, chartsSection, allocation)
+	allocationSection := buildInitialAllocationSection(positions, lang)
+
+	root := components.ColumnWithGap("portfolio-root", "lg", liveDataSection, chartsSection, allocationSection)
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
 }
 

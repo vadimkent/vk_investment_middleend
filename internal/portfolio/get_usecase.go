@@ -30,7 +30,7 @@ func NewGetUseCase(client portfolioFetcher) *GetUseCase {
 // its failure aborts. Evolution failure (unless it is an auth error) is
 // tolerated and results in an empty evolution list.
 func (uc *GetUseCase) Execute(ctx context.Context, authorization, lang string, now time.Time) (components.Component, error) {
-	var positions []Position
+	var portfolioResp *PortfolioResponse
 	var evolutionLast []EvolutionPoint
 	var chartPoints []EvolutionPoint
 
@@ -41,7 +41,7 @@ func (uc *GetUseCase) Execute(ctx context.Context, authorization, lang string, n
 		if err != nil {
 			return err
 		}
-		positions = resp.Positions
+		portfolioResp = resp
 		return nil
 	})
 
@@ -73,6 +73,5 @@ func (uc *GetUseCase) Execute(ctx context.Context, authorization, lang string, n
 		return components.Component{}, err
 	}
 
-	SortPositions(positions)
-	return BuildScreen(positions, evolutionLast, chartPoints, lang, now), nil
+	return BuildScreen(portfolioResp, evolutionLast, chartPoints, lang, now), nil
 }

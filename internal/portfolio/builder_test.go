@@ -29,7 +29,7 @@ func TestBuildEmpty_NoSummaryCards(t *testing.T) {
 }
 
 func TestBuildScreen_SummaryRowHasFiveCardsInOrder(t *testing.T) {
-	s := BuildScreen(samplePositions(), nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 	row := findDescendantByID(s, "portfolio-summary-row")
 	require.NotNil(t, row)
 
@@ -52,13 +52,13 @@ func TestBuildScreen_SummaryRowHasFiveCardsInOrder(t *testing.T) {
 }
 
 func TestBuildScreen_SummaryCardLabelsLocalized(t *testing.T) {
-	s := BuildScreen(samplePositions(), nil, nil, "es", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "es", time.Now())
 	cases := map[string]string{
-		"summary-label-total-value":      "Valor total",
-		"summary-label-total-pnl":        "G/P total",
-		"summary-label-performance":      "Rendimiento total",
-		"summary-label-snapshot-change":  "Cambio último snapshot",
-		"summary-label-open-positions":   "Posiciones abiertas",
+		"summary-label-total-value":     "Valor total",
+		"summary-label-total-pnl":       "G/P total",
+		"summary-label-performance":     "Rendimiento total",
+		"summary-label-snapshot-change": "Cambio último snapshot",
+		"summary-label-open-positions":  "Posiciones abiertas",
 	}
 	for id, want := range cases {
 		node := findDescendantByID(s, id)
@@ -75,7 +75,7 @@ func TestBuildScreen_TotalValueOneLinePerCurrencyDesc(t *testing.T) {
 		{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &u},
 		{AssetID: "b1", Ticker: "B", Currency: "EUR", CurrentValue: &e},
 	}
-	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
 	vals := findDescendantByID(s, "summary-values-total-value")
 	require.NotNil(t, vals)
 	require.Len(t, vals.Children, 2)
@@ -87,7 +87,7 @@ func TestBuildScreen_TotalValueOneLinePerCurrencyDesc(t *testing.T) {
 
 func TestBuildScreen_TotalValueEmptyShowsDash(t *testing.T) {
 	ps := []Position{{AssetID: "a1", Ticker: "A", Currency: "USD"}}
-	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
 	vals := findDescendantByID(s, "summary-values-total-value")
 	require.NotNil(t, vals)
 	require.Len(t, vals.Children, 1)
@@ -101,7 +101,7 @@ func TestBuildScreen_TotalPnLSignedAndColored(t *testing.T) {
 	pnl := 200.0
 	positives := []Position{{AssetID: "a1", Ticker: "A", Currency: "USD",
 		TotalCost: &tc, CurrentValue: &cur, UnrealizedPnL: &pnl, RealizedPnL: 50.0}}
-	s := BuildScreen(positives, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: positives}, nil, nil, "en", time.Now())
 	vals := findDescendantByID(s, "summary-values-total-pnl")
 	require.NotNil(t, vals)
 	require.Len(t, vals.Children, 1)
@@ -112,7 +112,7 @@ func TestBuildScreen_TotalPnLSignedAndColored(t *testing.T) {
 func TestBuildScreen_PerformanceFallsBackToDash(t *testing.T) {
 	u := 100.0
 	ps := []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &u}}
-	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
 	vals := findDescendantByID(s, "summary-values-performance")
 	require.NotNil(t, vals)
 	require.Len(t, vals.Children, 1)
@@ -128,7 +128,7 @@ func TestBuildScreen_SnapshotChangeBasic(t *testing.T) {
 		{Currency: "USD", RecordedAt: time.Date(2026, 4, 10, 0, 0, 0, 0, time.UTC), TotalValue: 1000},
 		{Currency: "USD", RecordedAt: time.Date(2026, 4, 13, 0, 0, 0, 0, time.UTC), TotalValue: 1100},
 	}
-	s := BuildScreen(ps, evo, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, evo, nil, "en", time.Now())
 	vals := findDescendantByID(s, "summary-values-snapshot-change")
 	require.NotNil(t, vals)
 	require.Len(t, vals.Children, 1)
@@ -139,7 +139,7 @@ func TestBuildScreen_SnapshotChangeBasic(t *testing.T) {
 func TestBuildScreen_SnapshotChangeDashWhenNoEvolution(t *testing.T) {
 	u := 1000.0
 	ps := []Position{{AssetID: "a1", Ticker: "A", Currency: "USD", CurrentValue: &u}}
-	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
 	vals := findDescendantByID(s, "summary-values-snapshot-change")
 	require.NotNil(t, vals)
 	require.Len(t, vals.Children, 1)
@@ -153,7 +153,7 @@ func TestBuildScreen_OpenPositionsCount(t *testing.T) {
 		{AssetID: "b", Ticker: "B", Currency: "USD", CurrentValue: &u2},
 		{AssetID: "c", Ticker: "C", Currency: "USD", CurrentValue: &u3},
 	}
-	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
 	vals := findDescendantByID(s, "summary-values-open-positions")
 	require.NotNil(t, vals)
 	require.Len(t, vals.Children, 1)
@@ -162,14 +162,14 @@ func TestBuildScreen_OpenPositionsCount(t *testing.T) {
 }
 
 func TestBuildScreen_PositionsTablePreservedFromLayer1(t *testing.T) {
-	s := BuildScreen(samplePositions(), nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 	assert.NotNil(t, findDescendantByID(s, "positions-table-card"))
 	assert.NotNil(t, findDescendantByID(s, "positions-header"))
 	assert.NotNil(t, findDescendantByID(s, "positions-body"))
 }
 
 func TestBuildScreen_HeaderHas11Columns(t *testing.T) {
-	s := BuildScreen(samplePositions(), nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 	header := findDescendantByID(s, "positions-header")
 	require.NotNil(t, header)
 	widths, ok := header.Props["widths"].([]string)
@@ -179,7 +179,7 @@ func TestBuildScreen_HeaderHas11Columns(t *testing.T) {
 
 func TestBuildScreen_BodyUsesListWithOneItemPerPosition(t *testing.T) {
 	ps := samplePositions()
-	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
 	body := findDescendantByID(s, "positions-body")
 	require.NotNil(t, body)
 	assert.Equal(t, "list", body.Type)
@@ -196,7 +196,7 @@ func TestBuildScreen_PositionRowValuesInOrder(t *testing.T) {
 		UnrealizedPnL: &pnl, RealizedPnL: realized, LastSnapshotAt: &snap,
 	}}
 
-	s := BuildScreen(ps, nil, nil, "en", now)
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", now)
 	item := findDescendantByID(s, "position-a1")
 	require.NotNil(t, item)
 	row := findDescendantByType(*item, "row")
@@ -259,7 +259,7 @@ func TestBuildPositionsTable_ReturnsCardWithExpectedID(t *testing.T) {
 }
 
 func TestBuildScreen_IncludeClosedFormPresent(t *testing.T) {
-	s := BuildScreen(samplePositions(), nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 
 	form := findDescendantByID(s, "include-closed-form")
 	require.NotNil(t, form)
@@ -281,7 +281,7 @@ func TestBuildScreen_IncludeClosedFormPresent(t *testing.T) {
 }
 
 func TestBuildScreen_CheckboxOutsidePositionsTableCard(t *testing.T) {
-	s := BuildScreen(samplePositions(), nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 	tableCard := findDescendantByID(s, "positions-table-card")
 	require.NotNil(t, tableCard)
 	assert.Nil(t, findDescendantByID(*tableCard, "include-closed-checkbox"))
@@ -289,45 +289,61 @@ func TestBuildScreen_CheckboxOutsidePositionsTableCard(t *testing.T) {
 }
 
 func TestBuildScreen_IncludeClosedLocalizedEs(t *testing.T) {
-	s := BuildScreen(samplePositions(), nil, nil, "es", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "es", time.Now())
 	cb := findDescendantByID(s, "include-closed-checkbox")
 	require.NotNil(t, cb)
 	assert.Equal(t, "Incluir posiciones cerradas", cb.Props["label"])
 }
 
 func TestBuildScreen_EmptyHasNoIncludeClosedForm(t *testing.T) {
-	s := BuildScreen(nil, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{}, nil, nil, "en", time.Now())
 	assert.Nil(t, findDescendantByID(s, "include-closed-form"))
 }
 
 func TestBuildScreen_ChartsSectionPresentWhenPositions(t *testing.T) {
 	ps := samplePositions()
-	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
 	assert.NotNil(t, findDescendantByID(s, "charts-section"))
 	assert.NotNil(t, findDescendantByID(s, "chart-value-over-time-card"))
 }
 
 func TestBuildScreen_ChartsSectionAbsentWhenEmpty(t *testing.T) {
-	s := BuildScreen(nil, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{}, nil, nil, "en", time.Now())
 	assert.Nil(t, findDescendantByID(s, "charts-section"))
 }
 
 func TestBuildScreen_AllocationSectionPresentWhenPositions(t *testing.T) {
 	ps := samplePositions()
-	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
 	assert.NotNil(t, findDescendantByID(s, "allocation-section"))
 }
 
 func TestBuildScreen_AllocationSectionAbsentWhenEmpty(t *testing.T) {
-	s := BuildScreen(nil, nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{}, nil, nil, "en", time.Now())
 	assert.Nil(t, findDescendantByID(s, "allocation-section"))
 }
 
 func TestBuildScreen_AllocationSectionIsLastInRoot(t *testing.T) {
-	s := BuildScreen(samplePositions(), nil, nil, "en", time.Now())
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 	root := findDescendantByID(s, "portfolio-root")
 	require.NotNil(t, root)
-	require.GreaterOrEqual(t, len(root.Children), 1)
+	require.Len(t, root.Children, 3)
 	last := root.Children[len(root.Children)-1]
 	assert.Equal(t, "allocation-section", last.ID)
+}
+
+func TestBuildScreen_LiveDataSectionPresentWhenPositions(t *testing.T) {
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
+	assert.NotNil(t, findDescendantByID(s, "live-data-section"))
+}
+
+func TestBuildScreen_PortfolioRootHasThreeTopChildren(t *testing.T) {
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
+	root := findDescendantByID(s, "portfolio-root")
+	require.NotNil(t, root)
+	ids := []string{}
+	for _, c := range root.Children {
+		ids = append(ids, c.ID)
+	}
+	assert.Equal(t, []string{"live-data-section", "charts-section", "allocation-section"}, ids)
 }
