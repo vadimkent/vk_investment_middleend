@@ -76,6 +76,12 @@
         "type": "Por tipo"
       },
       "empty": "Sin posiciones con valor conocido"
+    },
+    "live": {
+      "toggle": "En vivo",
+      "status": "● Precios en vivo · Actualizado {time}",
+      "refresh": "Actualizar",
+      "warning_prefix": "⚠ No se pudo obtener:"
     }
   },
   "time": {

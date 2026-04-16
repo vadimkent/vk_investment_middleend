@@ -76,6 +76,12 @@
         "type": "By type"
       },
       "empty": "No positions with known value"
+    },
+    "live": {
+      "toggle": "Live",
+      "status": "● Live prices · Updated {time}",
+      "refresh": "Refresh",
+      "warning_prefix": "⚠ Could not fetch:"
     }
   },
   "time": {
