@@ -28,11 +28,20 @@ func BuildValueOverTimeCard(points []EvolutionPoint, state ChartState, currencie
 func buildChartControls(state ChartState, currencies []string, lang string) components.Component {
 	tf := buildTimeframeControls(state, lang)
 	md := buildModeControls(state, lang)
-	children := []components.Component{tf, md}
+	spacer := components.Column("controls-spacer")
+
+	var children []components.Component
+	var widths []string
 	if len(currencies) > 1 {
-		children = append(children, buildCurrencyControls(state, currencies, lang))
+		// left: currency | spacer | mode | timeframe
+		children = []components.Component{buildCurrencyControls(state, currencies, lang), spacer, md, tf}
+		widths = []string{"auto", "1fr", "auto", "auto"}
+	} else {
+		// spacer | mode | timeframe  (mode+timeframe right-aligned)
+		children = []components.Component{spacer, md, tf}
+		widths = []string{"1fr", "auto", "auto"}
 	}
-	row := components.Row("controls-row", rowAutoWidths(len(children)), children...)
+	row := components.Row("controls-row", widths, children...)
 	row.Props["gap"] = "lg"
 	return row
 }
