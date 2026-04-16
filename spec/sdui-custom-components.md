@@ -124,3 +124,80 @@ Single-series portfolio value over time in absolute mode:
 - CSS variable names for `chart_1..chart_5` live in the frontend's global stylesheet.
 - Tooltip format: the frontend shows `<series.label>: <formatted value>` per point. The `x_axis.format` also applies to tooltip headers.
 - Currency awareness: for `currency` / `currency_compact`, the frontend needs a currency code. For this layer the currency is a screen-level concept (selected by control); future charts with per-series currencies may carry it per series.
+
+---
+
+## 2. `pie_chart`
+
+Pie / donut chart for categorical allocation. Used by the portfolio allocation view. Numeric slice values plus format tokens drive the rendering; percentages are derived client-side from the currently visible slices.
+
+### Why numbers, not pre-formatted strings
+
+Same rationale as `line_chart` §1. Pie libraries compute arc angles from numeric slice values, and the legend toggle recomputes visible-slice percentages on the fly. Strings like `"$10,500.00"` would prevent both.
+
+### Props
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| `title` | string | no | Optional chart title. Metadata — callers typically emit their own `text` header and omit this. |
+| `height` | enum | no | `sm` (13rem) / `md` (18rem) / `lg` (24rem). Default `md`. Same tokens as `line_chart.height`. |
+| `shape` | enum | no | `pie` / `donut`. Default `donut`. `donut` renders with a central hole; `pie` is a full pie. |
+| `value_format` | `ValueFormat` | yes | Applied to slice values in tooltip and legend. Percentages are always rendered as `"xx.x%"` separately. |
+| `slices` | `Slice[]` | yes | Array of slices. Ordered by the middleend. May be empty to trigger the empty state. |
+| `show_legend` | bool | no | Whether a legend renders. Default `true`. When `true`, the frontend renders it as interactive (clicking an entry toggles that slice's visibility; percentages recompute across remaining visible slices). Non-interactive-but-visible is not supported. |
+| `empty_message` | string | no | Text rendered in place of the chart when `slices` is empty. Localized by the middleend. |
+
+### Sub-types
+
+**`Slice`**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `key` | string | yes | Stable identifier, unique within this chart. Used as the react key and the legend/tooltip join. |
+| `label` | string | yes | Legend / tooltip label. Localized by the middleend. |
+| `value` | number | yes | Slice magnitude (in `value_format` units). Slices with `value <= 0` are filtered out by the frontend before rendering. |
+| `color` | `ChartColorToken` | yes | Color token (`chart_1`..`chart_5`, cycling beyond 5). |
+
+### Middleend responsibilities (out of the component contract)
+
+These belong to whatever handler composes the pie chart, not to the component props. They are listed here so every handler converges on the same conventions:
+
+- **Ordering**: emit `slices` sorted by `value` descending; ties broken by `key` ascending.
+- **"Other" bucket**: if the long tail of small slices is visually noisy, the handler may pool slices below a chosen threshold into a single `{ key: "other", label: <localized "Other">, value: <sum>, color: "chart_5" }` entry. Threshold is per-handler, not a component prop.
+- **Max slices**: same — handler caps. The component does not truncate.
+
+### Percentage calculation (frontend)
+
+The frontend sums the `value` of currently visible slices (those not hidden via the legend toggle) and computes each slice's share as `slice.value / visible_total * 100`. Hiding a slice recomputes all remaining percentages so they sum to 100%. No middleend round-trip.
+
+### Empty state
+
+When `slices` is empty (after the frontend's `value > 0` filter), render `empty_message` in the plot area; the legend is hidden regardless of `show_legend`. Keep the `pie_chart` in the tree — do not swap it for a different component — so later `replace` / `refresh` flows can repopulate it.
+
+### Out of v1 scope
+
+- **Drill-down via slice click** — a per-slice `action` can be added as an optional `Slice.action` later. Not emitted in v1.
+
+### Example
+
+Allocation donut by asset:
+
+```json
+{
+  "type": "pie_chart",
+  "id": "chart-allocation",
+  "props": {
+    "height": "md",
+    "shape": "donut",
+    "value_format": "currency_compact",
+    "show_legend": true,
+    "slices": [
+      { "key": "AAPL", "label": "AAPL", "value": 12500, "color": "chart_1" },
+      { "key": "MSFT", "label": "MSFT", "value": 8200, "color": "chart_2" },
+      { "key": "BTC",  "label": "BTC",  "value": 4300, "color": "chart_3" },
+      { "key": "CASH", "label": "Cash", "value": 2000, "color": "chart_4" }
+    ],
+    "empty_message": "No positions with known value."
+  }
+}
+```
