@@ -19,10 +19,10 @@ type stubAllocationFetcher struct {
 	called    bool
 }
 
-func (s *stubAllocationFetcher) GetPositions(ctx context.Context, auth string, includeClosed bool) ([]Position, error) {
+func (s *stubAllocationFetcher) GetPositions(ctx context.Context, auth string, includeClosed, live, refresh bool) (*PortfolioResponse, error) {
 	s.called = true
 	s.gotAuth = auth
-	return s.positions, s.err
+	return &PortfolioResponse{Positions: s.positions}, s.err
 }
 
 func setupAllocationRouter(f allocationFetcher) *gin.Engine {

@@ -15,7 +15,7 @@ import (
 // positionsFetcherWithInclude is the narrow interface the include-closed
 // handler needs. Satisfied by *Client.
 type positionsFetcherWithInclude interface {
-	GetPositions(ctx context.Context, authorization string, includeClosed bool) ([]Position, error)
+	GetPositions(ctx context.Context, authorization string, includeClosed, live, refresh bool) (*PortfolioResponse, error)
 }
 
 type IncludeClosedHandler struct {
@@ -43,7 +43,7 @@ func (h *IncludeClosedHandler) Post(c *gin.Context) {
 	}
 
 	auth := c.GetHeader("Authorization")
-	positions, err := h.client.GetPositions(c.Request.Context(), auth, *req.IncludeClosed)
+	resp, err := h.client.GetPositions(c.Request.Context(), auth, *req.IncludeClosed, false, false)
 	if err != nil {
 		if errors.Is(err, ErrUnauthorized) {
 			shared.RespondUnauthorized(c, "/screens/login")
@@ -52,6 +52,7 @@ func (h *IncludeClosedHandler) Post(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load portfolio"}})
 		return
 	}
+	positions := resp.Positions
 	SortPositions(positions)
 
 	lang := parseLang(c)

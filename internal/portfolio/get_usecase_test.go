@@ -24,10 +24,10 @@ type fakeFetcher struct {
 	gotChartQuery    EvolutionQuery
 }
 
-func (f *fakeFetcher) GetPositions(ctx context.Context, auth string, includeClosed bool) ([]Position, error) {
+func (f *fakeFetcher) GetPositions(ctx context.Context, auth string, includeClosed, live, refresh bool) (*PortfolioResponse, error) {
 	f.gotAuthP = auth
 	f.gotIncludeClosed = includeClosed
-	return f.positions, f.posErr
+	return &PortfolioResponse{Positions: f.positions}, f.posErr
 }
 
 func (f *fakeFetcher) GetEvolutionLast(ctx context.Context, auth string, n int) ([]EvolutionPoint, error) {

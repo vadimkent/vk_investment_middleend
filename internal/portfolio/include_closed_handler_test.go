@@ -21,11 +21,11 @@ type stubIncludeClosedFetcher struct {
 	called           bool
 }
 
-func (s *stubIncludeClosedFetcher) GetPositions(ctx context.Context, auth string, includeClosed bool) ([]Position, error) {
+func (s *stubIncludeClosedFetcher) GetPositions(ctx context.Context, auth string, includeClosed, live, refresh bool) (*PortfolioResponse, error) {
 	s.called = true
 	s.gotAuth = auth
 	s.gotIncludeClosed = includeClosed
-	return s.positions, s.err
+	return &PortfolioResponse{Positions: s.positions}, s.err
 }
 
 func setupIncludeClosedRouter(f positionsFetcherWithInclude) *gin.Engine {

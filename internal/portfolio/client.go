@@ -26,15 +26,21 @@ func NewClient(baseURL string, timeout time.Duration) *Client {
 }
 
 // GetPositions calls GET /v1/portfolio with the caller's Authorization header
-// forwarded verbatim and an include_closed query param. Returns
+// forwarded verbatim and include_closed, live, refresh query params. Returns
 // ErrUnauthorized on 401, ErrBackend on 5xx or malformed response.
-func (c *Client) GetPositions(ctx context.Context, authorization string, includeClosed bool) ([]Position, error) {
+func (c *Client) GetPositions(ctx context.Context, authorization string, includeClosed, live, refresh bool) (*PortfolioResponse, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/portfolio", nil)
 	if err != nil {
 		return nil, err
 	}
 	q := req.URL.Query()
 	q.Set("include_closed", strconv.FormatBool(includeClosed))
+	if live {
+		q.Set("live", "true")
+	}
+	if refresh {
+		q.Set("refresh", "true")
+	}
 	req.URL.RawQuery = q.Encode()
 	if authorization != "" {
 		req.Header.Set("Authorization", authorization)
@@ -53,11 +59,11 @@ func (c *Client) GetPositions(ctx context.Context, authorization string, include
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		positions, err := ParsePositions(body)
+		portfolioResp, err := ParsePortfolioResponse(body)
 		if err != nil {
 			return nil, fmt.Errorf("%w: parse: %v", ErrBackend, err)
 		}
-		return positions, nil
+		return portfolioResp, nil
 	case http.StatusUnauthorized:
 		return nil, ErrUnauthorized
 	default:

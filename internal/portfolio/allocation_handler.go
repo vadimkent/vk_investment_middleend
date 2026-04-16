@@ -14,7 +14,7 @@ import (
 
 // allocationFetcher is the narrow interface the handler needs; *Client satisfies it.
 type allocationFetcher interface {
-	GetPositions(ctx context.Context, authorization string, includeClosed bool) ([]Position, error)
+	GetPositions(ctx context.Context, authorization string, includeClosed, live, refresh bool) (*PortfolioResponse, error)
 }
 
 type AllocationHandler struct {
@@ -38,7 +38,7 @@ func (h *AllocationHandler) Get(c *gin.Context) {
 	auth := c.GetHeader("Authorization")
 	lang := parseLang(c)
 
-	positions, err := h.client.GetPositions(c.Request.Context(), auth, false)
+	portfolioResp, err := h.client.GetPositions(c.Request.Context(), auth, false, false, false)
 	if err != nil {
 		if errors.Is(err, ErrUnauthorized) {
 			shared.RespondUnauthorized(c, "/screens/login")
@@ -47,6 +47,7 @@ func (h *AllocationHandler) Get(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load allocation"}})
 		return
 	}
+	positions := portfolioResp.Positions
 
 	state := AllocationState{GroupBy: groupBy, Currency: currency}
 	currencies := distinctPositionCurrencies(positions)

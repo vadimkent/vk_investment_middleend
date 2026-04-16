@@ -22,10 +22,10 @@ func TestClient_GetPositions_ForwardsAuthorization(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	positions, err := c.GetPositions(context.Background(), "Bearer abc", false)
+	resp, err := c.GetPositions(context.Background(), "Bearer abc", false, false, false)
 	require.NoError(t, err)
-	require.Len(t, positions, 1)
-	assert.Equal(t, "AAPL", positions[0].Ticker)
+	require.Len(t, resp.Positions, 1)
+	assert.Equal(t, "AAPL", resp.Positions[0].Ticker)
 }
 
 func TestClient_GetPositions_Unauthorized(t *testing.T) {
@@ -35,7 +35,7 @@ func TestClient_GetPositions_Unauthorized(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	_, err := c.GetPositions(context.Background(), "Bearer bad", false)
+	_, err := c.GetPositions(context.Background(), "Bearer bad", false, false, false)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrUnauthorized))
 }
@@ -47,7 +47,7 @@ func TestClient_GetPositions_BackendError(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	_, err := c.GetPositions(context.Background(), "Bearer x", false)
+	_, err := c.GetPositions(context.Background(), "Bearer x", false, false, false)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrBackend))
 }
@@ -60,7 +60,7 @@ func TestClient_GetPositions_MalformedJSON(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	_, err := c.GetPositions(context.Background(), "Bearer x", false)
+	_, err := c.GetPositions(context.Background(), "Bearer x", false, false, false)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrBackend))
 }
@@ -129,11 +129,11 @@ func TestClient_GetPositions_ForwardsIncludeClosed(t *testing.T) {
 	defer srv.Close()
 
 	c := NewClient(srv.URL, 5*time.Second)
-	_, err := c.GetPositions(context.Background(), "Bearer t", true)
+	_, err := c.GetPositions(context.Background(), "Bearer t", true, false, false)
 	require.NoError(t, err)
 	assert.Equal(t, "include_closed=true", gotQuery)
 
-	_, err = c.GetPositions(context.Background(), "Bearer t", false)
+	_, err = c.GetPositions(context.Background(), "Bearer t", false, false, false)
 	require.NoError(t, err)
 	assert.Equal(t, "include_closed=false", gotQuery)
 }
@@ -198,4 +198,22 @@ func TestClient_GetEvolution_BackendError(t *testing.T) {
 	_, err := c.GetEvolution(context.Background(), "Bearer x", EvolutionQuery{Points: 100})
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ErrBackend))
+}
+
+func TestClient_GetPositions_ForwardsLiveAndRefresh(t *testing.T) {
+	var gotQuery string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotQuery = r.URL.RawQuery
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"positions":[],"is_live":true,"prices_as_of":"2026-04-14T12:00:00Z"}`))
+	}))
+	defer srv.Close()
+
+	c := NewClient(srv.URL, 5*time.Second)
+	resp, err := c.GetPositions(context.Background(), "Bearer t", false, true, true)
+	require.NoError(t, err)
+	assert.Contains(t, gotQuery, "live=true")
+	assert.Contains(t, gotQuery, "refresh=true")
+	assert.True(t, resp.IsLive)
+	require.NotNil(t, resp.PricesAsOf)
 }

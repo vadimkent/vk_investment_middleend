@@ -19,9 +19,9 @@ type stubFetcher struct {
 	gotAuth   string
 }
 
-func (s *stubFetcher) GetPositions(ctx context.Context, auth string, includeClosed bool) ([]Position, error) {
+func (s *stubFetcher) GetPositions(ctx context.Context, auth string, includeClosed, live, refresh bool) (*PortfolioResponse, error) {
 	s.gotAuth = auth
-	return s.positions, s.err
+	return &PortfolioResponse{Positions: s.positions}, s.err
 }
 
 func (s *stubFetcher) GetEvolutionLast(ctx context.Context, auth string, n int) ([]EvolutionPoint, error) {
