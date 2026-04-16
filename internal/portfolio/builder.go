@@ -46,7 +46,7 @@ func BuildScreen(positions []Position, evolution []EvolutionPoint, chartPoints [
 	metrics := ComputeMetrics(positions, evolution)
 	summary := buildSummaryRow(metrics, lang)
 	controls := buildIncludeClosedForm(lang)
-	table := BuildPositionsTable(positions, lang, now)
+	table := BuildPositionsTable(positions, lang, now, false)
 
 	chartsSection := buildInitialChartsSection(chartPoints, positions, lang)
 	allocation := buildInitialAllocationSection(positions, lang)
@@ -185,7 +185,7 @@ func coloredValue(id, content, color string) components.Component {
 	return components.TextStyled(id, content, "xl", "bold", "", color, "", "")
 }
 
-func BuildPositionsTable(ps []Position, lang string, now time.Time) components.Component {
+func BuildPositionsTable(ps []Position, lang string, now time.Time, isLive bool) components.Component {
 	headerCells := make([]components.Component, 0, 11)
 	for i, key := range columnKeys {
 		cell := components.Text("col-"+columnShortID(i), i18n.T(lang, key), "sm", "bold")
@@ -195,7 +195,7 @@ func BuildPositionsTable(ps []Position, lang string, now time.Time) components.C
 
 	listChildren := make([]components.Component, 0, len(ps))
 	for _, p := range ps {
-		listChildren = append(listChildren, buildPositionItem(p, lang, now))
+		listChildren = append(listChildren, buildPositionItem(p, lang, now, isLive))
 	}
 	body := components.List("positions-body", listChildren...)
 
@@ -208,9 +208,31 @@ func columnShortID(i int) string {
 	return names[i]
 }
 
-func buildPositionItem(p Position, lang string, now time.Time) components.Component {
+// priceSourceColor returns the SDUI color for a price-source dot.
+func priceSourceColor(source string) string {
+	switch source {
+	case "live":
+		return "positive"
+	case "snapshot":
+		return "muted"
+	default:
+		return "negative"
+	}
+}
+
+func buildPositionItem(p Position, lang string, now time.Time, isLive bool) components.Component {
 	realized := p.RealizedPnL
 	pct := PnLPct(p.UnrealizedPnL, p.TotalCost)
+
+	marketValueContent := FormatMoney(p.CurrentValue, p.Currency, lang)
+	var marketValueCell components.Component
+	if isLive && p.PriceSource != nil {
+		dotColor := priceSourceColor(*p.PriceSource)
+		marketValueContent = "● " + marketValueContent
+		marketValueCell = components.TextStyled("cell-market-value", marketValueContent, "sm", "normal", "", dotColor, "", "")
+	} else {
+		marketValueCell = components.Text("cell-market-value", marketValueContent, "sm", "normal")
+	}
 
 	cells := []components.Component{
 		components.Text("cell-ticker", p.Ticker, "sm", "bold"),
@@ -219,7 +241,7 @@ func buildPositionItem(p Position, lang string, now time.Time) components.Compon
 		components.Text("cell-quantity", FormatQuantity(p.Quantity, lang), "sm", "normal"),
 		components.Text("cell-avg-cost", FormatMoney(p.AvgCost, p.Currency, lang), "sm", "normal"),
 		components.Text("cell-total-cost", FormatMoney(p.TotalCost, p.Currency, lang), "sm", "normal"),
-		components.Text("cell-market-value", FormatMoney(p.CurrentValue, p.Currency, lang), "sm", "normal"),
+		marketValueCell,
 		coloredCell("cell-unrealized-pnl", FormatSignedMoney(p.UnrealizedPnL, p.Currency, lang), pnlColor(p.UnrealizedPnL)),
 		coloredCell("cell-pnl-pct", FormatSignedPercent(pct, lang), pnlColor(pct)),
 		coloredCell("cell-realized-pnl", FormatSignedMoney(&realized, p.Currency, lang), pnlColor(&realized)),

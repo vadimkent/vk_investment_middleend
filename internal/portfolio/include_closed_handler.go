@@ -56,7 +56,7 @@ func (h *IncludeClosedHandler) Post(c *gin.Context) {
 	SortPositions(positions)
 
 	lang := parseLang(c)
-	tree := BuildPositionsTable(positions, lang, time.Now())
+	tree := BuildPositionsTable(positions, lang, time.Now(), false)
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
 		TargetID: "positions-table-card",

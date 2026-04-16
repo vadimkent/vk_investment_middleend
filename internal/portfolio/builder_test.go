@@ -245,7 +245,7 @@ func findDescendantByID(c components.Component, id string) *components.Component
 
 func TestBuildPositionsTable_ReturnsCardWithExpectedID(t *testing.T) {
 	ps := samplePositions()
-	card := BuildPositionsTable(ps, "en", time.Now())
+	card := BuildPositionsTable(ps, "en", time.Now(), false)
 
 	assert.Equal(t, "card", card.Type)
 	assert.Equal(t, "positions-table-card", card.ID)
