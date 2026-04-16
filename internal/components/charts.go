@@ -19,12 +19,14 @@ type Axis struct {
 // spec/sdui-custom-components.md §1.
 //
 // Pass empty string for height / emptyMessage to omit those props.
-func LineChart(id, height string, series []Series, xAxis, yAxis Axis, data []map[string]any, emptyMessage string) Component {
+// showLegend is always emitted (false = omit legend, true = interactive legend).
+func LineChart(id, height string, series []Series, xAxis, yAxis Axis, data []map[string]any, emptyMessage string, showLegend bool) Component {
 	props := map[string]any{
-		"series": series,
-		"x_axis": xAxis,
-		"y_axis": yAxis,
-		"data":   data,
+		"series":      series,
+		"x_axis":      xAxis,
+		"y_axis":      yAxis,
+		"data":        data,
+		"show_legend": showLegend,
 	}
 	if height != "" {
 		props["height"] = height

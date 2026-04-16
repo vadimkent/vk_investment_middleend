@@ -190,6 +190,7 @@ func buildValueLineChart(points []EvolutionPoint, state ChartState, lang string)
 		components.Axis{Format: valueFormat},
 		data,
 		emptyMessage,
+		false,
 	)
 }
 
@@ -281,5 +282,6 @@ func buildAssetLineChart(points []EvolutionPoint, state ChartState, lang string)
 		components.Axis{Format: "currency_compact"},
 		data,
 		emptyMessage,
+		true,
 	)
 }

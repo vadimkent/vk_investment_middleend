@@ -16,6 +16,7 @@ func TestLineChart_EmitsTypeAndID(t *testing.T) {
 		Axis{Format: "currency_compact"},
 		[]map[string]any{{"date": "2026-01-01", "v": 100.0}},
 		"Not enough data",
+		false,
 	)
 	assert.Equal(t, "line_chart", c.Type)
 	assert.Equal(t, "x", c.ID)
@@ -30,6 +31,7 @@ func TestLineChart_AllPropsPresent(t *testing.T) {
 		Axis{Format: "currency_compact"},
 		data,
 		"Not enough data",
+		false,
 	)
 	assert.Equal(t, "md", c.Props["height"])
 	assert.Equal(t, "Not enough data", c.Props["empty_message"])
@@ -50,6 +52,7 @@ func TestLineChart_OmitsEmptyHeight(t *testing.T) {
 		Axis{},
 		[]map[string]any{},
 		"",
+		false,
 	)
 	_, hasHeight := c.Props["height"]
 	assert.False(t, hasHeight)
@@ -65,6 +68,7 @@ func TestLineChart_JSONShape(t *testing.T) {
 		Axis{Format: "currency_compact"},
 		[]map[string]any{{"date": "2026-01-01", "value": 100.0}},
 		"Not enough data",
+		false,
 	)
 	b, err := json.Marshal(c)
 	require.NoError(t, err)

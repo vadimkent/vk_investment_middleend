@@ -25,6 +25,7 @@ Chart libraries (recharts, chart.js, highcharts) plot from numeric values and co
 | `y_axis` | `{ format }` | no | How to format y-axis tick labels. If omitted, the frontend picks a sensible default based on series value_format. |
 | `data` | `Row[]` | yes | Array of rows; may be empty to trigger empty state. Each row contains the x-axis key plus one key per series. |
 | `empty_message` | string | no | Text to render in place of the plot when the dataset is empty or insufficient (<2 points). Localized by the middleend. |
+| `show_legend` | bool | no | Whether a legend renders below the chart. Default `false`. When `true`, the legend is interactive: clicking an entry toggles that line's visibility. Non-interactive-but-visible is not supported. |
 
 ### Sub-types
 
