@@ -119,12 +119,12 @@ Single-series portfolio value over time in absolute mode:
 }
 ```
 
-### Open points (confirm with frontend)
+### Frontend implementation notes
 
-- Height tokens map to `13rem / 18rem / 24rem`. Frontend can adjust to its design system.
-- CSS variable names for `chart_1..chart_5` live in the frontend's global stylesheet.
-- Tooltip format: the frontend shows `<series.label>: <formatted value>` per point. The `x_axis.format` also applies to tooltip headers.
-- Currency awareness: for `currency` / `currency_compact`, the frontend needs a currency code. For this layer the currency is a screen-level concept (selected by control); future charts with per-series currencies may carry it per series.
+- Height tokens map to `13rem / 18rem / 24rem`. The frontend may adjust to its design system.
+- CSS variable names `--chart-1`..`--chart-5` live in the frontend's global stylesheet.
+- Tooltip: the frontend shows `<series.label>: <formatted value>` per point. `x_axis.format` also applies to tooltip date headers.
+- Currency awareness: for `currency` / `currency_compact` formats, the currency is a screen-level concept — the selected currency control determines which data the middleend emits. The frontend does not need to resolve currency from the chart data itself.
 
 ---
 
