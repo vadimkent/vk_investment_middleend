@@ -63,11 +63,11 @@ func (h *EvolutionHandler) Get(c *gin.Context) {
 
 	state := ChartState{Timeframe: timeframe, Mode: mode, Currency: currency}
 	currencies := distinctCurrencies(points)
-	tree := BuildValueOverTimeCard(points, state, currencies, lang)
+	tree := BuildChartsSection(points, state, currencies, lang)
 
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
-		TargetID: "chart-value-over-time-card",
+		TargetID: "charts-section",
 		Tree:     &tree,
 	})
 }

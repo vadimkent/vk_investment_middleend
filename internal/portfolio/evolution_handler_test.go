@@ -59,11 +59,11 @@ func TestEvolutionHandler_SuccessReturnsReplaceActionResponse(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "replace", resp["action"])
-	assert.Equal(t, "chart-value-over-time-card", resp["target_id"])
+	assert.Equal(t, "charts-section", resp["target_id"])
 	tree, ok := resp["tree"].(map[string]any)
 	require.True(t, ok)
-	assert.Equal(t, "card", tree["type"])
-	assert.Equal(t, "chart-value-over-time-card", tree["id"])
+	assert.Equal(t, "column", tree["type"])
+	assert.Equal(t, "charts-section", tree["id"])
 
 	assert.True(t, f.called)
 	assert.Equal(t, "Bearer tok", f.gotAuth)

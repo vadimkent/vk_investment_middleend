@@ -48,8 +48,8 @@ func BuildScreen(positions []Position, evolution []EvolutionPoint, chartPoints [
 	controls := buildIncludeClosedForm(lang)
 	table := BuildPositionsTable(positions, lang, now)
 
-	chart := buildInitialChartCard(chartPoints, positions, lang)
-	root := components.ColumnWithGap("portfolio-root", "lg", summary, controls, table, chart)
+	chartsSection := buildInitialChartsSection(chartPoints, positions, lang)
+	root := components.ColumnWithGap("portfolio-root", "lg", summary, controls, table, chartsSection)
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
 }
 
@@ -246,9 +246,9 @@ func coloredCell(id, content, color string) components.Component {
 	return components.TextStyled(id, content, "sm", "normal", "", color, "", "")
 }
 
-// buildInitialChartCard produces the chart-value-over-time-card for the initial
+// buildInitialChartsSection produces the charts-section for the initial
 // screen render. Chooses default currency from positions (highest total value).
-func buildInitialChartCard(chartPoints []EvolutionPoint, positions []Position, lang string) components.Component {
+func buildInitialChartsSection(chartPoints []EvolutionPoint, positions []Position, lang string) components.Component {
 	metrics := ComputeMetrics(positions, nil)
 	currencies := metrics.CurrencyOrder
 	defaultCurrency := ""
@@ -256,5 +256,5 @@ func buildInitialChartCard(chartPoints []EvolutionPoint, positions []Position, l
 		defaultCurrency = currencies[0]
 	}
 	state := ChartState{Timeframe: "all", Mode: "abs", Currency: defaultCurrency}
-	return BuildValueOverTimeCard(chartPoints, state, currencies, lang)
+	return BuildChartsSection(chartPoints, state, currencies, lang)
 }

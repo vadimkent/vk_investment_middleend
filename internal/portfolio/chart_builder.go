@@ -7,21 +7,30 @@ import (
 	"github.com/project/vk-investment-middleend/internal/i18n"
 )
 
-// ChartState is the user-selected state for the Value Over Time chart.
+// ChartState is the user-selected state shared by all charts in the section.
 type ChartState struct {
 	Timeframe string // 1m, 3m, 6m, ytd, 1y, all
 	Mode      string // abs, pct
-	Currency  string // ISO code; "" if there are no currencies
+	Currency  string // ISO code; "" when no currencies
 }
 
 var timeframes = []string{"1m", "3m", "6m", "ytd", "1y", "all"}
 
-// BuildValueOverTimeCard renders the Value Over Time chart card. Pure —
-// depends only on its inputs.
-func BuildValueOverTimeCard(points []EvolutionPoint, state ChartState, currencies []string, lang string) components.Component {
+// BuildChartsSection wraps controls and the chart cards in a column that
+// serves as the reload target. Pure — no BE dependency.
+func BuildChartsSection(points []EvolutionPoint, state ChartState, currencies []string, lang string) components.Component {
 	controls := buildChartControls(state, currencies, lang)
-	chart := buildLineChart(points, state, lang)
-	content := components.ColumnWithGap("chart-value-over-time-content", "md", controls, chart)
+	value := BuildValueOverTimeCard(points, state, lang)
+	col := components.ColumnWithGap("charts-section", "lg", controls, value)
+	return col
+}
+
+// BuildValueOverTimeCard builds the Value Over Time card: title + line_chart.
+// Controls live outside (at the charts-section level).
+func BuildValueOverTimeCard(points []EvolutionPoint, state ChartState, lang string) components.Component {
+	title := components.Text("chart-value-over-time-title", i18n.T(lang, "portfolio.chart.value_over_time.title"), "md", "bold")
+	chart := buildValueLineChart(points, state, lang)
+	content := components.ColumnWithGap("chart-value-over-time-content", "md", title, chart)
 	return components.Card("chart-value-over-time-card", content)
 }
 
@@ -33,11 +42,9 @@ func buildChartControls(state ChartState, currencies []string, lang string) comp
 	var children []components.Component
 	var widths []string
 	if len(currencies) > 1 {
-		// left: currency | spacer | mode | timeframe
 		children = []components.Component{buildCurrencyControls(state, currencies, lang), spacer, md, tf}
 		widths = []string{"auto", "1fr", "auto", "auto"}
 	} else {
-		// spacer | mode | timeframe  (mode+timeframe right-aligned)
 		children = []components.Component{spacer, md, tf}
 		widths = []string{"1fr", "auto", "auto"}
 	}
@@ -107,7 +114,7 @@ func chartButton(id, label string, selected bool, endpoint string) components.Co
 			"size":    "sm",
 		},
 		Actions: []components.Action{
-			{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: "chart-value-over-time-card"},
+			{Trigger: "click", Type: "reload", Endpoint: endpoint, TargetID: "charts-section"},
 		},
 	}
 }
@@ -130,7 +137,7 @@ func rowAutoWidths(n int) []string {
 	return out
 }
 
-func buildLineChart(points []EvolutionPoint, state ChartState, lang string) components.Component {
+func buildValueLineChart(points []EvolutionPoint, state ChartState, lang string) components.Component {
 	data := make([]map[string]any, 0, len(points))
 	anyCost := false
 	for _, p := range points {
@@ -155,7 +162,6 @@ func buildLineChart(points []EvolutionPoint, state ChartState, lang string) comp
 	if state.Mode == "pct" {
 		valueFormat = "percent_signed"
 	}
-	yFormat := valueFormat
 
 	series := []components.Series{{
 		Key:         "value",
@@ -179,7 +185,7 @@ func buildLineChart(points []EvolutionPoint, state ChartState, lang string) comp
 		"md",
 		series,
 		components.Axis{Key: "date", Format: "month_year"},
-		components.Axis{Format: yFormat},
+		components.Axis{Format: valueFormat},
 		data,
 		emptyMessage,
 	)

@@ -300,13 +300,14 @@ func TestBuildScreen_EmptyHasNoIncludeClosedForm(t *testing.T) {
 	assert.Nil(t, findDescendantByID(s, "include-closed-form"))
 }
 
-func TestBuildScreen_ChartCardPresentWhenPositions(t *testing.T) {
+func TestBuildScreen_ChartsSectionPresentWhenPositions(t *testing.T) {
 	ps := samplePositions()
 	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	assert.NotNil(t, findDescendantByID(s, "charts-section"))
 	assert.NotNil(t, findDescendantByID(s, "chart-value-over-time-card"))
 }
 
-func TestBuildScreen_ChartCardAbsentWhenEmpty(t *testing.T) {
+func TestBuildScreen_ChartsSectionAbsentWhenEmpty(t *testing.T) {
 	s := BuildScreen(nil, nil, nil, "en", time.Now())
-	assert.Nil(t, findDescendantByID(s, "chart-value-over-time-card"))
+	assert.Nil(t, findDescendantByID(s, "charts-section"))
 }
