@@ -59,6 +59,7 @@ func (s *Server) setupRoutes() {
 	portfolioHandler := portfolio.NewHandler(portfolio.NewGetUseCase(portfolioClient))
 	protected.GET("/screens/portfolio", portfolioHandler.Get)
 	protected.POST("/actions/portfolio/include_closed", portfolio.NewIncludeClosedHandler(portfolioClient).Post)
+	protected.GET("/actions/portfolio/evolution", portfolio.NewEvolutionHandler(portfolioClient).Get)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
