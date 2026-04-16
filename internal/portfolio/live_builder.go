@@ -90,7 +90,7 @@ func buildLiveBanner(resp *PortfolioResponse, lang string, now time.Time) compon
 		},
 	}
 	row := components.Row("live-banner-row", []string{"auto", "auto"}, status, refresh)
-	row.Props["gap"] = "xs"
+	row.Props["gap"] = "none"
 	row.Props["align_items"] = "center"
 	return components.Card("live-banner", row)
 }
