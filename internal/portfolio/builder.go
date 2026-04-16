@@ -49,7 +49,8 @@ func BuildScreen(positions []Position, evolution []EvolutionPoint, chartPoints [
 	table := BuildPositionsTable(positions, lang, now)
 
 	chartsSection := buildInitialChartsSection(chartPoints, positions, lang)
-	root := components.ColumnWithGap("portfolio-root", "lg", summary, controls, table, chartsSection)
+	allocation := buildInitialAllocationSection(positions, lang)
+	root := components.ColumnWithGap("portfolio-root", "lg", summary, controls, table, chartsSection, allocation)
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
 }
 
@@ -257,4 +258,17 @@ func buildInitialChartsSection(chartPoints []EvolutionPoint, positions []Positio
 	}
 	state := ChartState{Timeframe: "all", Mode: "abs", Currency: defaultCurrency}
 	return BuildChartsSection(chartPoints, state, currencies, lang)
+}
+
+// buildInitialAllocationSection produces the allocation-section for the initial
+// screen render. Defaults group_by=asset and currency=<first by total value DESC>.
+func buildInitialAllocationSection(positions []Position, lang string) components.Component {
+	metrics := ComputeMetrics(positions, nil)
+	currencies := metrics.CurrencyOrder
+	defaultCurrency := ""
+	if len(currencies) > 0 {
+		defaultCurrency = currencies[0]
+	}
+	state := AllocationState{GroupBy: "asset", Currency: defaultCurrency}
+	return BuildAllocationSection(positions, state, currencies, lang)
 }

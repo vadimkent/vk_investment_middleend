@@ -311,3 +311,23 @@ func TestBuildScreen_ChartsSectionAbsentWhenEmpty(t *testing.T) {
 	s := BuildScreen(nil, nil, nil, "en", time.Now())
 	assert.Nil(t, findDescendantByID(s, "charts-section"))
 }
+
+func TestBuildScreen_AllocationSectionPresentWhenPositions(t *testing.T) {
+	ps := samplePositions()
+	s := BuildScreen(ps, nil, nil, "en", time.Now())
+	assert.NotNil(t, findDescendantByID(s, "allocation-section"))
+}
+
+func TestBuildScreen_AllocationSectionAbsentWhenEmpty(t *testing.T) {
+	s := BuildScreen(nil, nil, nil, "en", time.Now())
+	assert.Nil(t, findDescendantByID(s, "allocation-section"))
+}
+
+func TestBuildScreen_AllocationSectionIsLastInRoot(t *testing.T) {
+	s := BuildScreen(samplePositions(), nil, nil, "en", time.Now())
+	root := findDescendantByID(s, "portfolio-root")
+	require.NotNil(t, root)
+	require.GreaterOrEqual(t, len(root.Children), 1)
+	last := root.Children[len(root.Children)-1]
+	assert.Equal(t, "allocation-section", last.ID)
+}
