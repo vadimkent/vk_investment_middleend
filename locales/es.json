@@ -82,6 +82,10 @@
       "status": "● Precios en vivo · Actualizado {time}",
       "refresh": "Actualizar",
       "warning_prefix": "⚠ No se pudo obtener:"
+    },
+    "hide_values": {
+      "tooltip_inactive": "Ocultar valores",
+      "tooltip_active": "Mostrar valores"
     }
   },
   "time": {
