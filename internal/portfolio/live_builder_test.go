@@ -188,3 +188,26 @@ func TestBuildPortfolioHeaderRow_ToggleActionsTargetLiveDataSection(t *testing.T
 		assert.Equal(t, "reload", a.Type)
 	}
 }
+
+func TestBuildPortfolioHeaderRow_HasHideValuesToggle(t *testing.T) {
+	row := BuildPortfolioHeaderRow(LiveState{Live: false}, "en")
+	hv := findDescendantByID(row, "hide-values-toggle")
+	require.NotNil(t, hv)
+	assert.Equal(t, "icon_toggle", hv.Type)
+	assert.Equal(t, false, hv.Props["active"])
+	assert.Equal(t, "eye", hv.Props["icon_inactive"])
+	assert.Equal(t, "eye-off", hv.Props["icon_active"])
+
+	require.Len(t, hv.Actions, 2)
+	assert.Equal(t, "toggle_sensitive", hv.Actions[0].Type)
+	assert.Equal(t, "toggle_sensitive", hv.Actions[1].Type)
+	assert.Equal(t, "", hv.Actions[0].Endpoint)
+}
+
+func TestBuildPortfolioHeaderRow_HideValuesBeforeLiveToggle(t *testing.T) {
+	row := BuildPortfolioHeaderRow(LiveState{Live: false}, "en")
+	// Children: [title, spacer, hide-values, live-toggle]
+	require.Len(t, row.Children, 4)
+	assert.Equal(t, "hide-values-toggle", row.Children[2].ID)
+	assert.Equal(t, "live-toggle", row.Children[3].ID)
+}

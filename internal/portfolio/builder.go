@@ -100,8 +100,9 @@ func buildTotalValueCard(m SummaryMetrics, lang string) components.Component {
 			if !ok {
 				continue
 			}
-			values.Children = append(values.Children,
-				components.Text("summary-value-total-value-"+c, FormatMoney(&v, c, lang), "xl", "bold"))
+			txt := components.Text("summary-value-total-value-"+c, FormatMoney(&v, c, lang), "xl", "bold")
+			txt.Props["sensitive"] = true
+			values.Children = append(values.Children, txt)
 		}
 	}
 	return wrapCard("total-value", "portfolio.total_value", lang, values)
@@ -114,8 +115,9 @@ func buildTotalPnLCard(m SummaryMetrics, lang string) components.Component {
 	} else {
 		for _, c := range m.CurrencyOrder {
 			v := m.TotalPnL[c]
-			values.Children = append(values.Children,
-				coloredValue("summary-value-total-pnl-"+c, FormatSignedMoney(&v, c, lang), pnlColor(&v)))
+			txt := coloredValue("summary-value-total-pnl-"+c, FormatSignedMoney(&v, c, lang), pnlColor(&v))
+			txt.Props["sensitive"] = true
+			values.Children = append(values.Children, txt)
 		}
 	}
 	return wrapCard("total-pnl", "portfolio.total_pnl", lang, values)

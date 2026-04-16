@@ -229,18 +229,6 @@ func findDescendantByType(c components.Component, typ string) *components.Compon
 	return nil
 }
 
-func findDescendantByID(c components.Component, id string) *components.Component {
-	if c.ID == id {
-		return &c
-	}
-	for i := range c.Children {
-		if found := findDescendantByID(c.Children[i], id); found != nil {
-			return found
-		}
-	}
-	return nil
-}
-
 func TestBuildPositionsTable_ReturnsCardWithExpectedID(t *testing.T) {
 	ps := samplePositions()
 	card := BuildPositionsTable(ps, "en", time.Now(), false)
@@ -374,4 +362,34 @@ func TestBuildScreen_PortfolioRootHasFourTopChildren(t *testing.T) {
 		ids = append(ids, c.ID)
 	}
 	assert.Equal(t, []string{"live-header-row", "live-data-section", "charts-section", "allocation-section"}, ids)
+}
+
+func TestBuildScreen_SummaryTotalValueIsSensitive(t *testing.T) {
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
+	tv := findDescendantByID(s, "summary-value-total-value-USD")
+	require.NotNil(t, tv)
+	assert.Equal(t, true, tv.Props["sensitive"])
+}
+
+func TestBuildScreen_SummaryTotalPnLIsSensitive(t *testing.T) {
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
+	pnl := findDescendantByID(s, "summary-value-total-pnl-USD")
+	require.NotNil(t, pnl)
+	assert.Equal(t, true, pnl.Props["sensitive"])
+}
+
+func TestBuildScreen_SummaryPerformanceNotSensitive(t *testing.T) {
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
+	perf := findDescendantByID(s, "summary-value-performance-USD")
+	require.NotNil(t, perf)
+	_, has := perf.Props["sensitive"]
+	assert.False(t, has)
+}
+
+func TestBuildScreen_SummaryOpenPositionsNotSensitive(t *testing.T) {
+	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
+	op := findDescendantByID(s, "summary-value-open-positions")
+	require.NotNil(t, op)
+	_, has := op.Props["sensitive"]
+	assert.False(t, has)
 }

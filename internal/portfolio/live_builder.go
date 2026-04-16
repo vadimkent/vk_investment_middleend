@@ -47,6 +47,14 @@ func BuildPortfolioHeaderRow(state LiveState, lang string) components.Component 
 	title := components.Text("portfolio-title", i18n.T(lang, "portfolio.title"), "lg", "bold")
 	spacer := components.Column("live-header-spacer")
 
+	hideValues := components.IconToggle("hide-values-toggle", false,
+		"eye", "eye-off",
+		i18n.T(lang, "portfolio.hide_values.tooltip_inactive"),
+		i18n.T(lang, "portfolio.hide_values.tooltip_active"),
+		components.Action{Trigger: "click", Type: "toggle_sensitive"},
+		components.Action{Trigger: "click", Type: "toggle_sensitive"},
+	)
+
 	toggle := components.IconToggle("live-toggle", state.Live,
 		"radio", "radio",
 		i18n.T(lang, "portfolio.live.toggle"), i18n.T(lang, "portfolio.live.toggle"),
@@ -54,7 +62,7 @@ func BuildPortfolioHeaderRow(state LiveState, lang string) components.Component 
 		components.Reload("/actions/portfolio/live_data?live=false", "live-data-section"),
 	)
 
-	return components.Row("live-header-row", []string{"auto", "1fr", "auto"}, title, spacer, toggle)
+	return components.Row("live-header-row", []string{"auto", "1fr", "auto", "auto"}, title, spacer, hideValues, toggle)
 }
 
 func buildLiveBanner(resp *PortfolioResponse, lang string, now time.Time) components.Component {
