@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -110,16 +111,30 @@ func timeframeFrom(tf string, now time.Time) *time.Time {
 	}
 }
 
+// distinctCurrencies returns currencies present in points, ordered by each
+// currency's most-recent total_value descending. Matches the ordering used by
+// the initial screen render (positions' current_value descending) as closely
+// as possible when evolution data is available.
 func distinctCurrencies(points []EvolutionPoint) []string {
-	seen := map[string]struct{}{}
-	out := []string{}
+	latest := map[string]EvolutionPoint{}
 	for _, p := range points {
-		if _, ok := seen[p.Currency]; ok {
-			continue
+		existing, ok := latest[p.Currency]
+		if !ok || p.RecordedAt.After(existing.RecordedAt) {
+			latest[p.Currency] = p
 		}
-		seen[p.Currency] = struct{}{}
-		out = append(out, p.Currency)
 	}
+	out := make([]string, 0, len(latest))
+	for c := range latest {
+		out = append(out, c)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		vi := latest[out[i]].TotalValue
+		vj := latest[out[j]].TotalValue
+		if vi == vj {
+			return out[i] < out[j]
+		}
+		return vi > vj
+	})
 	return out
 }
 
