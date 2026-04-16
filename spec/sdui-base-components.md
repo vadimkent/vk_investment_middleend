@@ -370,6 +370,37 @@ On/off switch. Must be inside a `form`.
 Toggle(id, name, label string) Component
 ```
 
+### icon_toggle
+
+Binary toggle rendered as a clickable icon. Has two states (inactive / active), each with its own icon token and tooltip. On click the frontend flips the visual state instantly (optimistic) and fires the corresponding action. Does not require a form wrapper.
+
+The component carries **two actions** in its `actions` array:
+- `actions[0]` — fired when transitioning from inactive → active (click while `active=false`).
+- `actions[1]` — fired when transitioning from active → inactive (click while `active=true`).
+
+Both actions use `trigger: "click"`. The frontend selects based on the current visual state.
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `active` | bool | yes | Initial state. `false` = inactive, `true` = active. |
+| `icon_inactive` | string | yes | Icon token shown when `active=false`. |
+| `icon_active` | string | yes | Icon token shown when `active=true`. |
+| `tooltip_inactive` | string | no | Tooltip text when inactive. |
+| `tooltip_active` | string | no | Tooltip text when active. |
+
+```go
+IconToggle(id string, active bool, iconInactive, iconActive, tooltipInactive, tooltipActive string, actionOn, actionOff Action) Component
+```
+
+```go
+c := components.IconToggle("live-toggle", false,
+    "radio", "radio",
+    "Activate live prices", "Deactivate live prices",
+    components.Reload("/actions/portfolio/live_data?live=true", "live-data-section"),
+    components.Reload("/actions/portfolio/live_data?live=false", "live-data-section"),
+)
+```
+
 ### textarea
 
 Multi-line text input. Must be inside a `form`.

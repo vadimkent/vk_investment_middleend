@@ -55,18 +55,19 @@ func TestBuildLiveDataSection_StandardMode_HasHeaderSummaryFormTable(t *testing.
 	assert.Nil(t, findDescendantByID(s, "live-warnings"))
 }
 
-func TestBuildLiveDataSection_StandardMode_ToggleButtonIsGhost(t *testing.T) {
+func TestBuildLiveDataSection_StandardMode_ToggleIsInactive(t *testing.T) {
 	resp := sampleStandardResp()
 	metrics := ComputeMetrics(resp.Positions, nil)
 	s := BuildLiveDataSection(resp, metrics, LiveState{Live: false}, []string{"USD"}, "en", time.Now())
 
 	toggle := findDescendantByID(s, "live-toggle")
 	require.NotNil(t, toggle)
-	assert.Equal(t, "secondary", toggle.Props["variant"])
-	assert.Equal(t, "ghost", toggle.Props["style"])
+	assert.Equal(t, "icon_toggle", toggle.Type)
+	assert.Equal(t, false, toggle.Props["active"])
 
-	require.Len(t, toggle.Actions, 1)
+	require.Len(t, toggle.Actions, 2)
 	assert.Contains(t, toggle.Actions[0].Endpoint, "live=true")
+	assert.Contains(t, toggle.Actions[1].Endpoint, "live=false")
 }
 
 func TestBuildLiveDataSection_LiveMode_HasBannerAndDots(t *testing.T) {
@@ -79,18 +80,15 @@ func TestBuildLiveDataSection_LiveMode_HasBannerAndDots(t *testing.T) {
 	assert.NotNil(t, findDescendantByID(s, "live-refresh"))
 }
 
-func TestBuildLiveDataSection_LiveMode_ToggleButtonIsSolid(t *testing.T) {
+func TestBuildLiveDataSection_LiveMode_ToggleIsActive(t *testing.T) {
 	resp := sampleLiveResp()
 	metrics := ComputeMetrics(resp.Positions, nil)
 	s := BuildLiveDataSection(resp, metrics, LiveState{Live: true}, []string{"USD"}, "en", time.Now())
 
 	toggle := findDescendantByID(s, "live-toggle")
 	require.NotNil(t, toggle)
-	assert.Equal(t, "primary", toggle.Props["variant"])
-	assert.Equal(t, "solid", toggle.Props["style"])
-
-	require.Len(t, toggle.Actions, 1)
-	assert.Contains(t, toggle.Actions[0].Endpoint, "live=false")
+	assert.Equal(t, "icon_toggle", toggle.Type)
+	assert.Equal(t, true, toggle.Props["active"])
 }
 
 func TestBuildLiveDataSection_LiveMode_RefreshButtonURL(t *testing.T) {
@@ -184,14 +182,16 @@ func TestBuildLiveDataSection_StandardMode_NoDots(t *testing.T) {
 	assert.False(t, hasColor, "standard mode market-value cell should have no color")
 }
 
-func TestBuildLiveDataSection_ToggleActionTargetsLiveDataSection(t *testing.T) {
+func TestBuildLiveDataSection_ToggleActionsTargetLiveDataSection(t *testing.T) {
 	resp := sampleStandardResp()
 	metrics := ComputeMetrics(resp.Positions, nil)
 	s := BuildLiveDataSection(resp, metrics, LiveState{Live: false}, []string{"USD"}, "en", time.Now())
 
 	toggle := findDescendantByID(s, "live-toggle")
 	require.NotNil(t, toggle)
-	require.Len(t, toggle.Actions, 1)
-	assert.Equal(t, "live-data-section", toggle.Actions[0].TargetID)
-	assert.Equal(t, "reload", toggle.Actions[0].Type)
+	require.Len(t, toggle.Actions, 2)
+	for _, a := range toggle.Actions {
+		assert.Equal(t, "live-data-section", a.TargetID)
+		assert.Equal(t, "reload", a.Type)
+	}
 }

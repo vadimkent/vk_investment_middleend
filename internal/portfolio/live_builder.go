@@ -46,26 +46,12 @@ func buildLiveHeaderRow(state LiveState, lang string) components.Component {
 	title := components.Text("portfolio-title", i18n.T(lang, "portfolio.title"), "lg", "bold")
 	spacer := components.Column("live-header-spacer")
 
-	toggleVariant, toggleStyle := "secondary", "ghost"
-	toggleURL := "/actions/portfolio/live_data?live=true"
-	if state.Live {
-		toggleVariant, toggleStyle = "primary", "solid"
-		toggleURL = "/actions/portfolio/live_data?live=false"
-	}
-
-	toggle := components.Component{
-		Type: "button",
-		ID:   "live-toggle",
-		Props: map[string]any{
-			"label":   i18n.T(lang, "portfolio.live.toggle"),
-			"variant": toggleVariant,
-			"style":   toggleStyle,
-			"size":    "sm",
-		},
-		Actions: []components.Action{
-			{Trigger: "click", Type: "reload", Endpoint: toggleURL, TargetID: "live-data-section"},
-		},
-	}
+	toggle := components.IconToggle("live-toggle", state.Live,
+		"radio", "radio",
+		i18n.T(lang, "portfolio.live.toggle"), i18n.T(lang, "portfolio.live.toggle"),
+		components.Reload("/actions/portfolio/live_data?live=true", "live-data-section"),
+		components.Reload("/actions/portfolio/live_data?live=false", "live-data-section"),
+	)
 
 	return components.Row("live-header-row", []string{"auto", "1fr", "auto"}, title, spacer, toggle)
 }
