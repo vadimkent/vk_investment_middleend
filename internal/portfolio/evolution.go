@@ -15,15 +15,30 @@ type EvolutionPoint struct {
 	TotalValue     float64
 	TotalCost      *float64 // nil when not computable for the snapshot
 	Currency       string
+	Assets         []AssetValue
+}
+
+// AssetValue is one asset's contribution inside an evolution point.
+type AssetValue struct {
+	AssetID string
+	Ticker  string
+	Value   float64
+}
+
+type rawAssetValue struct {
+	AssetID string `json:"asset_id"`
+	Ticker  string `json:"ticker"`
+	Value   string `json:"value"`
 }
 
 type rawEvolutionPoint struct {
-	SnapshotID     string  `json:"snapshot_id"`
-	RecordedAt     string  `json:"recorded_at"`
-	IsFullSnapshot bool    `json:"is_full_snapshot"`
-	TotalValue     string  `json:"total_value"`
-	TotalCost      *string `json:"total_cost"`
-	Currency       string  `json:"currency"`
+	SnapshotID     string          `json:"snapshot_id"`
+	RecordedAt     string          `json:"recorded_at"`
+	IsFullSnapshot bool            `json:"is_full_snapshot"`
+	TotalValue     string          `json:"total_value"`
+	TotalCost      *string         `json:"total_cost"`
+	Currency       string          `json:"currency"`
+	Assets         []rawAssetValue `json:"assets"`
 }
 
 type rawEvolutionResponse struct {
@@ -53,6 +68,13 @@ func ParseEvolution(body []byte) ([]EvolutionPoint, error) {
 		}
 		if t, err := time.Parse(time.RFC3339, rp.RecordedAt); err == nil {
 			p.RecordedAt = t
+		}
+		for _, ra := range rp.Assets {
+			v, err := strconv.ParseFloat(ra.Value, 64)
+			if err != nil {
+				continue
+			}
+			p.Assets = append(p.Assets, AssetValue{AssetID: ra.AssetID, Ticker: ra.Ticker, Value: v})
 		}
 		out = append(out, p)
 	}
