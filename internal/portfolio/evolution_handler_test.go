@@ -68,7 +68,7 @@ func TestEvolutionHandler_SuccessReturnsReplaceActionResponse(t *testing.T) {
 	assert.True(t, f.called)
 	assert.Equal(t, "Bearer tok", f.gotAuth)
 	assert.Equal(t, 100, f.gotQuery.Points)
-	assert.Equal(t, "USD", f.gotQuery.Currency)
+	assert.Equal(t, "", f.gotQuery.Currency) // currency filtering happens in the builder, not the BE call
 	require.NotNil(t, f.gotQuery.From)
 }
 

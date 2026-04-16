@@ -44,7 +44,9 @@ func (h *EvolutionHandler) Get(c *gin.Context) {
 	auth := c.GetHeader("Authorization")
 	lang := parseLang(c)
 
-	q := EvolutionQuery{Points: 100, Currency: currency}
+	// Don't pass currency to the BE — we need all points to compute the full
+	// currency list for the control. The chart builder filters by state.Currency.
+	q := EvolutionQuery{Points: 100}
 	if from := timeframeFrom(timeframe, h.now()); from != nil {
 		q.From = from
 	}
