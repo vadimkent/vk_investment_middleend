@@ -8,32 +8,20 @@ import (
 	"github.com/project/vk-investment-middleend/internal/i18n"
 )
 
-var columnWidths = []string{
-	"80px",  // ticker
-	"1fr",   // name
-	"80px",  // type
-	"80px",  // quantity
-	"110px", // avg cost
-	"110px", // total cost
-	"120px", // market value
-	"130px", // unrealized pnl
-	"80px",  // % pnl
-	"120px", // realized pnl
-	"120px", // last snapshot
-}
-
-var columnKeys = []string{
-	"portfolio.col.ticker",
-	"portfolio.col.name",
-	"portfolio.col.type",
-	"portfolio.col.quantity",
-	"portfolio.col.avg_cost",
-	"portfolio.col.total_cost",
-	"portfolio.col.market_value",
-	"portfolio.col.unrealized_pnl",
-	"portfolio.col.pnl_pct",
-	"portfolio.col.realized_pnl",
-	"portfolio.col.last_snapshot",
+func positionColumns(lang string) []components.TableColumn {
+	return []components.TableColumn{
+		{ID: "ticker", Header: i18n.T(lang, "portfolio.col.ticker"), Width: "80px"},
+		{ID: "name", Header: i18n.T(lang, "portfolio.col.name"), Width: "1fr"},
+		{ID: "type", Header: i18n.T(lang, "portfolio.col.type"), Width: "80px"},
+		{ID: "quantity", Header: i18n.T(lang, "portfolio.col.quantity"), Width: "80px", Align: "right"},
+		{ID: "avg_cost", Header: i18n.T(lang, "portfolio.col.avg_cost"), Width: "110px", Align: "right"},
+		{ID: "total_cost", Header: i18n.T(lang, "portfolio.col.total_cost"), Width: "110px", Align: "right"},
+		{ID: "market_value", Header: i18n.T(lang, "portfolio.col.market_value"), Width: "120px", Align: "right"},
+		{ID: "unrealized_pnl", Header: i18n.T(lang, "portfolio.col.unrealized_pnl"), Width: "130px", Align: "right"},
+		{ID: "pnl_pct", Header: i18n.T(lang, "portfolio.col.pnl_pct"), Width: "80px", Align: "right"},
+		{ID: "realized_pnl", Header: i18n.T(lang, "portfolio.col.realized_pnl"), Width: "120px", Align: "right"},
+		{ID: "last_snapshot", Header: i18n.T(lang, "portfolio.col.last_snapshot"), Width: "120px", Align: "right"},
+	}
 }
 
 // BuildScreen builds the portfolio tree for the given response and evolution
@@ -191,26 +179,23 @@ func coloredValue(id, content, color string) components.Component {
 }
 
 func BuildPositionsTable(ps []Position, lang string, now time.Time, isLive bool) components.Component {
-	headerCells := make([]components.Component, 0, 11)
-	for i, key := range columnKeys {
-		cell := components.Text("col-"+columnShortID(i), i18n.T(lang, key), "sm", "bold")
-		headerCells = append(headerCells, cell)
-	}
-	header := components.Row("positions-header", columnWidths, headerCells...)
-
-	listChildren := make([]components.Component, 0, len(ps))
+	cols := positionColumns(lang)
+	rows := make([]components.Component, 0, len(ps))
 	for _, p := range ps {
-		listChildren = append(listChildren, buildPositionItem(p, lang, now, isLive))
+		rows = append(rows, buildPositionRow(p, lang, now, isLive))
 	}
-	body := components.List("positions-body", listChildren...)
-
-	inner := components.ColumnWithGap("positions-table", "sm", header, body)
-	return components.Card("positions-table-card", inner)
+	table := components.Table("positions-table", cols, rows...)
+	return components.Card("positions-table-card", table)
 }
 
-func columnShortID(i int) string {
-	names := []string{"ticker", "name", "type", "quantity", "avg-cost", "total-cost", "market-value", "unrealized-pnl", "pnl-pct", "realized-pnl", "last-snapshot"}
-	return names[i]
+// priceSourceDot returns the dot prefix for a live price source.
+func priceSourceDot(source string) string {
+	switch source {
+	case "live", "snapshot", "none":
+		return "●"
+	default:
+		return ""
+	}
 }
 
 // priceSourceColor returns the SDUI color for a price-source dot.
@@ -225,18 +210,15 @@ func priceSourceColor(source string) string {
 	}
 }
 
-func buildPositionItem(p Position, lang string, now time.Time, isLive bool) components.Component {
+func buildPositionRow(p Position, lang string, now time.Time, isLive bool) components.Component {
 	realized := p.RealizedPnL
 	pct := PnLPct(p.UnrealizedPnL, p.TotalCost)
 
 	marketValueContent := FormatMoney(p.CurrentValue, p.Currency, lang)
-	var marketValueCell components.Component
+	marketValueColor := ""
 	if isLive && p.PriceSource != nil {
-		dotColor := priceSourceColor(*p.PriceSource)
-		marketValueContent = "● " + marketValueContent
-		marketValueCell = components.TextStyled("cell-market-value", marketValueContent, "sm", "normal", "", dotColor, "", "")
-	} else {
-		marketValueCell = components.Text("cell-market-value", marketValueContent, "sm", "normal")
+		marketValueContent = priceSourceDot(*p.PriceSource) + " " + marketValueContent
+		marketValueColor = priceSourceColor(*p.PriceSource)
 	}
 
 	cells := []components.Component{
@@ -244,16 +226,35 @@ func buildPositionItem(p Position, lang string, now time.Time, isLive bool) comp
 		components.Text("cell-name", p.Name, "sm", "normal"),
 		components.Text("cell-type", p.AssetType, "sm", "normal"),
 		components.Text("cell-quantity", FormatQuantity(p.Quantity, lang), "sm", "normal"),
-		components.Text("cell-avg-cost", FormatMoney(p.AvgCost, p.Currency, lang), "sm", "normal"),
-		components.Text("cell-total-cost", FormatMoney(p.TotalCost, p.Currency, lang), "sm", "normal"),
-		marketValueCell,
-		coloredCell("cell-unrealized-pnl", FormatSignedMoney(p.UnrealizedPnL, p.Currency, lang), pnlColor(p.UnrealizedPnL)),
+		sensitiveText("cell-avg-cost", FormatMoney(p.AvgCost, p.Currency, lang), ""),
+		sensitiveText("cell-total-cost", FormatMoney(p.TotalCost, p.Currency, lang), ""),
+		sensitiveColoredText("cell-market-value", marketValueContent, marketValueColor),
+		sensitiveColoredText("cell-unrealized-pnl", FormatSignedMoney(p.UnrealizedPnL, p.Currency, lang), pnlColor(p.UnrealizedPnL)),
 		coloredCell("cell-pnl-pct", FormatSignedPercent(pct, lang), pnlColor(pct)),
-		coloredCell("cell-realized-pnl", FormatSignedMoney(&realized, p.Currency, lang), pnlColor(&realized)),
+		sensitiveColoredText("cell-realized-pnl", FormatSignedMoney(&realized, p.Currency, lang), pnlColor(&realized)),
 		components.Text("cell-last-snapshot", FormatRelativeTime(p.LastSnapshotAt, now, lang), "sm", "normal"),
 	}
-	row := components.Row("position-"+p.AssetID+"-row", columnWidths, cells...)
-	return components.ListItem("position-"+p.AssetID, row)
+	return components.TableRow("position-"+p.AssetID, cells...)
+}
+
+func sensitiveText(id, content, color string) components.Component {
+	c := components.Text(id, content, "sm", "normal")
+	c.Props["sensitive"] = true
+	if color != "" {
+		c.Props["color"] = color
+	}
+	return c
+}
+
+func sensitiveColoredText(id, content, color string) components.Component {
+	var c components.Component
+	if color == "" {
+		c = components.Text(id, content, "sm", "normal")
+	} else {
+		c = components.TextStyled(id, content, "sm", "normal", "", color, "", "")
+	}
+	c.Props["sensitive"] = true
+	return c
 }
 
 // pnlColor returns "positive", "negative" or "" (no color) based on v.

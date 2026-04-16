@@ -164,26 +164,25 @@ func TestBuildScreen_OpenPositionsCount(t *testing.T) {
 func TestBuildScreen_PositionsTablePreservedFromLayer1(t *testing.T) {
 	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 	assert.NotNil(t, findDescendantByID(s, "positions-table-card"))
-	assert.NotNil(t, findDescendantByID(s, "positions-header"))
-	assert.NotNil(t, findDescendantByID(s, "positions-body"))
+	assert.NotNil(t, findDescendantByID(s, "positions-table"))
 }
 
-func TestBuildScreen_HeaderHas11Columns(t *testing.T) {
+func TestBuildScreen_TableHas11Columns(t *testing.T) {
 	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
-	header := findDescendantByID(s, "positions-header")
-	require.NotNil(t, header)
-	widths, ok := header.Props["widths"].([]string)
+	table := findDescendantByID(s, "positions-table")
+	require.NotNil(t, table)
+	cols, ok := table.Props["columns"].([]components.TableColumn)
 	require.True(t, ok)
-	assert.Len(t, widths, 11)
+	assert.Len(t, cols, 11)
 }
 
-func TestBuildScreen_BodyUsesListWithOneItemPerPosition(t *testing.T) {
+func TestBuildScreen_TableHasOneRowPerPosition(t *testing.T) {
 	ps := samplePositions()
 	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", time.Now())
-	body := findDescendantByID(s, "positions-body")
-	require.NotNil(t, body)
-	assert.Equal(t, "list", body.Type)
-	assert.Len(t, body.Children, len(ps))
+	table := findDescendantByID(s, "positions-table")
+	require.NotNil(t, table)
+	assert.Equal(t, "table", table.Type)
+	assert.Len(t, table.Children, len(ps))
 }
 
 func TestBuildScreen_PositionRowValuesInOrder(t *testing.T) {
@@ -197,10 +196,9 @@ func TestBuildScreen_PositionRowValuesInOrder(t *testing.T) {
 	}}
 
 	s := BuildScreen(&PortfolioResponse{Positions: ps}, nil, nil, "en", now)
-	item := findDescendantByID(s, "position-a1")
-	require.NotNil(t, item)
-	row := findDescendantByType(*item, "row")
+	row := findDescendantByID(s, "position-a1")
 	require.NotNil(t, row)
+	assert.Equal(t, "table_row", row.Type)
 	require.Len(t, row.Children, 11)
 
 	want := []string{"AAPL", "Apple Inc", "STOCK", "10", "$153.33", "$1,533.33", "$1,855.00", "+$321.67", "+20.98%", "+$175.00", "2 days ago"}
@@ -250,12 +248,42 @@ func TestBuildPositionsTable_ReturnsCardWithExpectedID(t *testing.T) {
 	assert.Equal(t, "card", card.Type)
 	assert.Equal(t, "positions-table-card", card.ID)
 
-	header := findDescendantByID(card, "positions-header")
-	require.NotNil(t, header)
-	body := findDescendantByID(card, "positions-body")
-	require.NotNil(t, body)
-	assert.Equal(t, "list", body.Type)
-	assert.Len(t, body.Children, len(ps))
+	table := findDescendantByID(card, "positions-table")
+	require.NotNil(t, table)
+	assert.Equal(t, "table", table.Type)
+
+	cols, ok := table.Props["columns"].([]components.TableColumn)
+	require.True(t, ok)
+	assert.Len(t, cols, 11)
+
+	require.Len(t, table.Children, len(ps))
+	for _, child := range table.Children {
+		assert.Equal(t, "table_row", child.Type)
+	}
+}
+
+func TestBuildPositionsTable_MonetaryCellsAreSensitive(t *testing.T) {
+	ps := samplePositions()
+	card := BuildPositionsTable(ps, "en", time.Now(), false)
+	table := findDescendantByID(card, "positions-table")
+	require.NotNil(t, table)
+	require.Len(t, table.Children, 1)
+	row := table.Children[0]
+
+	sensitiveIDs := []string{"cell-avg-cost", "cell-total-cost", "cell-market-value", "cell-unrealized-pnl", "cell-realized-pnl"}
+	for _, id := range sensitiveIDs {
+		cell := findDescendantByID(row, id)
+		require.NotNil(t, cell, "missing %s", id)
+		assert.Equal(t, true, cell.Props["sensitive"], "%s should be sensitive", id)
+	}
+
+	notSensitiveIDs := []string{"cell-ticker", "cell-name", "cell-type", "cell-quantity", "cell-pnl-pct", "cell-last-snapshot"}
+	for _, id := range notSensitiveIDs {
+		cell := findDescendantByID(row, id)
+		require.NotNil(t, cell, "missing %s", id)
+		_, has := cell.Props["sensitive"]
+		assert.False(t, has, "%s should not be sensitive", id)
+	}
 }
 
 func TestBuildScreen_IncludeClosedFormPresent(t *testing.T) {
