@@ -327,7 +327,7 @@ func TestBuildScreen_AllocationSectionIsLastInRoot(t *testing.T) {
 	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 	root := findDescendantByID(s, "portfolio-root")
 	require.NotNil(t, root)
-	require.Len(t, root.Children, 3)
+	require.Len(t, root.Children, 4)
 	last := root.Children[len(root.Children)-1]
 	assert.Equal(t, "allocation-section", last.ID)
 }
@@ -337,7 +337,7 @@ func TestBuildScreen_LiveDataSectionPresentWhenPositions(t *testing.T) {
 	assert.NotNil(t, findDescendantByID(s, "live-data-section"))
 }
 
-func TestBuildScreen_PortfolioRootHasThreeTopChildren(t *testing.T) {
+func TestBuildScreen_PortfolioRootHasFourTopChildren(t *testing.T) {
 	s := BuildScreen(&PortfolioResponse{Positions: samplePositions()}, nil, nil, "en", time.Now())
 	root := findDescendantByID(s, "portfolio-root")
 	require.NotNil(t, root)
@@ -345,5 +345,5 @@ func TestBuildScreen_PortfolioRootHasThreeTopChildren(t *testing.T) {
 	for _, c := range root.Children {
 		ids = append(ids, c.ID)
 	}
-	assert.Equal(t, []string{"live-data-section", "charts-section", "allocation-section"}, ids)
+	assert.Equal(t, []string{"live-header-row", "live-data-section", "charts-section", "allocation-section"}, ids)
 }

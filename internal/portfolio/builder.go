@@ -50,11 +50,12 @@ func BuildScreen(resp *PortfolioResponse, evolution []EvolutionPoint, chartPoint
 	currencies := metrics.CurrencyOrder
 
 	liveState := LiveState{Live: resp.IsLive}
+	headerRow := BuildPortfolioHeaderRow(liveState, lang)
 	liveDataSection := BuildLiveDataSection(resp, metrics, liveState, currencies, lang, now)
 	chartsSection := buildInitialChartsSection(chartPoints, positions, lang)
 	allocationSection := buildInitialAllocationSection(positions, lang)
 
-	root := components.ColumnWithGap("portfolio-root", "lg", liveDataSection, chartsSection, allocationSection)
+	root := components.ColumnWithGap("portfolio-root", "lg", headerRow, liveDataSection, chartsSection, allocationSection)
 	return components.Screen("portfolio", i18n.T(lang, "portfolio.title"), root)
 }
 

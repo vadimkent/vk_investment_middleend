@@ -14,13 +14,12 @@ type LiveState struct {
 	Refresh bool // only meaningful when Live=true
 }
 
-// BuildLiveDataSection builds the top portion of the portfolio screen that
-// reacts to the live toggle: header row + optional banner + summary + form + table.
+// BuildLiveDataSection builds the data portion of the portfolio screen that
+// reacts to the live toggle: optional banner + summary + form + table.
+// The header row (title + toggle) lives OUTSIDE this section so it doesn't
+// flash on reload.
 func BuildLiveDataSection(resp *PortfolioResponse, metrics SummaryMetrics, liveState LiveState, currencies []string, lang string, now time.Time) components.Component {
 	children := []components.Component{}
-
-	// Header: title + live toggle
-	children = append(children, buildLiveHeaderRow(liveState, lang))
 
 	// Banner (only in live mode)
 	if resp.IsLive {
@@ -42,7 +41,9 @@ func BuildLiveDataSection(resp *PortfolioResponse, metrics SummaryMetrics, liveS
 	return components.ColumnWithGap("live-data-section", "lg", children...)
 }
 
-func buildLiveHeaderRow(state LiveState, lang string) components.Component {
+// BuildPortfolioHeaderRow builds the title + live toggle row. Lives at the
+// portfolio-root level, outside any reload target.
+func BuildPortfolioHeaderRow(state LiveState, lang string) components.Component {
 	title := components.Text("portfolio-title", i18n.T(lang, "portfolio.title"), "lg", "bold")
 	spacer := components.Column("live-header-spacer")
 

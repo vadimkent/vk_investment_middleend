@@ -38,13 +38,15 @@ func sampleStandardResp() *PortfolioResponse {
 	}
 }
 
-func TestBuildLiveDataSection_StandardMode_HasHeaderSummaryFormTable(t *testing.T) {
+func TestBuildLiveDataSection_StandardMode_HasSummaryFormTable(t *testing.T) {
 	resp := sampleStandardResp()
 	metrics := ComputeMetrics(resp.Positions, nil)
 	s := BuildLiveDataSection(resp, metrics, LiveState{Live: false}, []string{"USD"}, "en", time.Now())
 
 	assert.Equal(t, "live-data-section", s.ID)
-	assert.NotNil(t, findDescendantByID(s, "live-header-row"))
+	// Header row (title + toggle) lives OUTSIDE live-data-section
+	assert.Nil(t, findDescendantByID(s, "live-header-row"))
+	assert.Nil(t, findDescendantByID(s, "live-toggle"))
 	assert.NotNil(t, findDescendantByID(s, "portfolio-summary-row"))
 	assert.NotNil(t, findDescendantByID(s, "include-closed-form"))
 	assert.NotNil(t, findDescendantByID(s, "positions-table-card"))
@@ -55,12 +57,9 @@ func TestBuildLiveDataSection_StandardMode_HasHeaderSummaryFormTable(t *testing.
 	assert.Nil(t, findDescendantByID(s, "live-warnings"))
 }
 
-func TestBuildLiveDataSection_StandardMode_ToggleIsInactive(t *testing.T) {
-	resp := sampleStandardResp()
-	metrics := ComputeMetrics(resp.Positions, nil)
-	s := BuildLiveDataSection(resp, metrics, LiveState{Live: false}, []string{"USD"}, "en", time.Now())
-
-	toggle := findDescendantByID(s, "live-toggle")
+func TestBuildPortfolioHeaderRow_ToggleIsInactive(t *testing.T) {
+	row := BuildPortfolioHeaderRow(LiveState{Live: false}, "en")
+	toggle := findDescendantByID(row, "live-toggle")
 	require.NotNil(t, toggle)
 	assert.Equal(t, "icon_toggle", toggle.Type)
 	assert.Equal(t, false, toggle.Props["active"])
@@ -80,12 +79,9 @@ func TestBuildLiveDataSection_LiveMode_HasBannerAndDots(t *testing.T) {
 	assert.NotNil(t, findDescendantByID(s, "live-refresh"))
 }
 
-func TestBuildLiveDataSection_LiveMode_ToggleIsActive(t *testing.T) {
-	resp := sampleLiveResp()
-	metrics := ComputeMetrics(resp.Positions, nil)
-	s := BuildLiveDataSection(resp, metrics, LiveState{Live: true}, []string{"USD"}, "en", time.Now())
-
-	toggle := findDescendantByID(s, "live-toggle")
+func TestBuildPortfolioHeaderRow_ToggleIsActive(t *testing.T) {
+	row := BuildPortfolioHeaderRow(LiveState{Live: true}, "en")
+	toggle := findDescendantByID(row, "live-toggle")
 	require.NotNil(t, toggle)
 	assert.Equal(t, "icon_toggle", toggle.Type)
 	assert.Equal(t, true, toggle.Props["active"])
@@ -182,12 +178,9 @@ func TestBuildLiveDataSection_StandardMode_NoDots(t *testing.T) {
 	assert.False(t, hasColor, "standard mode market-value cell should have no color")
 }
 
-func TestBuildLiveDataSection_ToggleActionsTargetLiveDataSection(t *testing.T) {
-	resp := sampleStandardResp()
-	metrics := ComputeMetrics(resp.Positions, nil)
-	s := BuildLiveDataSection(resp, metrics, LiveState{Live: false}, []string{"USD"}, "en", time.Now())
-
-	toggle := findDescendantByID(s, "live-toggle")
+func TestBuildPortfolioHeaderRow_ToggleActionsTargetLiveDataSection(t *testing.T) {
+	row := BuildPortfolioHeaderRow(LiveState{Live: false}, "en")
+	toggle := findDescendantByID(row, "live-toggle")
 	require.NotNil(t, toggle)
 	require.Len(t, toggle.Actions, 2)
 	for _, a := range toggle.Actions {
