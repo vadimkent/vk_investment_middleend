@@ -89,3 +89,66 @@ func TestParsePositions_InvalidJSON(t *testing.T) {
 	_, err := ParsePositions([]byte(`not json`))
 	require.Error(t, err)
 }
+
+func TestParsePortfolioResponse_LiveFields(t *testing.T) {
+	raw := []byte(`{
+	  "positions":[
+	    {
+	      "asset_id":"a1","ticker":"AAPL","name":"Apple","asset_type":"STOCK","currency":"USD",
+	      "quantity":"10","avg_cost":"150","total_cost":"1500",
+	      "current_price":"180","current_value":"1800",
+	      "unrealized_pnl":"300","realized_pnl":"0",
+	      "last_snapshot_at":"2024-06-01T10:00:00Z",
+	      "price_source":"live",
+	      "price_as_of":"2026-04-14T12:00:00Z"
+	    }
+	  ],
+	  "is_live": true,
+	  "prices_as_of": "2026-04-14T12:00:00Z",
+	  "warnings": [
+	    {"asset_id":"w1","ticker":"DOGE","error":"provider timeout"}
+	  ]
+	}`)
+
+	resp, err := ParsePortfolioResponse(raw)
+	require.NoError(t, err)
+	assert.True(t, resp.IsLive)
+	require.NotNil(t, resp.PricesAsOf)
+	assert.Equal(t, time.Date(2026, 4, 14, 12, 0, 0, 0, time.UTC), *resp.PricesAsOf)
+	require.Len(t, resp.Warnings, 1)
+	assert.Equal(t, "DOGE", resp.Warnings[0].Ticker)
+	assert.Equal(t, "provider timeout", resp.Warnings[0].Error)
+
+	require.Len(t, resp.Positions, 1)
+	p := resp.Positions[0]
+	require.NotNil(t, p.PriceSource)
+	assert.Equal(t, "live", *p.PriceSource)
+	require.NotNil(t, p.PriceAsOf)
+	assert.Equal(t, time.Date(2026, 4, 14, 12, 0, 0, 0, time.UTC), *p.PriceAsOf)
+}
+
+func TestParsePortfolioResponse_StandardMode(t *testing.T) {
+	raw := []byte(`{
+	  "positions":[
+	    {"asset_id":"a1","ticker":"AAPL","name":"Apple","asset_type":"STOCK","currency":"USD",
+	     "quantity":"10","avg_cost":"150","total_cost":"1500",
+	     "current_price":"180","current_value":"1800",
+	     "unrealized_pnl":"300","realized_pnl":"0"}
+	  ]
+	}`)
+
+	resp, err := ParsePortfolioResponse(raw)
+	require.NoError(t, err)
+	assert.False(t, resp.IsLive)
+	assert.Nil(t, resp.PricesAsOf)
+	assert.Empty(t, resp.Warnings)
+	assert.Nil(t, resp.Positions[0].PriceSource)
+	assert.Nil(t, resp.Positions[0].PriceAsOf)
+}
+
+func TestParsePositions_StillWorks(t *testing.T) {
+	raw := []byte(`{"positions":[{"asset_id":"a1","ticker":"X","name":"X","asset_type":"STOCK","currency":"USD","quantity":"1","avg_cost":"1","total_cost":"1","current_value":"1","unrealized_pnl":"0","realized_pnl":"0"}]}`)
+	positions, err := ParsePositions(raw)
+	require.NoError(t, err)
+	require.Len(t, positions, 1)
+}

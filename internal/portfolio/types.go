@@ -23,6 +23,23 @@ type Position struct {
 	UnrealizedPnL  *float64
 	RealizedPnL    float64
 	LastSnapshotAt *time.Time
+	PriceSource    *string    // "live", "snapshot", "none"; nil in standard mode
+	PriceAsOf      *time.Time // nil in standard mode
+}
+
+// LiveWarning represents a warning for an asset whose live price could not be fetched.
+type LiveWarning struct {
+	AssetID string
+	Ticker  string
+	Error   string
+}
+
+// PortfolioResponse wraps the full backend response, including live metadata.
+type PortfolioResponse struct {
+	Positions  []Position
+	IsLive     bool
+	PricesAsOf *time.Time
+	Warnings   []LiveWarning
 }
 
 type rawPosition struct {
@@ -39,19 +56,49 @@ type rawPosition struct {
 	UnrealizedPnL  *string `json:"unrealized_pnl"`
 	RealizedPnL    *string `json:"realized_pnl"`
 	LastSnapshotAt *string `json:"last_snapshot_at"`
+	PriceSource    *string `json:"price_source"`
+	PriceAsOfRaw   *string `json:"price_as_of"`
 }
 
 type rawResponse struct {
-	Positions []rawPosition `json:"positions"`
+	Positions  []rawPosition    `json:"positions"`
+	IsLive     bool             `json:"is_live"`
+	PricesAsOf *string          `json:"prices_as_of"`
+	Warnings   []rawLiveWarning `json:"warnings"`
 }
 
-// ParsePositions parses the backend /v1/portfolio body into []Position.
-func ParsePositions(body []byte) ([]Position, error) {
+type rawLiveWarning struct {
+	AssetID string `json:"asset_id"`
+	Ticker  string `json:"ticker"`
+	Error   string `json:"error"`
+}
+
+// ParsePortfolioResponse parses the full backend /v1/portfolio body including
+// live metadata.
+func ParsePortfolioResponse(body []byte) (*PortfolioResponse, error) {
 	var r rawResponse
 	if err := json.Unmarshal(body, &r); err != nil {
 		return nil, err
 	}
-	out := make([]Position, 0, len(r.Positions))
+
+	resp := &PortfolioResponse{
+		IsLive: r.IsLive,
+	}
+
+	if r.PricesAsOf != nil {
+		if t, err := time.Parse(time.RFC3339, *r.PricesAsOf); err == nil {
+			resp.PricesAsOf = &t
+		}
+	}
+
+	for _, rw := range r.Warnings {
+		resp.Warnings = append(resp.Warnings, LiveWarning{
+			AssetID: rw.AssetID,
+			Ticker:  rw.Ticker,
+			Error:   rw.Error,
+		})
+	}
+
 	for _, rp := range r.Positions {
 		p := Position{
 			AssetID:   rp.AssetID,
@@ -74,9 +121,31 @@ func ParsePositions(body []byte) ([]Position, error) {
 				p.LastSnapshotAt = &t
 			}
 		}
-		out = append(out, p)
+		p.PriceSource = rp.PriceSource
+		if rp.PriceAsOfRaw != nil {
+			if t, err := time.Parse(time.RFC3339, *rp.PriceAsOfRaw); err == nil {
+				p.PriceAsOf = &t
+			}
+		}
+		resp.Positions = append(resp.Positions, p)
 	}
-	return out, nil
+
+	if resp.Positions == nil {
+		resp.Positions = []Position{}
+	}
+
+	return resp, nil
+}
+
+// ParsePositions is a convenience wrapper over ParsePortfolioResponse that
+// returns only the positions slice. Existing callers that don't need live
+// metadata can continue using this.
+func ParsePositions(body []byte) ([]Position, error) {
+	resp, err := ParsePortfolioResponse(body)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Positions, nil
 }
 
 func parseFloatPtr(s *string) *float64 {
