@@ -1,8 +1,8 @@
 # SDUI Custom Components
 
-Project-specific SDUI components that extend the base set in `sdui-base-components.md`. The middleend emits them exactly like base components (type + id + props + children + actions); the frontend maintains a registry that maps type names to renderers.
+Project-specific SDUI extensions: custom components, custom attributes, and custom actions that extend the base set in `sdui-base-components.md` and `sdui-actions.md`. The middleend emits them exactly like base primitives; the frontend maintains registries that map types, attributes, and action names to behavior.
 
-This file documents the contract the middleend is expected to emit. It is the single source of truth for custom components used by any screen in this project.
+This file is the single source of truth for project-specific SDUI extensions.
 
 ---
 
@@ -200,5 +200,82 @@ Allocation donut by asset:
     ],
     "empty_message": "No positions with known value."
   }
+}
+```
+
+---
+
+## 3. Custom Attributes
+
+Project-specific props that may appear on any component. The frontend reads them alongside base shared props (`align_items`, `gap`, etc.) and applies project-specific behavior.
+
+### `sensitive`
+
+Available on any component. When `true`, the frontend masks the component's visible content with `"••••"` while the HideValues toggle is active. The middleend decides **what** is sensitive; the frontend decides **when** to mask.
+
+Not all monetary values are sensitive. The rule:
+
+| Sensitive (`true`) | Not sensitive |
+|---|---|
+| Absolute monetary values: Total Value, Total P&L, Avg Cost, Total Cost, Market Value, Unrealized P&L, Realized P&L | Percentages: Performance, Snapshot Change, % P&L |
+| | Counts: Open Positions, Quantity |
+| | Metadata: Ticker, Name, Type, Last Snapshot |
+
+The frontend must not infer sensitivity from the value's format or color — only from the explicit `sensitive: true` prop.
+
+```json
+{
+  "type": "text",
+  "id": "summary-value-total-value-USD",
+  "props": {
+    "content": "$12,345.67",
+    "size": "xl",
+    "weight": "bold",
+    "sensitive": true
+  }
+}
+```
+
+When HideValues is active, the frontend renders `"••••"` instead of `"$12,345.67"`. The original `content` stays in the tree — the frontend just visually replaces it.
+
+---
+
+## 4. Custom Actions
+
+Project-specific action types that extend the base set in `sdui-actions.md`. The frontend maps these types to local behavior; no server round-trip is involved.
+
+### `toggle_sensitive`
+
+Toggles the visibility of all components marked with `sensitive: true`. Fired by the HideValues `icon_toggle`. No `endpoint` or `target_id` — purely client-side.
+
+```json
+{
+  "trigger": "click",
+  "type": "toggle_sensitive"
+}
+```
+
+When the frontend receives this action:
+1. Flip the local `hideValues` boolean state.
+2. All components with `sensitive: true` in the current screen tree are masked (`"••••"`) or unmasked based on the new state.
+3. No HTTP request is made.
+
+The `icon_toggle` for HideValues carries this action in both slots (the action is the same regardless of direction):
+
+```json
+{
+  "type": "icon_toggle",
+  "id": "hide-values-toggle",
+  "props": {
+    "active": false,
+    "icon_inactive": "eye",
+    "icon_active": "eye-off",
+    "tooltip_inactive": "Hide values",
+    "tooltip_active": "Show values"
+  },
+  "actions": [
+    { "trigger": "click", "type": "toggle_sensitive" },
+    { "trigger": "click", "type": "toggle_sensitive" }
+  ]
 }
 ```

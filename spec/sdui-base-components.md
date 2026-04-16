@@ -205,6 +205,51 @@ c := components.List("orders",
 )
 ```
 
+### table
+
+Tabular data with aligned columns across header and rows. The table owns column widths and alignment; rows and cells inherit them via CSS subgrid so the header and every body row line up automatically. Use `table` for data with parallel columns (positions, orders, transactions). Use `list` for uniform feeds without column structure.
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `columns` | `Column[]` | yes | Column configuration. Each column defines an id, header label, optional width, and optional alignment. |
+
+**`Column`**: `{ id: string, header: string, width?: string, align?: "left" | "center" | "right" }`. Missing `width` defaults to `"1fr"`. `align` defaults to `"left"`.
+
+Children must be `table_row` components. Each row's children are placed into the columns in order; the number of children per row should match `columns.length`. The header row is rendered automatically by the frontend from `columns[].header`.
+
+```go
+Table(id string, columns []TableColumn, children ...Component) Component
+```
+
+```go
+cols := []components.TableColumn{
+    {ID: "ticker", Header: "Ticker", Width: "80px"},
+    {ID: "name",   Header: "Name",   Width: "1fr"},
+    {ID: "value",  Header: "Value",  Width: "120px", Align: "right"},
+}
+c := components.Table("positions-table", cols,
+    components.TableRow("row-1",
+        components.Text("t1", "AAPL", "sm", "bold"),
+        components.Text("n1", "Apple Inc", "sm", "normal"),
+        components.Text("v1", "$1,855.00", "sm", "normal"),
+    ),
+)
+```
+
+### table_row
+
+A row inside a `table`. Uses CSS subgrid so every row shares the same column tracks as the table. Supports click actions for row-level interaction (e.g. navigate to a detail screen).
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| — | — | — | Shape comes from the table's `columns` |
+
+Each child of `table_row` is rendered into a cell aligned according to the column's `align`. Use `text`, `badge`, `image`, or any component as a cell.
+
+```go
+TableRow(id string, children ...Component) Component
+```
+
 ### divider
 
 Separator line. No children.
