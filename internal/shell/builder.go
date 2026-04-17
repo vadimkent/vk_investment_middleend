@@ -129,10 +129,12 @@ func buildNavFooter(lang string) components.Component {
 
 	logoutExpanded := components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout())
 	logoutExpanded.Props["icon"] = "logout"
+	logoutExpanded.Props["style"] = "ghost"
 	logoutExpanded.Props["sidebar_visibility"] = "expanded"
 
 	logoutCollapsed := components.Button("logout-btn-collapsed", "", components.Logout())
 	logoutCollapsed.Props["icon"] = "logout"
+	logoutCollapsed.Props["style"] = "ghost"
 	logoutCollapsed.Props["sidebar_visibility"] = "collapsed"
 
 	return components.NavFooter("shell-footer",
