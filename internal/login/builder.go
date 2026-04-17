@@ -60,11 +60,11 @@ func BuildScreen(lang string) components.Component {
 	)
 	registerRow.Props["align_items"] = "center"
 
-	logo := components.Image("login-logo", "/logo.svg", i18n.T(lang, "app.name"))
-	title := components.Text("login-title", i18n.T(lang, "auth.login_title"), "xl", "bold")
+	appName := components.Text("login-app-name", i18n.T(lang, "app.name"), "xl", "bold")
+	title := components.Text("login-title", i18n.T(lang, "auth.login_title"), "lg", "normal")
 
 	content := components.ColumnWithGap("login-content", "lg",
-		logo,
+		appName,
 		title,
 		form,
 		registerRow,

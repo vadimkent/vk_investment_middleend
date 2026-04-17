@@ -26,7 +26,9 @@ func TestBuildScreen_ContainsCardWithLogoTitleForm(t *testing.T) {
 	card := findDescendantByType(s, "card")
 	require.NotNil(t, card, "card should be present in the tree")
 
-	assert.NotNil(t, findDescendantByID(*card, "login-logo"), "logo image missing")
+	appName := findDescendantByID(*card, "login-app-name")
+	require.NotNil(t, appName, "app name missing")
+	assert.Equal(t, "VK Investments", appName.Props["content"])
 
 	title := findDescendantByID(*card, "login-title")
 	require.NotNil(t, title, "title missing")

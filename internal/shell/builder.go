@@ -81,7 +81,6 @@ func buildSlots(lang, platform, navType string) []components.Component {
 
 func buildNavHeader(lang string) components.Component {
 	return components.NavHeader("shell-header",
-		components.Image("app-logo", "/logo.svg", i18n.T(lang, "app.name")),
 		components.Text("app-name", i18n.T(lang, "app.name"), "lg", "bold"),
 	)
 }
