@@ -78,6 +78,12 @@ func Logout() Action {
 	return Action{Trigger: "click", Type: "logout"}
 }
 
+// ToggleSidebar creates a client-side action that toggles sidebar collapse state.
+// No round-trip to the middleend. State is owned by the frontend (localStorage).
+func ToggleSidebar() Action {
+	return Action{Trigger: "click", Type: "toggle_sidebar"}
+}
+
 // ReplaceResponse creates an action response that replaces a component.
 func ReplaceResponse(targetID string, tree Component, feedback *Component) ActionResponse {
 	return ActionResponse{Action: "replace", TargetID: targetID, Tree: &tree, Feedback: feedback}
