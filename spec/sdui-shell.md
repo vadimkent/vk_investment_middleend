@@ -41,6 +41,15 @@ The `nav_type` prop on the shell screen tells the frontend how to arrange slots.
 
 Each slot is a generic container — it accepts any children.
 
+### Collapsed sidebar behavior
+
+When `nav_type` is `sidebar` and the user collapses it (via `toggle_sidebar`), the frontend automatically:
+
+- Hides each `nav_item`'s `label` and centers its `icon`.
+- Uses the `label` as a tooltip on hover.
+
+The middleend must guarantee every `nav_item` has a non-empty `icon`. Other components in the sidebar tree can opt in/out of rendering in each state via the `sidebar_visibility` shared prop.
+
 ---
 
 ## 4. Platform Adaptation
