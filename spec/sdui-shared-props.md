@@ -87,7 +87,31 @@ fab.Props["justify_self"] = "bottom"
 
 ---
 
-## 5. Usage Pattern
+## 5. Sidebar Visibility
+
+Available on any component. Controls rendering based on the sidebar's collapse state.
+
+| Prop | Values | Description |
+|------|--------|-------------|
+| `sidebar_visibility` | `always` / `expanded` / `collapsed` | Render only in the given sidebar state. Default `always`. |
+
+**Scope:** this prop takes effect only when the component lives inside a shell whose `nav_type` is `sidebar` (today: `web`). It is a no-op under `bottombar`, `burger`, `header_only`, `header_footer`.
+
+**Backward compatible:** when omitted, the component renders in every state (`always`).
+
+```go
+appName := components.Text("app-name", "VK Investments", "lg", "bold")
+appName.Props["sidebar_visibility"] = "expanded"
+
+appNameShort := components.Text("app-name-short", "VK", "lg", "bold")
+appNameShort.Props["sidebar_visibility"] = "collapsed"
+```
+
+The frontend chooses which variant to render based on its own collapse state. The middleend sends both; only the matching one becomes visible.
+
+---
+
+## 6. Usage Pattern
 
 Since shared props are not part of the component helpers' signatures, set them after construction:
 
