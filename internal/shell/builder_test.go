@@ -237,8 +237,8 @@ func TestBuildShell_NavFooterHasSidebarToggleFirst(t *testing.T) {
 	toggle := footer.Children[0]
 	assert.Equal(t, "icon_toggle", toggle.Type)
 	assert.Equal(t, "sidebar-toggle", toggle.ID)
-	assert.Equal(t, "panel-left-close", toggle.Props["icon_inactive"])
-	assert.Equal(t, "panel-left-open", toggle.Props["icon_active"])
+	assert.Equal(t, "panel-left-open", toggle.Props["icon_inactive"])
+	assert.Equal(t, "panel-left-close", toggle.Props["icon_active"])
 	assert.Equal(t, "Collapse sidebar", toggle.Props["tooltip_inactive"])
 	assert.Equal(t, "Expand sidebar", toggle.Props["tooltip_active"])
 

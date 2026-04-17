@@ -116,7 +116,7 @@ func buildNavMain(lang string) components.Component {
 // platforms — buildSlots routes only the web case here.
 func buildNavFooter(lang string) components.Component {
 	sidebarToggle := components.IconToggle("sidebar-toggle", false,
-		"panel-left-close", "panel-left-open",
+		"panel-left-open", "panel-left-close",
 		i18n.T(lang, "nav.sidebar_collapse"), i18n.T(lang, "nav.sidebar_expand"),
 		components.ToggleSidebar(), components.ToggleSidebar(),
 	)
