@@ -119,16 +119,7 @@ func TestBuildShell_NavFooterHasLogoutOnWeb(t *testing.T) {
 	shell := BuildShell("en", "web")
 	footer := findChild(shell, "nav_footer")
 	require.NotNil(t, footer)
-
-	hasLogout := false
-	for _, child := range footer.Children {
-		for _, action := range child.Actions {
-			if action.Type == "logout" {
-				hasLogout = true
-			}
-		}
-	}
-	assert.True(t, hasLogout)
+	assert.True(t, hasActionType(*footer, "logout"), "nav_footer subtree must contain a logout action")
 }
 
 func TestBuildShell_ContentSlotAlwaysPresent(t *testing.T) {
@@ -155,6 +146,32 @@ func findChild(c components.Component, typ string) *components.Component {
 		}
 	}
 	return nil
+}
+
+func findDescendantByID(c components.Component, id string) *components.Component {
+	if c.ID == id {
+		return &c
+	}
+	for i := range c.Children {
+		if found := findDescendantByID(c.Children[i], id); found != nil {
+			return found
+		}
+	}
+	return nil
+}
+
+func hasActionType(c components.Component, typ string) bool {
+	for _, a := range c.Actions {
+		if a.Type == typ {
+			return true
+		}
+	}
+	for _, child := range c.Children {
+		if hasActionType(child, typ) {
+			return true
+		}
+	}
+	return false
 }
 
 func navLabels(shell components.Component) map[string]string {
@@ -228,55 +245,77 @@ func TestBuildShell_AllNavItemsHaveNonEmptyIcon(t *testing.T) {
 	}
 }
 
-func TestBuildShell_NavFooterHasSidebarToggleFirst(t *testing.T) {
+func TestBuildShell_NavFooterEmitsExpandedRowAndCollapsedColumn(t *testing.T) {
 	shell := BuildShell("en", "web")
 	footer := findChild(shell, "nav_footer")
 	require.NotNil(t, footer)
-	require.Len(t, footer.Children, 4, "nav_footer should have sidebar-toggle, theme-toggle, logout-btn, logout-btn-collapsed")
+	require.Len(t, footer.Children, 2, "nav_footer should emit one expanded row + one collapsed column")
 
-	toggle := footer.Children[0]
-	assert.Equal(t, "icon_toggle", toggle.Type)
-	assert.Equal(t, "sidebar-toggle", toggle.ID)
-	assert.Equal(t, "panel-left-open", toggle.Props["icon_inactive"])
-	assert.Equal(t, "panel-left-close", toggle.Props["icon_active"])
-	assert.Equal(t, "Collapse sidebar", toggle.Props["tooltip_inactive"])
-	assert.Equal(t, "Expand sidebar", toggle.Props["tooltip_active"])
+	expanded := footer.Children[0]
+	assert.Equal(t, "row", expanded.Type)
+	assert.Equal(t, "footer-expanded", expanded.ID)
+	assert.Equal(t, "expanded", expanded.Props["sidebar_visibility"])
+	assert.Equal(t, "sm", expanded.Props["gap"])
+	assert.Equal(t, "center", expanded.Props["align_items"])
+	assert.Equal(t, "center", expanded.Props["justify_items"])
+	assert.Equal(t, []string{"auto", "auto", "auto"}, expanded.Props["widths"])
+	require.Len(t, expanded.Children, 3)
+	assert.Equal(t, "sidebar-toggle", expanded.Children[0].ID)
+	assert.Equal(t, "theme-toggle", expanded.Children[1].ID)
+	assert.Equal(t, "logout-btn", expanded.Children[2].ID)
 
-	require.Len(t, toggle.Actions, 2)
-	assert.Equal(t, "toggle_sidebar", toggle.Actions[0].Type)
-	assert.Equal(t, "toggle_sidebar", toggle.Actions[1].Type)
+	collapsed := footer.Children[1]
+	assert.Equal(t, "column", collapsed.Type)
+	assert.Equal(t, "footer-collapsed", collapsed.ID)
+	assert.Equal(t, "collapsed", collapsed.Props["sidebar_visibility"])
+	assert.Equal(t, "sm", collapsed.Props["gap"])
+	assert.Equal(t, "center", collapsed.Props["align_items"])
+	assert.Equal(t, "center", collapsed.Props["justify_items"])
+	require.Len(t, collapsed.Children, 3)
+	assert.Equal(t, "sidebar-toggle-collapsed", collapsed.Children[0].ID)
+	assert.Equal(t, "theme-toggle-collapsed", collapsed.Children[1].ID)
+	assert.Equal(t, "logout-btn-collapsed", collapsed.Children[2].ID)
 }
 
-func TestBuildShell_NavFooterLogoutSplitByVisibility(t *testing.T) {
+func TestBuildShell_NavFooterSidebarTogglesFireToggleSidebar(t *testing.T) {
 	shell := BuildShell("en", "web")
 	footer := findChild(shell, "nav_footer")
 	require.NotNil(t, footer)
 
-	var expanded, collapsed *components.Component
-	for i, child := range footer.Children {
-		if child.ID == "logout-btn" {
-			expanded = &footer.Children[i]
-		}
-		if child.ID == "logout-btn-collapsed" {
-			collapsed = &footer.Children[i]
-		}
+	for _, id := range []string{"sidebar-toggle", "sidebar-toggle-collapsed"} {
+		toggle := findDescendantByID(*footer, id)
+		require.NotNil(t, toggle, "toggle %s must exist", id)
+		assert.Equal(t, "icon_toggle", toggle.Type)
+		assert.Equal(t, "panel-left-open", toggle.Props["icon_inactive"])
+		assert.Equal(t, "panel-left-close", toggle.Props["icon_active"])
+		assert.Equal(t, "Collapse sidebar", toggle.Props["tooltip_inactive"])
+		assert.Equal(t, "Expand sidebar", toggle.Props["tooltip_active"])
+		require.Len(t, toggle.Actions, 2)
+		assert.Equal(t, "toggle_sidebar", toggle.Actions[0].Type)
+		assert.Equal(t, "toggle_sidebar", toggle.Actions[1].Type)
 	}
+}
 
-	require.NotNil(t, expanded, "expanded logout button must exist")
+func TestBuildShell_NavFooterLogoutButtonsHaveGhostAndIcon(t *testing.T) {
+	shell := BuildShell("en", "web")
+	footer := findChild(shell, "nav_footer")
+	require.NotNil(t, footer)
+
+	expanded := findDescendantByID(*footer, "logout-btn")
+	require.NotNil(t, expanded)
 	assert.Equal(t, "button", expanded.Type)
 	assert.Equal(t, "Log out", expanded.Props["label"])
 	assert.Equal(t, "logout", expanded.Props["icon"])
 	assert.Equal(t, "ghost", expanded.Props["style"])
-	assert.Equal(t, "expanded", expanded.Props["sidebar_visibility"])
 	require.Len(t, expanded.Actions, 1)
 	assert.Equal(t, "logout", expanded.Actions[0].Type)
 
-	require.NotNil(t, collapsed, "collapsed logout button must exist")
+	collapsed := findDescendantByID(*footer, "logout-btn-collapsed")
+	require.NotNil(t, collapsed)
 	assert.Equal(t, "button", collapsed.Type)
 	assert.Equal(t, "", collapsed.Props["label"])
 	assert.Equal(t, "logout", collapsed.Props["icon"])
 	assert.Equal(t, "ghost", collapsed.Props["style"])
-	assert.Equal(t, "collapsed", collapsed.Props["sidebar_visibility"])
 	require.Len(t, collapsed.Actions, 1)
 	assert.Equal(t, "logout", collapsed.Actions[0].Type)
 }

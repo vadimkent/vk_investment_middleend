@@ -111,38 +111,66 @@ func buildNavMain(lang string) components.Component {
 }
 
 // buildNavFooter assembles the bottom zone of the sidebar. It assumes
-// nav_type == "sidebar"; sidebar-toggle and the collapsed logout variant
+// nav_type == "sidebar"; sidebar-toggle and the collapsed layout variant
 // only make sense inside a collapsible sidebar. Do not call from non-sidebar
 // platforms — buildSlots routes only the web case here.
+//
+// Layout: the footer emits two sibling containers, each gated by
+// sidebar_visibility. Expanded shows a horizontal row; collapsed shows a
+// vertical column (icon-only).
 func buildNavFooter(lang string) components.Component {
+	expanded := buildNavFooterExpanded(lang)
+	collapsed := buildNavFooterCollapsed(lang)
+	return components.NavFooter("shell-footer", expanded, collapsed)
+}
+
+func buildNavFooterExpanded(lang string) components.Component {
 	sidebarToggle := components.IconToggle("sidebar-toggle", false,
 		"panel-left-open", "panel-left-close",
 		i18n.T(lang, "nav.sidebar_collapse"), i18n.T(lang, "nav.sidebar_expand"),
 		components.ToggleSidebar(), components.ToggleSidebar(),
 	)
-
 	themeToggle := components.IconToggle("theme-toggle", false,
 		"sun", "moon",
 		i18n.T(lang, "nav.theme_light"), i18n.T(lang, "nav.theme_dark"),
 		components.ToggleTheme(), components.ToggleTheme(),
 	)
+	logout := components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout())
+	logout.Props["icon"] = "logout"
+	logout.Props["style"] = "ghost"
 
-	logoutExpanded := components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout())
-	logoutExpanded.Props["icon"] = "logout"
-	logoutExpanded.Props["style"] = "ghost"
-	logoutExpanded.Props["sidebar_visibility"] = "expanded"
-
-	logoutCollapsed := components.Button("logout-btn-collapsed", "", components.Logout())
-	logoutCollapsed.Props["icon"] = "logout"
-	logoutCollapsed.Props["style"] = "ghost"
-	logoutCollapsed.Props["sidebar_visibility"] = "collapsed"
-
-	return components.NavFooter("shell-footer",
-		sidebarToggle,
-		themeToggle,
-		logoutExpanded,
-		logoutCollapsed,
+	row := components.RowWithGap("footer-expanded",
+		[]string{"auto", "auto", "auto"}, "sm",
+		sidebarToggle, themeToggle, logout,
 	)
+	row.Props["sidebar_visibility"] = "expanded"
+	row.Props["align_items"] = "center"
+	row.Props["justify_items"] = "center"
+	return row
+}
+
+func buildNavFooterCollapsed(lang string) components.Component {
+	sidebarToggle := components.IconToggle("sidebar-toggle-collapsed", false,
+		"panel-left-open", "panel-left-close",
+		i18n.T(lang, "nav.sidebar_collapse"), i18n.T(lang, "nav.sidebar_expand"),
+		components.ToggleSidebar(), components.ToggleSidebar(),
+	)
+	themeToggle := components.IconToggle("theme-toggle-collapsed", false,
+		"sun", "moon",
+		i18n.T(lang, "nav.theme_light"), i18n.T(lang, "nav.theme_dark"),
+		components.ToggleTheme(), components.ToggleTheme(),
+	)
+	logout := components.Button("logout-btn-collapsed", "", components.Logout())
+	logout.Props["icon"] = "logout"
+	logout.Props["style"] = "ghost"
+
+	col := components.ColumnWithGap("footer-collapsed", "sm",
+		sidebarToggle, themeToggle, logout,
+	)
+	col.Props["sidebar_visibility"] = "collapsed"
+	col.Props["align_items"] = "center"
+	col.Props["justify_items"] = "center"
+	return col
 }
 
 func buildBottomBar(lang string) components.Component {
