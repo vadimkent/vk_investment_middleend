@@ -179,6 +179,14 @@ Toggles light/dark mode. Client-side only, no round-trip. No parameters.
 ToggleTheme() Action
 ```
 
+### toggle_sidebar
+
+Toggles sidebar collapsed/expanded state. Client-side only, no round-trip. No parameters. Only meaningful under `nav_type: sidebar`; ignored by other nav types.
+
+```go
+ToggleSidebar() Action
+```
+
 ---
 
 ## 3. Action Response
