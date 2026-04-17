@@ -1,6 +1,7 @@
 {
   "app": {
-    "name": "VK Investments"
+    "name": "VK Investments",
+    "name_short": "VK"
   },
   "nav": {
     "portfolio": "Portfolio",
@@ -11,7 +12,9 @@
     "analysis": "Analysis",
     "logout": "Log out",
     "theme_light": "Switch to dark mode",
-    "theme_dark": "Switch to light mode"
+    "theme_dark": "Switch to light mode",
+    "sidebar_collapse": "Collapse sidebar",
+    "sidebar_expand": "Expand sidebar"
   },
   "auth": {
     "login_title": "Log in",
