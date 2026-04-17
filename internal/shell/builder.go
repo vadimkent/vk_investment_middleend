@@ -101,7 +101,14 @@ func buildNavMain(lang string) components.Component {
 }
 
 func buildNavFooter(lang string) components.Component {
+	themeToggle := components.IconToggle("theme-toggle", false,
+		"sun", "moon",
+		i18n.T(lang, "nav.theme_light"), i18n.T(lang, "nav.theme_dark"),
+		components.Action{Trigger: "click", Type: "toggle_theme"},
+		components.Action{Trigger: "click", Type: "toggle_theme"},
+	)
 	return components.NavFooter("shell-footer",
+		themeToggle,
 		components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout()),
 	)
 }

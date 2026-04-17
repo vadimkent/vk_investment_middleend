@@ -9,7 +9,9 @@
     "snapshots": "Snapshots",
     "import": "Importar",
     "analysis": "Análisis",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "theme_light": "Cambiar a modo oscuro",
+    "theme_dark": "Cambiar a modo claro"
   },
   "auth": {
     "login_title": "Iniciar sesión",

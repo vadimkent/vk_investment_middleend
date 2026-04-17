@@ -9,7 +9,9 @@
     "snapshots": "Snapshots",
     "import": "Import",
     "analysis": "Analysis",
-    "logout": "Log out"
+    "logout": "Log out",
+    "theme_light": "Switch to dark mode",
+    "theme_dark": "Switch to light mode"
   },
   "auth": {
     "login_title": "Log in",
