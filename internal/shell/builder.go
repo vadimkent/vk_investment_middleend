@@ -111,15 +111,32 @@ func buildNavMain(lang string) components.Component {
 }
 
 func buildNavFooter(lang string) components.Component {
+	sidebarToggle := components.IconToggle("sidebar-toggle", false,
+		"panel-left-close", "panel-left-open",
+		i18n.T(lang, "nav.sidebar_collapse"), i18n.T(lang, "nav.sidebar_expand"),
+		components.ToggleSidebar(), components.ToggleSidebar(),
+	)
+
 	themeToggle := components.IconToggle("theme-toggle", false,
 		"sun", "moon",
 		i18n.T(lang, "nav.theme_light"), i18n.T(lang, "nav.theme_dark"),
 		components.Action{Trigger: "click", Type: "toggle_theme"},
 		components.Action{Trigger: "click", Type: "toggle_theme"},
 	)
+
+	logoutExpanded := components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout())
+	logoutExpanded.Props["icon"] = "logout"
+	logoutExpanded.Props["sidebar_visibility"] = "expanded"
+
+	logoutCollapsed := components.Button("logout-btn-collapsed", "", components.Logout())
+	logoutCollapsed.Props["icon"] = "logout"
+	logoutCollapsed.Props["sidebar_visibility"] = "collapsed"
+
 	return components.NavFooter("shell-footer",
+		sidebarToggle,
 		themeToggle,
-		components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout()),
+		logoutExpanded,
+		logoutCollapsed,
 	)
 }
 

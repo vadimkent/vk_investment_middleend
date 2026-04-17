@@ -227,3 +227,53 @@ func TestBuildShell_AllNavItemsHaveNonEmptyIcon(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildShell_NavFooterHasSidebarToggleFirst(t *testing.T) {
+	shell := BuildShell("en", "web")
+	footer := findChild(shell, "nav_footer")
+	require.NotNil(t, footer)
+	require.GreaterOrEqual(t, len(footer.Children), 1)
+
+	toggle := footer.Children[0]
+	assert.Equal(t, "icon_toggle", toggle.Type)
+	assert.Equal(t, "sidebar-toggle", toggle.ID)
+	assert.Equal(t, "panel-left-close", toggle.Props["icon_inactive"])
+	assert.Equal(t, "panel-left-open", toggle.Props["icon_active"])
+	assert.Equal(t, "Collapse sidebar", toggle.Props["tooltip_inactive"])
+	assert.Equal(t, "Expand sidebar", toggle.Props["tooltip_active"])
+
+	require.Len(t, toggle.Actions, 2)
+	assert.Equal(t, "toggle_sidebar", toggle.Actions[0].Type)
+	assert.Equal(t, "toggle_sidebar", toggle.Actions[1].Type)
+}
+
+func TestBuildShell_NavFooterLogoutSplitByVisibility(t *testing.T) {
+	shell := BuildShell("en", "web")
+	footer := findChild(shell, "nav_footer")
+	require.NotNil(t, footer)
+
+	var expanded, collapsed *components.Component
+	for i, child := range footer.Children {
+		if child.ID == "logout-btn" {
+			expanded = &footer.Children[i]
+		}
+		if child.ID == "logout-btn-collapsed" {
+			collapsed = &footer.Children[i]
+		}
+	}
+
+	require.NotNil(t, expanded, "expanded logout button must exist")
+	assert.Equal(t, "button", expanded.Type)
+	assert.Equal(t, "Log out", expanded.Props["label"])
+	assert.Equal(t, "logout", expanded.Props["icon"])
+	assert.Equal(t, "expanded", expanded.Props["sidebar_visibility"])
+	require.Len(t, expanded.Actions, 1)
+	assert.Equal(t, "logout", expanded.Actions[0].Type)
+
+	require.NotNil(t, collapsed, "collapsed logout button must exist")
+	assert.Equal(t, "button", collapsed.Type)
+	assert.Equal(t, "logout", collapsed.Props["icon"])
+	assert.Equal(t, "collapsed", collapsed.Props["sidebar_visibility"])
+	require.Len(t, collapsed.Actions, 1)
+	assert.Equal(t, "logout", collapsed.Actions[0].Type)
+}
