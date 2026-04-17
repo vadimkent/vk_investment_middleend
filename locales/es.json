@@ -102,6 +102,30 @@
       "days_ago": "hace {n} días"
     }
   },
+  "assets": {
+    "title": "Activos",
+    "filter": {
+      "type": "Tipo",
+      "type_any": "Todos"
+    },
+    "col": {
+      "ticker": "Ticker",
+      "name": "Nombre",
+      "type": "Tipo",
+      "currency": "Moneda",
+      "complex": "Complejo",
+      "price_provider": "Proveedor"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "page_of": "Página {current} de {total}"
+    },
+    "empty_title": "Aún no hay activos",
+    "empty_subtitle": "Cuando registres activos, aparecerán aquí.",
+    "empty_filtered_title": "Ningún activo coincide con el filtro",
+    "empty_filtered_subtitle": "Probá cambiar o limpiar el filtro."
+  },
   "home": {
     "welcome_title": "Bienvenido a VK Investments",
     "subtitle": "Este es un middleend scaffoldeado que sirve componentes SDUI."

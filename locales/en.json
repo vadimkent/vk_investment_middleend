@@ -102,6 +102,30 @@
       "days_ago": "{n} days ago"
     }
   },
+  "assets": {
+    "title": "Assets",
+    "filter": {
+      "type": "Type",
+      "type_any": "Any"
+    },
+    "col": {
+      "ticker": "Ticker",
+      "name": "Name",
+      "type": "Type",
+      "currency": "Currency",
+      "complex": "Complex",
+      "price_provider": "Price Provider"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page_of": "Page {current} of {total}"
+    },
+    "empty_title": "No assets registered yet",
+    "empty_subtitle": "Once you register assets, they will appear here.",
+    "empty_filtered_title": "No assets match the filter",
+    "empty_filtered_subtitle": "Try changing or clearing the filter."
+  },
   "home": {
     "welcome_title": "Welcome to VK Investments",
     "subtitle": "This is a scaffolded middleend serving SDUI components."
