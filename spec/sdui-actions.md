@@ -171,6 +171,14 @@ Logout() Action
 components.Button("logout", "Sign Out", components.Logout())
 ```
 
+### toggle_theme
+
+Toggles light/dark mode. Client-side only, no round-trip. No parameters.
+
+```go
+ToggleTheme() Action
+```
+
 ---
 
 ## 3. Action Response
