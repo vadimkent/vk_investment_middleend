@@ -60,14 +60,14 @@ func buildSlots(lang, platform, navType string) []components.Component {
 	switch platform {
 	case "web":
 		return []components.Component{
-			buildNavHeader(lang),
+			buildNavHeader(lang, navType),
 			buildNavMain(lang),
 			buildNavFooter(lang),
 			components.ContentSlot("content"),
 		}
 	case "web_mobile":
 		return []components.Component{
-			buildNavHeader(lang),
+			buildNavHeader(lang, navType),
 			components.ContentSlot("content"),
 			buildBottomBar(lang),
 		}
@@ -79,13 +79,19 @@ func buildSlots(lang, platform, navType string) []components.Component {
 	}
 }
 
-func buildNavHeader(lang string) components.Component {
+// buildNavHeader emits the shell's top zone. On sidebar nav types it carries
+// both an expanded app-name and a collapsed short variant, each gated by
+// sidebar_visibility. On other nav types (bottombar, etc.) it emits only the
+// full app name — sidebar_visibility is a no-op there.
+func buildNavHeader(lang, navType string) components.Component {
 	appName := components.Text("app-name", i18n.T(lang, "app.name"), "lg", "bold")
-	appName.Props["sidebar_visibility"] = "expanded"
+	if navType != "sidebar" {
+		return components.NavHeader("shell-header", appName)
+	}
 
+	appName.Props["sidebar_visibility"] = "expanded"
 	appNameShort := components.Text("app-name-short", i18n.T(lang, "app.name_short"), "lg", "bold")
 	appNameShort.Props["sidebar_visibility"] = "collapsed"
-
 	return components.NavHeader("shell-header", appName, appNameShort)
 }
 

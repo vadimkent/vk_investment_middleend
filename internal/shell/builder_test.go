@@ -194,6 +194,20 @@ func TestBuildShell_NavHeaderHasExpandedAndCollapsedAppName(t *testing.T) {
 	assert.Equal(t, "collapsed", collapsed.Props["sidebar_visibility"])
 }
 
+func TestBuildShell_NavHeaderOnWebMobileIsSingleAppName(t *testing.T) {
+	shell := BuildShell("en", "web_mobile")
+	header := findChild(shell, "nav_header")
+	require.NotNil(t, header)
+	require.Len(t, header.Children, 1, "web_mobile nav_header must not emit the collapsed variant")
+
+	only := header.Children[0]
+	assert.Equal(t, "text", only.Type)
+	assert.Equal(t, "app-name", only.ID)
+	assert.Equal(t, "VK Investments", only.Props["content"])
+	_, hasVisibility := only.Props["sidebar_visibility"]
+	assert.False(t, hasVisibility, "bare app-name on non-sidebar nav should not set sidebar_visibility")
+}
+
 func TestBuildShell_AllNavItemsHaveNonEmptyIcon(t *testing.T) {
 	// The shell spec requires every nav_item to have a non-empty icon so that
 	// the sidebar can collapse to an icon-only view without blank cells.
