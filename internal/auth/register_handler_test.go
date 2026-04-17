@@ -38,7 +38,7 @@ func TestRegisterHandler_Success(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "navigate", resp["action"])
-	assert.Equal(t, "/screens/login", resp["target_id"])
+	assert.Equal(t, "/login", resp["target_id"])
 }
 
 func TestRegisterHandler_Disabled(t *testing.T) {

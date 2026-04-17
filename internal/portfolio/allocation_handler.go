@@ -41,7 +41,7 @@ func (h *AllocationHandler) Get(c *gin.Context) {
 	portfolioResp, err := h.client.GetPositions(c.Request.Context(), auth, false, false, false)
 	if err != nil {
 		if errors.Is(err, ErrUnauthorized) {
-			shared.RespondUnauthorized(c, "/screens/login")
+			shared.RespondUnauthorized(c, "/login")
 			return
 		}
 		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load allocation"}})

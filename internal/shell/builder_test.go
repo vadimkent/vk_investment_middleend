@@ -63,12 +63,12 @@ func TestBuildShell_UnknownOrEmptyPlatformDefaultsToWeb(t *testing.T) {
 func TestBuildShell_AllNavItemsPresentWithNavigateAction(t *testing.T) {
 	expected := []string{"portfolio", "assets", "trades", "snapshots", "import", "analysis"}
 	routes := map[string]string{
-		"portfolio": "/screens/portfolio",
-		"assets":    "/screens/assets",
-		"trades":    "/screens/trades",
-		"snapshots": "/screens/snapshots",
-		"import":    "/screens/import",
-		"analysis":  "/screens/analysis",
+		"portfolio": "/portfolio",
+		"assets":    "/assets",
+		"trades":    "/trades",
+		"snapshots": "/snapshots",
+		"import":    "/import",
+		"analysis":  "/analysis",
 	}
 
 	shell := BuildShell("en", "web")

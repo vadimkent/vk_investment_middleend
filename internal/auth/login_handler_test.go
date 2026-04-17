@@ -39,7 +39,7 @@ func TestLoginHandler_Success(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "navigate", resp["action"])
-	assert.Equal(t, "/screens/portfolio", resp["target_id"])
+	assert.Equal(t, "/portfolio", resp["target_id"])
 
 	auth, ok := resp["auth"].(map[string]any)
 	require.True(t, ok, "auth should be present, got: %s", w.Body.String())

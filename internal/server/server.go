@@ -44,7 +44,7 @@ func (s *Server) setupRoutes() {
 	// Protected routes.
 	leeway := time.Duration(s.cfg.JWTLeewaySeconds) * time.Second
 	protected := s.router.Group("")
-	protected.Use(auth.RequireAuth(s.cfg.JWTSecret, leeway, "/screens/login"))
+	protected.Use(auth.RequireAuth(s.cfg.JWTSecret, leeway, "/login"))
 
 	shellUC := shell.NewGetUseCase()
 	shellHandler := shell.NewHandler(shellUC)

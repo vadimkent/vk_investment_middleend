@@ -46,7 +46,7 @@ func (h *IncludeClosedHandler) Post(c *gin.Context) {
 	resp, err := h.client.GetPositions(c.Request.Context(), auth, *req.IncludeClosed, false, false)
 	if err != nil {
 		if errors.Is(err, ErrUnauthorized) {
-			shared.RespondUnauthorized(c, "/screens/login")
+			shared.RespondUnauthorized(c, "/login")
 			return
 		}
 		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load portfolio"}})

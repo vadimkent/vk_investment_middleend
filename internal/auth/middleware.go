@@ -12,7 +12,7 @@ import (
 // RequireAuth returns a Gin middleware that validates the Authorization Bearer
 // JWT with the given secret and leeway. On success it stores the sub claim
 // under "user_id" in the Gin context. On failure it aborts with 401 and a
-// redirect hint pointing to loginRedirect (typically "/screens/login").
+// redirect hint pointing to loginRedirect (typically "/login").
 func RequireAuth(secret string, leeway time.Duration, loginRedirect string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")

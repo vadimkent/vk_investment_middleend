@@ -139,7 +139,7 @@ func TestLiveHandler_BackendUnauthorized401(t *testing.T) {
 	w := liveGet(t, r, "live=true", "Bearer x")
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Contains(t, w.Body.String(), `"error":"unauthorized"`)
-	assert.Contains(t, w.Body.String(), `"redirect":"/screens/login"`)
+	assert.Contains(t, w.Body.String(), `"redirect":"/login"`)
 }
 
 func TestLiveHandler_BackendError502(t *testing.T) {

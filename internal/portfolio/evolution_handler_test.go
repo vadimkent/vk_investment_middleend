@@ -116,7 +116,7 @@ func TestEvolutionHandler_BackendUnauthorizedReturns401WithRedirect(t *testing.T
 	w := doGet(t, r, "timeframe=all&mode=abs&currency=USD", "Bearer x")
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Contains(t, w.Body.String(), `"error":"unauthorized"`)
-	assert.Contains(t, w.Body.String(), `"redirect":"/screens/login"`)
+	assert.Contains(t, w.Body.String(), `"redirect":"/login"`)
 }
 
 func TestEvolutionHandler_BackendErrorReturns502(t *testing.T) {

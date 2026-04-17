@@ -16,12 +16,12 @@ type NavItem struct {
 // DefaultNavItems returns the six navigation entries of the investment tracker.
 func DefaultNavItems() []NavItem {
 	return []NavItem{
-		{ID: "portfolio", LabelKey: "nav.portfolio", Icon: "pie-chart", Route: "/screens/portfolio"},
-		{ID: "assets", LabelKey: "nav.assets", Icon: "coins", Route: "/screens/assets"},
-		{ID: "trades", LabelKey: "nav.trades", Icon: "arrow-swap", Route: "/screens/trades"},
-		{ID: "snapshots", LabelKey: "nav.snapshots", Icon: "camera", Route: "/screens/snapshots"},
-		{ID: "import", LabelKey: "nav.import", Icon: "upload", Route: "/screens/import"},
-		{ID: "analysis", LabelKey: "nav.analysis", Icon: "sparkles", Route: "/screens/analysis"},
+		{ID: "portfolio", LabelKey: "nav.portfolio", Icon: "pie-chart", Route: "/portfolio"},
+		{ID: "assets", LabelKey: "nav.assets", Icon: "coins", Route: "/assets"},
+		{ID: "trades", LabelKey: "nav.trades", Icon: "arrow-swap", Route: "/trades"},
+		{ID: "snapshots", LabelKey: "nav.snapshots", Icon: "camera", Route: "/snapshots"},
+		{ID: "import", LabelKey: "nav.import", Icon: "upload", Route: "/import"},
+		{ID: "analysis", LabelKey: "nav.analysis", Icon: "sparkles", Route: "/analysis"},
 	}
 }
 

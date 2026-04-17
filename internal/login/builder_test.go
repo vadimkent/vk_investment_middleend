@@ -79,7 +79,7 @@ func TestBuildScreen_RegisterLinkNavigates(t *testing.T) {
 	a := btn.Actions[0]
 	assert.Equal(t, "click", a.Trigger)
 	assert.Equal(t, "navigate", a.Type)
-	assert.Equal(t, "/screens/register", a.URL)
+	assert.Equal(t, "/register", a.URL)
 	assert.Equal(t, "self", a.Target)
 }
 

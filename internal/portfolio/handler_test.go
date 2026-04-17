@@ -69,7 +69,7 @@ func TestHandler_BackendUnauthorizedReturns401WithRedirect(t *testing.T) {
 
 	require.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Contains(t, w.Body.String(), `"error":"unauthorized"`)
-	assert.Contains(t, w.Body.String(), `"redirect":"/screens/login"`)
+	assert.Contains(t, w.Body.String(), `"redirect":"/login"`)
 }
 
 func TestHandler_BackendErrorReturns502(t *testing.T) {

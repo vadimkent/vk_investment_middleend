@@ -39,7 +39,7 @@ func (h *RegisterHandler) Post(c *gin.Context) {
 		fb := components.Snackbar("register-ok", "Account created. Please log in.", "success")
 		c.JSON(http.StatusOK, components.ActionResponse{
 			Action:   "navigate",
-			TargetID: "/screens/login",
+			TargetID: "/login",
 			Feedback: &fb,
 		})
 	case errors.Is(err, ErrRegistrationDisabled):

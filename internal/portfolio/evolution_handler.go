@@ -54,7 +54,7 @@ func (h *EvolutionHandler) Get(c *gin.Context) {
 	points, err := h.client.GetEvolution(c.Request.Context(), auth, q)
 	if err != nil {
 		if errors.Is(err, ErrUnauthorized) {
-			shared.RespondUnauthorized(c, "/screens/login")
+			shared.RespondUnauthorized(c, "/login")
 			return
 		}
 		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load evolution"}})

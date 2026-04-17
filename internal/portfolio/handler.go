@@ -27,7 +27,7 @@ func (h *Handler) Get(c *gin.Context) {
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrUnauthorized):
-			shared.RespondUnauthorized(c, "/screens/login")
+			shared.RespondUnauthorized(c, "/login")
 		default:
 			c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load portfolio"}})
 		}

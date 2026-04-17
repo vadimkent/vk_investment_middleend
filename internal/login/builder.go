@@ -50,7 +50,7 @@ func BuildScreen(lang string) components.Component {
 			"label": i18n.T(lang, "auth.register_link"),
 			"style": "ghost",
 		},
-		Actions: []components.Action{components.Navigate("/screens/register")},
+		Actions: []components.Action{components.Navigate("/register")},
 	}
 
 	registerRow := components.RowWithGap("register-row", []string{"1fr", "auto", "auto"}, "sm",

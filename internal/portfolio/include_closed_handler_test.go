@@ -105,7 +105,7 @@ func TestIncludeClosedHandler_BackendUnauthorizedReturns401WithRedirect(t *testi
 	w := doPost(t, r, `{"include_closed":true}`, "Bearer x")
 	require.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Contains(t, w.Body.String(), `"error":"unauthorized"`)
-	assert.Contains(t, w.Body.String(), `"redirect":"/screens/login"`)
+	assert.Contains(t, w.Body.String(), `"redirect":"/login"`)
 }
 
 func TestIncludeClosedHandler_BackendErrorReturns502(t *testing.T) {
