@@ -110,6 +110,10 @@ func buildNavMain(lang string) components.Component {
 	return components.NavMain("shell-nav", children...)
 }
 
+// buildNavFooter assembles the bottom zone of the sidebar. It assumes
+// nav_type == "sidebar"; sidebar-toggle and the collapsed logout variant
+// only make sense inside a collapsible sidebar. Do not call from non-sidebar
+// platforms — buildSlots routes only the web case here.
 func buildNavFooter(lang string) components.Component {
 	sidebarToggle := components.IconToggle("sidebar-toggle", false,
 		"panel-left-close", "panel-left-open",

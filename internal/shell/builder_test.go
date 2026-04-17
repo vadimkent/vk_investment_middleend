@@ -232,7 +232,7 @@ func TestBuildShell_NavFooterHasSidebarToggleFirst(t *testing.T) {
 	shell := BuildShell("en", "web")
 	footer := findChild(shell, "nav_footer")
 	require.NotNil(t, footer)
-	require.GreaterOrEqual(t, len(footer.Children), 1)
+	require.Len(t, footer.Children, 4, "nav_footer should have sidebar-toggle, theme-toggle, logout-btn, logout-btn-collapsed")
 
 	toggle := footer.Children[0]
 	assert.Equal(t, "icon_toggle", toggle.Type)
@@ -272,6 +272,7 @@ func TestBuildShell_NavFooterLogoutSplitByVisibility(t *testing.T) {
 
 	require.NotNil(t, collapsed, "collapsed logout button must exist")
 	assert.Equal(t, "button", collapsed.Type)
+	assert.Equal(t, "", collapsed.Props["label"])
 	assert.Equal(t, "logout", collapsed.Props["icon"])
 	assert.Equal(t, "collapsed", collapsed.Props["sidebar_visibility"])
 	require.Len(t, collapsed.Actions, 1)
