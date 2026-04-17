@@ -174,3 +174,42 @@ func navLabels(shell components.Component) map[string]string {
 	}
 	return out
 }
+
+func TestBuildShell_NavHeaderHasExpandedAndCollapsedAppName(t *testing.T) {
+	shell := BuildShell("en", "web")
+	header := findChild(shell, "nav_header")
+	require.NotNil(t, header)
+	require.Len(t, header.Children, 2, "nav_header should have expanded + collapsed app-name")
+
+	expanded := header.Children[0]
+	assert.Equal(t, "text", expanded.Type)
+	assert.Equal(t, "app-name", expanded.ID)
+	assert.Equal(t, "VK Investments", expanded.Props["content"])
+	assert.Equal(t, "expanded", expanded.Props["sidebar_visibility"])
+
+	collapsed := header.Children[1]
+	assert.Equal(t, "text", collapsed.Type)
+	assert.Equal(t, "app-name-short", collapsed.ID)
+	assert.Equal(t, "VK", collapsed.Props["content"])
+	assert.Equal(t, "collapsed", collapsed.Props["sidebar_visibility"])
+}
+
+func TestBuildShell_AllNavItemsHaveNonEmptyIcon(t *testing.T) {
+	// The shell spec requires every nav_item to have a non-empty icon so that
+	// the sidebar can collapse to an icon-only view without blank cells.
+	for _, platform := range []string{"web", "web_mobile", "android", "ios"} {
+		shell := BuildShell("en", platform)
+		container := findChild(shell, "nav_main")
+		if container == nil {
+			container = findChild(shell, "bottombar")
+		}
+		require.NotNil(t, container, "platform=%q has no nav_main or bottombar", platform)
+		for _, item := range container.Children {
+			if item.Type != "nav_item" {
+				continue
+			}
+			icon, _ := item.Props["icon"].(string)
+			assert.NotEmpty(t, icon, "platform=%q nav_item %s must have non-empty icon", platform, item.ID)
+		}
+	}
+}

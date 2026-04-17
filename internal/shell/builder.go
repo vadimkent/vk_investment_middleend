@@ -80,9 +80,13 @@ func buildSlots(lang, platform, navType string) []components.Component {
 }
 
 func buildNavHeader(lang string) components.Component {
-	return components.NavHeader("shell-header",
-		components.Text("app-name", i18n.T(lang, "app.name"), "lg", "bold"),
-	)
+	appName := components.Text("app-name", i18n.T(lang, "app.name"), "lg", "bold")
+	appName.Props["sidebar_visibility"] = "expanded"
+
+	appNameShort := components.Text("app-name-short", i18n.T(lang, "app.name_short"), "lg", "bold")
+	appNameShort.Props["sidebar_visibility"] = "collapsed"
+
+	return components.NavHeader("shell-header", appName, appNameShort)
 }
 
 func buildNavMain(lang string) components.Component {
