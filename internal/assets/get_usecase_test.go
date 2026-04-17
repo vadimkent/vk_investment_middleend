@@ -52,3 +52,12 @@ func TestUseCase_ExecuteSection_ReturnsSubtree(t *testing.T) {
 	assert.Equal(t, "column", section.Type)
 	assert.Equal(t, "assets-section", section.ID)
 }
+
+func TestUseCase_Execute_BackendErrorPropagates(t *testing.T) {
+	fc := &fakeClient{err: ErrBackend}
+	uc := NewGetUseCase(fc)
+
+	_, err := uc.Execute(context.Background(), "", ListParams{}, "en")
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, ErrBackend))
+}
