@@ -43,6 +43,21 @@ func TestActionResponse_AuthSerialized(t *testing.T) {
 	assert.Contains(t, string(b), `"auth":{"token":"t","expires_at":"2026-04-15T12:00:00Z"}`)
 }
 
+func TestToggleTheme_ReturnsClickToggleAction(t *testing.T) {
+	action := ToggleTheme()
+	assert.Equal(t, "click", action.Trigger)
+	assert.Equal(t, "toggle_theme", action.Type)
+	assert.Empty(t, action.URL)
+	assert.Empty(t, action.Endpoint)
+	assert.Empty(t, action.TargetID)
+}
+
+func TestToggleTheme_JSONShape(t *testing.T) {
+	b, err := json.Marshal(ToggleTheme())
+	require.NoError(t, err)
+	assert.Equal(t, `{"trigger":"click","type":"toggle_theme"}`, string(b))
+}
+
 func TestToggleSidebar_ReturnsClickToggleAction(t *testing.T) {
 	action := ToggleSidebar()
 	assert.Equal(t, "click", action.Trigger)

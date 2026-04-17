@@ -78,6 +78,12 @@ func Logout() Action {
 	return Action{Trigger: "click", Type: "logout"}
 }
 
+// ToggleTheme creates a client-side action that toggles light/dark mode.
+// No round-trip to the middleend. State is owned by the frontend.
+func ToggleTheme() Action {
+	return Action{Trigger: "click", Type: "toggle_theme"}
+}
+
 // ToggleSidebar creates a client-side action that toggles sidebar collapse state.
 // No round-trip to the middleend. State is owned by the frontend (localStorage).
 func ToggleSidebar() Action {

@@ -124,8 +124,7 @@ func buildNavFooter(lang string) components.Component {
 	themeToggle := components.IconToggle("theme-toggle", false,
 		"sun", "moon",
 		i18n.T(lang, "nav.theme_light"), i18n.T(lang, "nav.theme_dark"),
-		components.Action{Trigger: "click", Type: "toggle_theme"},
-		components.Action{Trigger: "click", Type: "toggle_theme"},
+		components.ToggleTheme(), components.ToggleTheme(),
 	)
 
 	logoutExpanded := components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout())
