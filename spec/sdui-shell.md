@@ -127,9 +127,9 @@ Each `NavItem` has:
 
 `BuildShell` delegates to internal helpers:
 
-- `buildNavHeader(lang)` — Logo image + app name text
+- `buildNavHeader(lang, navType)` — App name text. On `sidebar` nav types, emits both an expanded and a collapsed short variant via `sidebar_visibility`.
 - `buildNavMain(lang)` — Iterates `DefaultNavItems`, creates `NavItem` components with `Navigate` actions
-- `buildNavFooter(lang)` — Logout button
+- `buildNavFooter(lang)` — Sidebar-toggle, theme-toggle, and logout (expanded + collapsed variants). Sidebar-only; only called when `nav_type == sidebar`.
 - `buildBottomBar(lang)` — Same items as nav_main but inside a `BottomBar` slot
 
 ### Usage in Handler
