@@ -48,6 +48,33 @@ func TestListHandler_Get_InvalidAssetType(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var body map[string]any
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &body))
+	errObj, ok := body["error"].(map[string]any)
+	require.True(t, ok, "error must be an object")
+	assert.Equal(t, "BAD_REQUEST", errObj["code"])
+	assert.Equal(t, "invalid asset_type", errObj["message"])
+}
+
+func TestListHandler_Get_InvalidOffset(t *testing.T) {
+	h := NewListHandler(NewGetUseCase(&stubClient{}))
+	r := newRouterWithListHandler(h)
+
+	for _, val := range []string{"abc", "-5"} {
+		req := httptest.NewRequest(http.MethodGet, "/actions/assets/list?offset="+val, nil)
+		req.Header.Set("Authorization", "Bearer token")
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code, "offset=%q", val)
+
+		var body map[string]any
+		require.NoError(t, json.Unmarshal(w.Body.Bytes(), &body))
+		errObj, ok := body["error"].(map[string]any)
+		require.True(t, ok, "error must be an object")
+		assert.Equal(t, "BAD_REQUEST", errObj["code"])
+		assert.Equal(t, "invalid offset", errObj["message"])
+	}
 }
 
 func TestListHandler_Get_Unauthorized(t *testing.T) {
@@ -60,6 +87,11 @@ func TestListHandler_Get_Unauthorized(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	var body map[string]any
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &body))
+	assert.Equal(t, "unauthorized", body["error"])
+	assert.Equal(t, "/login", body["redirect"])
 }
 
 func TestListHandler_Get_BackendError(t *testing.T) {
