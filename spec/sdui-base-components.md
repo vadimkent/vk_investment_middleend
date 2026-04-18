@@ -613,7 +613,7 @@ Structure:
 }
 ```
 
-When the expression evaluates `false` against the current form state, the frontend hides the component. Hidden components do not contribute to form data on submit.
+When the expression evaluates to `true`, the component is visible; when it evaluates to `false`, the frontend hides it. Hidden components do not contribute to form data on submit.
 
 | Field | Type | Description |
 |-------|------|-------------|

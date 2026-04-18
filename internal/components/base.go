@@ -626,8 +626,9 @@ func BadgeCount(id string, count int, variant string, child Component) Component
 //
 // Supported ops: "eq" (equals), "ne" (not equals).
 // Field must match the `name` prop of another control in the same form.
+// Serialize into a component's props map under the key "visible_when".
 type VisibleWhen struct {
-	Field string      `json:"field"`
-	Op    string      `json:"op"`
-	Value interface{} `json:"value"`
+	Field string `json:"field"`
+	Op    string `json:"op"`
+	Value any    `json:"value"`
 }
