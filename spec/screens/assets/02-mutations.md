@@ -39,7 +39,7 @@ screen id=assets
   column assets-root (gap=lg)
     row assets-header-row ...                                (from L1: title + 1fr spacer)
     column assets-section (gap=sm)
-      row assets-filter-row widths=["240px","1fr","auto"]
+      row assets-filter-row widths=["240px","1fr","auto"] justify_items="bottom"
         select asset-type-select ...                          (same as L1)
         spacer filter-spacer size="none"
         button assets-new-btn

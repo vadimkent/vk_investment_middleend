@@ -87,7 +87,9 @@ func buildFilter(params ListParams, lang string) components.Component {
 			Loading:  "section",
 		},
 	)
-	return components.Row("assets-filter-row", []string{"240px", "1fr", "auto"}, sel, filler, newBtn)
+	row := components.Row("assets-filter-row", []string{"240px", "1fr", "auto"}, sel, filler, newBtn)
+	row.Props["justify_items"] = "bottom"
+	return row
 }
 
 func buildTable(assets []Asset, lang string) components.Component {
