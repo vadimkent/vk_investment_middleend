@@ -320,6 +320,8 @@ Text input field. Must be inside a `form`.
 | `required` | bool | no | Required validation |
 | `disabled` | bool | no | Disable the field |
 | `max_length` | int | no | Maximum character count |
+| `pattern` | string | no | ECMAScript regex validated client-side on change/blur; non-matching values block submission |
+| `auto_uppercase` | bool | no | Frontend transforms entered value to uppercase as the user types |
 
 ```go
 Input(id, placeholder, name, inputType string) Component
@@ -594,3 +596,29 @@ Shell slot components are documented in [sdui-shell.md](sdui-shell.md). For refe
 | `bottombar` | `BottomBar(id, children...)` | Fixed bottom bar |
 | `content_slot` | `ContentSlot(id)` | Where the active screen renders |
 | `nav_item` | `NavItem(id, label, icon, route, actions...)` | Navigation link |
+
+---
+
+## Form component visibility: `visible_when`
+
+Form components (`input`, `select`, `checkbox`, `textarea`, `radio_group`) accept an optional `visible_when` prop that expresses conditional visibility based on another control's current value.
+
+Structure:
+
+```json
+{
+  "field": "is_complex",
+  "op": "eq",
+  "value": false
+}
+```
+
+When the expression evaluates `false` against the current form state, the frontend hides the component. Hidden components do not contribute to form data on submit.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `field` | string | `name` of another form control in the same form |
+| `op` | string | `eq` (equals) or `ne` (not equals) |
+| `value` | any | String, bool, or number to compare against |
+
+Compound expressions (`and`/`or`) are not defined. If more complex reactive logic is needed, do a server-side round-trip instead.

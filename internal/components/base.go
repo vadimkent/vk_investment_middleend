@@ -619,3 +619,15 @@ func BadgeCount(id string, count int, variant string, child Component) Component
 		Children: []Component{child},
 	}
 }
+
+// VisibleWhen expresses conditional visibility of a form component based on
+// another control's current value. When the expression evaluates false in the
+// current form state, the frontend hides the component.
+//
+// Supported ops: "eq" (equals), "ne" (not equals).
+// Field must match the `name` prop of another control in the same form.
+type VisibleWhen struct {
+	Field string      `json:"field"`
+	Op    string      `json:"op"`
+	Value interface{} `json:"value"`
+}
