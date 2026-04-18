@@ -355,7 +355,7 @@ c := components.Form("login-form",
 
 ### select
 
-Dropdown selection field. Must be inside a `form`.
+Dropdown selection field. Typically used inside a `form`, but can also stand alone with an attached action (e.g. a filter that triggers a `reload` on change).
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
@@ -366,6 +366,8 @@ Dropdown selection field. Must be inside a `form`.
 | `default_value` | string | no | Pre-selected value |
 | `required` | bool | no | Required validation |
 | `disabled` | bool | no | Disable the field |
+
+**Placeholder source:** When `select` triggers an action, it exposes `value` — the `value` of the currently selected option — for URL placeholder substitution (see [sdui-actions.md § URL Placeholders](sdui-actions.md)).
 
 ```go
 type SelectOption struct {

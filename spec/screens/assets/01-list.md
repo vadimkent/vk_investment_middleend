@@ -48,10 +48,10 @@ sequenceDiagram
 
 All interactive controls live inside the `assets-section` subtree — the only part that gets replaced.
 
-- **Filter change** — the `asset-type-select` carries a `submit` action with `method:"GET"`, endpoint `/actions/assets/list`, `target_id:"assets-filter-form"`. The FE serializes the form as query string and GETs. No `offset` in the form → the handler defaults `offset` to `0` (filter change resets pagination).
-- **Pagination** — the prev/next buttons carry a `reload` action (GET) with a URL that bakes in the current `asset_type` and the target offset: `/actions/assets/list?asset_type=<v>&offset=<n>`.
+- **Filter change** — the `asset-type-select` carries a `reload` action with endpoint `/actions/assets/list?asset_type={value}` and `target_id:"assets-section"`. The FE substitutes `{value}` with the current selected option's `value` (see [sdui-actions.md § URL Placeholders](../../sdui-actions.md)) and GETs. No `offset` in the URL → the handler defaults `offset` to `0` (filter change resets pagination).
+- **Pagination** — the prev/next buttons carry a `reload` action with a URL that bakes in the current `asset_type` and the target offset: `/actions/assets/list?asset_type=<v>&offset=<n>`.
 
-Both interactions end up as GETs to the same endpoint with the same query shape.
+Both interactions are GETs to the same endpoint with the same query shape.
 
 ## Component tree
 
@@ -59,24 +59,23 @@ Both interactions end up as GETs to the same endpoint with the same query shape.
 screen id=assets props={ title: i18n "assets.title" }
   column assets-root (gap=lg)
     column assets-section (gap=sm)              ← replaceable subtree
-      form assets-filter-form
-        row assets-filter-row widths=["240px","1fr"]
-          select asset-type-select
-            props: name="asset_type", label=i18n "assets.filter.type",
-                   default_value=<current asset_type or "">
-            options:
-              { value:"",       label: i18n "assets.filter.type_any" }
-              { value:"STOCK",  label:"STOCK"  }
-              { value:"ETF",    label:"ETF"    }
-              { value:"CRYPTO", label:"CRYPTO" }
-              { value:"BOND",   label:"BOND"   }
-            actions: [{
-              trigger:"change", type:"submit", method:"GET",
-              endpoint:"/actions/assets/list",
-              target_id:"assets-filter-form",
-              loading:"section"
-            }]
-          spacer filter-spacer size="none"      ← fills the 1fr column
+      row assets-filter-row widths=["240px","1fr"]
+        select asset-type-select
+          props: name="asset_type", label=i18n "assets.filter.type",
+                 default_value=<current asset_type or "">
+          options:
+            { value:"",       label: i18n "assets.filter.type_any" }
+            { value:"STOCK",  label:"STOCK"  }
+            { value:"ETF",    label:"ETF"    }
+            { value:"CRYPTO", label:"CRYPTO" }
+            { value:"BOND",   label:"BOND"   }
+          actions: [{
+            trigger:"change", type:"reload",
+            endpoint:"/actions/assets/list?asset_type={value}",
+            target_id:"assets-section",
+            loading:"section"
+          }]
+        spacer filter-spacer size="none"      ← fills the 1fr column
       table assets-table
         columns:
           { id:"ticker",         header:i18n "assets.col.ticker",          width:"120px" }
@@ -121,7 +120,7 @@ When the backend returns `assets: []`:
 
 ```
 column assets-section (gap=sm)
-  form assets-filter-form ...                  ← kept, so the user can change/clear the filter
+  row assets-filter-row ...                    ← kept, so the user can change/clear the filter
   column assets-empty (gap=xs)
     text empty-title    → i18n key, size:lg, weight:bold
     text empty-subtitle → i18n key, size:md, color:muted
@@ -229,9 +228,9 @@ Pagination helpers are not extracted to `internal/shared` yet (YAGNI; trades and
 - [x] `GET /screens/assets` without `Authorization` returns `401 {"error":"unauthorized","redirect":"/login"}`.
 - [x] With a valid JWT, the middleend issues `GET /v1/assets?size=10&sort=ticker&order=desc[&asset_type=…][&offset=…]` to the backend and forwards the `Authorization` header unchanged.
 - [x] The response is a `screen` with `id: assets` and `props.title` resolved from `assets.title` for `Accept-Language`.
-- [x] The tree contains `assets-section` with `assets-filter-form` (containing `asset-type-select`) and `assets-table` with the 6 columns in documented order.
+- [x] The tree contains `assets-section` with `assets-filter-row` (containing `asset-type-select` + spacer) and `assets-table` with the 6 columns in documented order.
 - [x] `asset-type-select` carries `default_value` equal to the `asset_type` query param (or `""` when absent).
-- [x] The action on `asset-type-select` is `{trigger:"change", type:"submit", method:"GET", endpoint:"/actions/assets/list", target_id:"assets-filter-form", loading:"section"}`.
+- [x] The action on `asset-type-select` is `{trigger:"change", type:"reload", endpoint:"/actions/assets/list?asset_type={value}", target_id:"assets-section", loading:"section"}`.
 - [x] `assets-table` has one `table_row` per asset; each row contains 6 `text` cells in order ticker/name/type/currency/complex/price_provider.
 - [x] `is_complex=true` → cell `"✓"`; `is_complex=false` → cell `"—"`.
 - [x] `price_provider` renders the value; `null` or `is_complex=true` → `"—"`.

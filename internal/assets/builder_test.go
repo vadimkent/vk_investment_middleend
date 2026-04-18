@@ -75,10 +75,9 @@ func TestBuildAssetsSection_FilterSelectAction(t *testing.T) {
 	require.Len(t, sel.Actions, 1)
 	act := sel.Actions[0]
 	assert.Equal(t, "change", act.Trigger)
-	assert.Equal(t, "submit", act.Type)
-	assert.Equal(t, "GET", act.Method)
-	assert.Equal(t, "/actions/assets/list", act.Endpoint)
-	assert.Equal(t, "assets-filter-form", act.TargetID)
+	assert.Equal(t, "reload", act.Type)
+	assert.Equal(t, "/actions/assets/list?asset_type={value}", act.Endpoint)
+	assert.Equal(t, "assets-section", act.TargetID)
 	assert.Equal(t, "section", act.Loading)
 }
 
@@ -209,8 +208,9 @@ func TestBuildAssetsSection_EmptyNoFilter(t *testing.T) {
 	result := &ListResult{Assets: []Asset{}, Total: 0, Size: 10, Offset: 0}
 	section := BuildAssetsSection(result, ListParams{}, "en")
 
-	// Filter form still present.
-	assert.NotNil(t, findByID(section, "assets-filter-form"))
+	// Filter row still present.
+	assert.NotNil(t, findByID(section, "assets-filter-row"))
+	assert.NotNil(t, findByID(section, "asset-type-select"))
 	// No table, no pagination.
 	assert.Nil(t, findByID(section, "assets-table"))
 	assert.Nil(t, findByID(section, "assets-pagination"))

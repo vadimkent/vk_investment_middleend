@@ -19,7 +19,7 @@ func BuildScreen(result *ListResult, params ListParams, lang string) components.
 
 // BuildAssetsSection returns the replaceable subtree shared by both handlers.
 func BuildAssetsSection(result *ListResult, params ListParams, lang string) components.Component {
-	children := []components.Component{buildFilterForm(params, lang)}
+	children := []components.Component{buildFilter(params, lang)}
 
 	if len(result.Assets) == 0 {
 		children = append(children, buildEmpty(params, lang))
@@ -33,7 +33,7 @@ func BuildAssetsSection(result *ListResult, params ListParams, lang string) comp
 	return components.ColumnWithGap("assets-section", "sm", children...)
 }
 
-func buildFilterForm(params ListParams, lang string) components.Component {
+func buildFilter(params ListParams, lang string) components.Component {
 	opts := []components.SelectOption{
 		{Value: "", Label: i18n.T(lang, "assets.filter.type_any")},
 		{Value: "STOCK", Label: "STOCK"},
@@ -53,17 +53,15 @@ func buildFilterForm(params ListParams, lang string) components.Component {
 		Actions: []components.Action{
 			{
 				Trigger:  "change",
-				Type:     "submit",
-				Method:   "GET",
-				Endpoint: "/actions/assets/list",
-				TargetID: "assets-filter-form",
+				Type:     "reload",
+				Endpoint: "/actions/assets/list?asset_type={value}",
+				TargetID: "assets-section",
 				Loading:  "section",
 			},
 		},
 	}
 	filler := components.Spacer("filter-spacer", "none")
-	row := components.Row("assets-filter-row", []string{"240px", "1fr"}, sel, filler)
-	return components.Form("assets-filter-form", row)
+	return components.Row("assets-filter-row", []string{"240px", "1fr"}, sel, filler)
 }
 
 func buildTable(assets []Asset, lang string) components.Component {

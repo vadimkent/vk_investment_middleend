@@ -25,6 +25,14 @@ type Action struct {
 | `type` | string | yes | Action type identifier |
 | `...params` | varies | no | Action-specific parameters (see below) |
 
+## 2a. URL Placeholders
+
+Any action with a `url` or `endpoint` field may contain placeholders of the form `{name}`. When the action is dispatched, the frontend substitutes each placeholder with a named value provided by the component (or form) that triggered the action.
+
+The set of names a component exposes is defined in each component's spec (see [sdui-base-components.md](sdui-base-components.md)). For example, `select` exposes `value` (the `value` of the currently selected option), so `endpoint: "/api/list?asset_type={value}"` on a select becomes `/api/list?asset_type=STOCK` when the option with `value:"STOCK"` is chosen.
+
+The substituted value is URL-encoded by the frontend before being spliced into the string. Placeholders whose name is not exposed by the triggering component are a middleend authoring error (the spec does not define a behavior for them).
+
 ## 2b. Loading Indicators
 
 Any action that hits the middleend (`submit`, `reload`) can declare a `loading` field to show a visual indicator while the request is in flight:
