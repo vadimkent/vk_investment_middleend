@@ -40,7 +40,7 @@ Screens (one file per screen, added as SDD progresses):
 |---|---|
 | Login | [`screens/login.md`](screens/login.md) |
 | Portfolio | [`screens/portfolio/`](screens/portfolio/) — decomposed into 6 layers; layer 1 live in [`01-positions.md`](screens/portfolio/01-positions.md) |
-| Assets | [`screens/assets/`](screens/assets/) — decomposed into 2 layers; layer 1 live in [`01-list.md`](screens/assets/01-list.md) |
+| Assets | [`screens/assets/`](screens/assets/) — decomposed into 2 layers; both live: [`01-list.md`](screens/assets/01-list.md), [`02-mutations.md`](screens/assets/02-mutations.md) |
 | Trades | `screens/trades.md` — TBD |
 | Snapshots | `screens/snapshots.md` — TBD |
 | Import | `screens/import.md` — TBD |
