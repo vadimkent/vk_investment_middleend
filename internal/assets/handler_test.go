@@ -70,6 +70,13 @@ func TestHandler_Get_InvalidAssetType(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var body map[string]any
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &body))
+	errObj, ok := body["error"].(map[string]any)
+	require.True(t, ok, "error must be an object")
+	assert.Equal(t, "BAD_REQUEST", errObj["code"])
+	assert.Equal(t, "invalid asset_type", errObj["message"])
 }
 
 func TestHandler_Get_InvalidOffset(t *testing.T) {
@@ -82,6 +89,13 @@ func TestHandler_Get_InvalidOffset(t *testing.T) {
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code, "offset=%q", val)
+
+		var body map[string]any
+		require.NoError(t, json.Unmarshal(w.Body.Bytes(), &body))
+		errObj, ok := body["error"].(map[string]any)
+		require.True(t, ok, "error must be an object")
+		assert.Equal(t, "BAD_REQUEST", errObj["code"])
+		assert.Equal(t, "invalid offset", errObj["message"])
 	}
 }
 
