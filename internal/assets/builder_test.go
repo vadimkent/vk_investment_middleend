@@ -61,6 +61,11 @@ func TestBuildScreen_ShapeAndTitle(t *testing.T) {
 	section := findByID(tree, "assets-section")
 	require.NotNil(t, section)
 	assert.Equal(t, "column", section.Type)
+
+	modalSlot := findByID(tree, "assets-modal-slot")
+	require.NotNil(t, modalSlot)
+	assert.Equal(t, "column", modalSlot.Type)
+	assert.Empty(t, modalSlot.Children)
 }
 
 func TestBuildAssetsSection_FilterSelectAction(t *testing.T) {
@@ -116,29 +121,44 @@ func TestBuildAssetsSection_TableColumnsAndRows(t *testing.T) {
 	colsRaw, _ := json.Marshal(table.Props["columns"])
 	var cols []components.TableColumn
 	require.NoError(t, json.Unmarshal(colsRaw, &cols))
-	require.Len(t, cols, 6)
-	assert.Equal(t, []string{"ticker", "name", "type", "currency", "complex", "price_provider"},
-		[]string{cols[0].ID, cols[1].ID, cols[2].ID, cols[3].ID, cols[4].ID, cols[5].ID})
+	require.Len(t, cols, 7)
+	assert.Equal(t, []string{"ticker", "name", "type", "currency", "complex", "price_provider", "actions"},
+		[]string{cols[0].ID, cols[1].ID, cols[2].ID, cols[3].ID, cols[4].ID, cols[5].ID, cols[6].ID})
 
 	require.Len(t, table.Children, 3)
 
 	// Row 1: AAPL, not complex, provider set.
 	r1 := table.Children[0]
 	require.Equal(t, "table_row", r1.Type)
-	require.Len(t, r1.Children, 6)
+	require.Len(t, r1.Children, 7)
 	assert.Equal(t, "AAPL", r1.Children[0].Props["content"])
 	assert.Equal(t, "—", r1.Children[4].Props["content"]) // complex=false renders "—"
 	assert.Equal(t, "TWELVE_DATA", r1.Children[5].Props["content"])
 
 	// Row 2: HOUSE, complex=true, provider null.
 	r2 := table.Children[1]
+	require.Len(t, r2.Children, 7)
 	assert.Equal(t, "✓", r2.Children[4].Props["content"])
 	assert.Equal(t, "—", r2.Children[5].Props["content"]) // complex -> dash
 
 	// Row 3: TSLA, not complex, provider null.
 	r3 := table.Children[2]
+	require.Len(t, r3.Children, 7)
 	assert.Equal(t, "—", r3.Children[4].Props["content"])
 	assert.Equal(t, "—", r3.Children[5].Props["content"])
+
+	actionsR1 := findByID(r1, "actions-a1")
+	require.NotNil(t, actionsR1)
+	editBtn := findByID(*actionsR1, "edit-a1")
+	require.NotNil(t, editBtn)
+	require.Len(t, editBtn.Actions, 1)
+	assert.Equal(t, "reload", editBtn.Actions[0].Type)
+	assert.Equal(t, "/actions/assets/edit_modal?id=a1", editBtn.Actions[0].Endpoint)
+	assert.Equal(t, "assets-modal-slot", editBtn.Actions[0].TargetID)
+
+	deleteBtn := findByID(*actionsR1, "delete-a1")
+	require.NotNil(t, deleteBtn)
+	assert.Equal(t, "/actions/assets/delete_modal?id=a1", deleteBtn.Actions[0].Endpoint)
 }
 
 func TestBuildAssetsSection_PaginationOmittedWhenTotalFits(t *testing.T) {
@@ -241,4 +261,16 @@ func TestBuildScreen_SpanishTitle(t *testing.T) {
 	result := &ListResult{Assets: []Asset{}, Total: 0, Size: 10, Offset: 0}
 	tree := BuildScreen(result, ListParams{}, "es")
 	assert.Equal(t, "Activos", tree.Props["title"])
+}
+
+func TestBuildAssetsSection_NewAssetButton(t *testing.T) {
+	section := BuildAssetsSection(&ListResult{Size: 10}, ListParams{}, "en")
+	btn := findByID(section, "assets-new-btn")
+	require.NotNil(t, btn)
+	assert.Equal(t, "button", btn.Type)
+	assert.Equal(t, "New Asset", btn.Props["label"])
+	require.Len(t, btn.Actions, 1)
+	assert.Equal(t, "reload", btn.Actions[0].Type)
+	assert.Equal(t, "/actions/assets/create_modal", btn.Actions[0].Endpoint)
+	assert.Equal(t, "assets-modal-slot", btn.Actions[0].TargetID)
 }

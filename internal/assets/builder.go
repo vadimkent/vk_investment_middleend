@@ -13,7 +13,8 @@ import (
 // BuildScreen returns the full SDUI tree for GET /screens/assets.
 func BuildScreen(result *ListResult, params ListParams, lang string) components.Component {
 	section := BuildAssetsSection(result, params, lang)
-	root := components.ColumnWithGap("assets-root", "lg", section)
+	modalSlot := components.Column("assets-modal-slot")
+	root := components.ColumnWithGap("assets-root", "lg", section, modalSlot)
 	return components.Screen("assets", i18n.T(lang, "assets.title"), root)
 }
 
@@ -61,7 +62,16 @@ func buildFilter(params ListParams, lang string) components.Component {
 		},
 	}
 	filler := components.Spacer("filter-spacer", "none")
-	return components.Row("assets-filter-row", []string{"240px", "1fr"}, sel, filler)
+	newBtn := components.ButtonFull("assets-new-btn", i18n.T(lang, "assets.new"), "", "primary", "solid",
+		components.Action{
+			Trigger:  "click",
+			Type:     "reload",
+			Endpoint: "/actions/assets/create_modal",
+			TargetID: "assets-modal-slot",
+			Loading:  "section",
+		},
+	)
+	return components.Row("assets-filter-row", []string{"240px", "1fr", "auto"}, sel, filler, newBtn)
 }
 
 func buildTable(assets []Asset, lang string) components.Component {
@@ -72,6 +82,7 @@ func buildTable(assets []Asset, lang string) components.Component {
 		{ID: "currency", Header: i18n.T(lang, "assets.col.currency"), Width: "100px"},
 		{ID: "complex", Header: i18n.T(lang, "assets.col.complex"), Width: "100px", Align: "center"},
 		{ID: "price_provider", Header: i18n.T(lang, "assets.col.price_provider"), Width: "160px"},
+		{ID: "actions", Header: "", Width: "120px", Align: "right"},
 	}
 	rows := make([]components.Component, 0, len(assets))
 	for _, a := range assets {
@@ -93,6 +104,29 @@ func buildRow(a Asset) components.Component {
 	if !a.IsComplex && a.PriceProvider != nil {
 		providerCell = *a.PriceProvider
 	}
+
+	editBtn := components.ButtonFull("edit-"+a.ID, "", "", "secondary", "ghost",
+		components.Action{
+			Trigger:  "click",
+			Type:     "reload",
+			Endpoint: "/actions/assets/edit_modal?id=" + a.ID,
+			TargetID: "assets-modal-slot",
+			Loading:  "section",
+		},
+	)
+	editBtn.Props["icon"] = "pencil"
+	deleteBtn := components.ButtonFull("delete-"+a.ID, "", "", "secondary", "ghost",
+		components.Action{
+			Trigger:  "click",
+			Type:     "reload",
+			Endpoint: "/actions/assets/delete_modal?id=" + a.ID,
+			TargetID: "assets-modal-slot",
+			Loading:  "section",
+		},
+	)
+	deleteBtn.Props["icon"] = "trash"
+	actionsRow := components.RowWithGap("actions-"+a.ID, []string{"auto", "auto"}, "sm", editBtn, deleteBtn)
+
 	return components.TableRow("asset-"+a.ID,
 		ticker,
 		cell("asset-"+a.ID+"-name", a.Name),
@@ -100,6 +134,7 @@ func buildRow(a Asset) components.Component {
 		cell("asset-"+a.ID+"-currency", strings.ToUpper(a.Currency)),
 		cell("asset-"+a.ID+"-complex", complexCell),
 		cell("asset-"+a.ID+"-price_provider", providerCell),
+		actionsRow,
 	)
 }
 
