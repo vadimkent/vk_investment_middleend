@@ -4,13 +4,14 @@ import "encoding/json"
 
 // Asset is the middleend domain representation of a backend asset.
 type Asset struct {
-	ID            string
-	Ticker        string
-	Name          string
-	AssetType     string
-	Currency      string
-	IsComplex     bool
-	PriceProvider *string
+	ID             string
+	Ticker         string
+	Name           string
+	AssetType      string
+	Currency       string
+	IsComplex      bool
+	PriceProvider  *string
+	ExternalTicker *string
 }
 
 // ListParams captures the query parameters accepted by both asset endpoints.
@@ -28,13 +29,14 @@ type ListResult struct {
 }
 
 type rawAsset struct {
-	ID            string  `json:"id"`
-	Ticker        string  `json:"ticker"`
-	Name          string  `json:"name"`
-	AssetType     string  `json:"asset_type"`
-	Currency      string  `json:"currency"`
-	IsComplex     bool    `json:"is_complex"`
-	PriceProvider *string `json:"price_provider"`
+	ID             string  `json:"id"`
+	Ticker         string  `json:"ticker"`
+	Name           string  `json:"name"`
+	AssetType      string  `json:"asset_type"`
+	Currency       string  `json:"currency"`
+	IsComplex      bool    `json:"is_complex"`
+	PriceProvider  *string `json:"price_provider"`
+	ExternalTicker *string `json:"external_ticker"`
 }
 
 type rawListResponse struct {
