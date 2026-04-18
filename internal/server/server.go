@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
+	"github.com/project/vk-investment-middleend/internal/assets"
 	"github.com/project/vk-investment-middleend/internal/auth"
 	"github.com/project/vk-investment-middleend/internal/config"
 	"github.com/project/vk-investment-middleend/internal/home"
@@ -62,6 +63,11 @@ func (s *Server) setupRoutes() {
 	protected.GET("/actions/portfolio/evolution", portfolio.NewEvolutionHandler(portfolioClient).Get)
 	protected.GET("/actions/portfolio/allocation", portfolio.NewAllocationHandler(portfolioClient).Get)
 	protected.GET("/actions/portfolio/live_data", portfolio.NewLiveHandler(portfolioClient).Get)
+
+	assetsClient := assets.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	assetsUC := assets.NewGetUseCase(assetsClient)
+	protected.GET("/screens/assets", assets.NewHandler(assetsUC).Get)
+	protected.GET("/actions/assets/list", assets.NewListHandler(assetsUC).Get)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
