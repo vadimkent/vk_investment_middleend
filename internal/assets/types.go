@@ -53,15 +53,7 @@ func ParseListResponse(body []byte) (*ListResult, error) {
 	out := &ListResult{Total: r.Total, Size: r.Size, Offset: r.Offset}
 	out.Assets = make([]Asset, 0, len(r.Assets))
 	for _, ra := range r.Assets {
-		out.Assets = append(out.Assets, Asset{
-			ID:            ra.ID,
-			Ticker:        ra.Ticker,
-			Name:          ra.Name,
-			AssetType:     ra.AssetType,
-			Currency:      ra.Currency,
-			IsComplex:     ra.IsComplex,
-			PriceProvider: ra.PriceProvider,
-		})
+		out.Assets = append(out.Assets, Asset(ra))
 	}
 	return out, nil
 }

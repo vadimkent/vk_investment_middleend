@@ -217,17 +217,6 @@ func samplePositions() []Position {
 	}
 }
 
-func findDescendantByType(c components.Component, typ string) *components.Component {
-	if c.Type == typ {
-		return &c
-	}
-	for i := range c.Children {
-		if found := findDescendantByType(c.Children[i], typ); found != nil {
-			return found
-		}
-	}
-	return nil
-}
 
 func TestBuildPositionsTable_ReturnsCardWithExpectedID(t *testing.T) {
 	ps := samplePositions()
