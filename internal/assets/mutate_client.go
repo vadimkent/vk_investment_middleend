@@ -103,16 +103,7 @@ func (c *Client) doAsset(req *http.Request, successStatus int) (*Asset, error) {
 		if err := json.Unmarshal(rawBody, &ra); err != nil {
 			return nil, fmt.Errorf("%w: parse: %v", ErrBackend, err)
 		}
-		a := Asset{
-			ID:             ra.ID,
-			Ticker:         ra.Ticker,
-			Name:           ra.Name,
-			AssetType:      ra.AssetType,
-			Currency:       ra.Currency,
-			IsComplex:      ra.IsComplex,
-			PriceProvider:  ra.PriceProvider,
-			ExternalTicker: ra.ExternalTicker,
-		}
+		a := Asset(ra)
 		return &a, nil
 	case http.StatusUnauthorized:
 		return nil, ErrUnauthorized
