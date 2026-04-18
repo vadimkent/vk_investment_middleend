@@ -114,3 +114,41 @@ func TestCreateHandler_BackendError(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
 }
+
+func TestCreateHandler_ListRefreshUnauthorizedAfterSuccess(t *testing.T) {
+	sc := &stubMutator{
+		created: &Asset{ID: "a1", Ticker: "TSLA"},
+		listErr: ErrUnauthorized,
+	}
+	h := NewCreateHandler(sc)
+	r := gin.New()
+	r.POST("/actions/assets/create", h.Post)
+
+	body, _ := json.Marshal(map[string]any{"ticker": "TSLA"})
+	req := httptest.NewRequest(http.MethodPost, "/actions/assets/create", bytes.NewReader(body))
+	req.Header.Set("Authorization", "Bearer tok")
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func TestCreateHandler_ListRefreshBackendErrorAfterSuccess(t *testing.T) {
+	sc := &stubMutator{
+		created: &Asset{ID: "a1", Ticker: "TSLA"},
+		listErr: ErrBackend,
+	}
+	h := NewCreateHandler(sc)
+	r := gin.New()
+	r.POST("/actions/assets/create", h.Post)
+
+	body, _ := json.Marshal(map[string]any{"ticker": "TSLA"})
+	req := httptest.NewRequest(http.MethodPost, "/actions/assets/create", bytes.NewReader(body))
+	req.Header.Set("Authorization", "Bearer tok")
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadGateway, w.Code)
+}

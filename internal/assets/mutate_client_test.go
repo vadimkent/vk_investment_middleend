@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
@@ -155,5 +154,3 @@ func TestClient_CreateAsset_BackendError(t *testing.T) {
 	assert.True(t, errors.Is(err, ErrBackend))
 }
 
-// silence "imported and not used: strings" if the file above doesn't otherwise use it.
-var _ = strings.TrimSpace

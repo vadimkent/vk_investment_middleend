@@ -29,6 +29,7 @@ func (h *DeleteModalHandler) Get(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": err.Error()}})
 		return
 	}
+	lang := parseLang(c)
 
 	a, err := h.client.GetAsset(c.Request.Context(), c.GetHeader("Authorization"), id)
 	if err != nil {
@@ -44,7 +45,7 @@ func (h *DeleteModalHandler) Get(c *gin.Context) {
 		return
 	}
 
-	modal := BuildDeleteModal(a.ID, a.Ticker, params, parseLang(c), "")
+	modal := BuildDeleteModal(a.ID, a.Ticker, params, lang, "")
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
 		TargetID: "assets-modal-slot",

@@ -35,6 +35,7 @@ func (h *EditModalHandler) Get(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": err.Error()}})
 		return
 	}
+	lang := parseLang(c)
 
 	a, err := h.client.GetAsset(c.Request.Context(), c.GetHeader("Authorization"), id)
 	if err != nil {
@@ -50,7 +51,7 @@ func (h *EditModalHandler) Get(c *gin.Context) {
 		return
 	}
 
-	modal := BuildEditModal(a, params, parseLang(c), "")
+	modal := BuildEditModal(a, params, lang, "")
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
 		TargetID: "assets-modal-slot",
