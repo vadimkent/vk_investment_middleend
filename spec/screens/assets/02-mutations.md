@@ -37,6 +37,7 @@ The `assets` screen gains two things: a "New Asset" button in the filter row, an
 ```
 screen id=assets
   column assets-root (gap=lg)
+    row assets-header-row ...                                (from L1: title + 1fr spacer)
     column assets-section (gap=sm)
       row assets-filter-row widths=["240px","1fr","auto"]
         select asset-type-select ...                          (same as L1)

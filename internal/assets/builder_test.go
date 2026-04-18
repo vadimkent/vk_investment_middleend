@@ -66,6 +66,17 @@ func TestBuildScreen_ShapeAndTitle(t *testing.T) {
 	require.NotNil(t, modalSlot)
 	assert.Equal(t, "column", modalSlot.Type)
 	assert.Empty(t, modalSlot.Children)
+
+	header := findByID(tree, "assets-header-row")
+	require.NotNil(t, header)
+	assert.Equal(t, "row", header.Type)
+
+	title := findByID(tree, "assets-title")
+	require.NotNil(t, title)
+	assert.Equal(t, "text", title.Type)
+	assert.Equal(t, "Assets", title.Props["content"])
+	assert.Equal(t, "lg", title.Props["size"])
+	assert.Equal(t, "bold", title.Props["weight"])
 }
 
 func TestBuildAssetsSection_FilterSelectAction(t *testing.T) {

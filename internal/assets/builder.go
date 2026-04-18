@@ -13,9 +13,25 @@ import (
 // BuildScreen returns the full SDUI tree for GET /screens/assets.
 func BuildScreen(result *ListResult, params ListParams, lang string) components.Component {
 	section := BuildAssetsSection(result, params, lang)
-	modalSlot := components.Column("assets-modal-slot")
-	root := components.ColumnWithGap("assets-root", "lg", section, modalSlot)
+	root := BuildAssetsRoot(section, lang)
 	return components.Screen("assets", i18n.T(lang, "assets.title"), root)
+}
+
+// BuildAssetsRoot returns the `assets-root` column: header + section + empty
+// modal slot. Used by both the screen endpoint and the mutation handlers
+// (post-mutation response) so the root shape stays in sync.
+func BuildAssetsRoot(section components.Component, lang string) components.Component {
+	header := buildHeader(lang)
+	modalSlot := components.Column("assets-modal-slot")
+	return components.ColumnWithGap("assets-root", "lg", header, section, modalSlot)
+}
+
+// buildHeader builds the screen header row (title + spacer). Additional
+// controls (toggles, actions) slot into the 1fr column on the right.
+func buildHeader(lang string) components.Component {
+	title := components.Text("assets-title", i18n.T(lang, "assets.title"), "lg", "bold")
+	spacer := components.Column("assets-header-spacer")
+	return components.Row("assets-header-row", []string{"auto", "1fr"}, title, spacer)
 }
 
 // BuildAssetsSection returns the replaceable subtree shared by both handlers.

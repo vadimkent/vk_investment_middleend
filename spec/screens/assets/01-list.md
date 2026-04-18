@@ -58,6 +58,9 @@ Both interactions are GETs to the same endpoint with the same query shape.
 ```
 screen id=assets props={ title: i18n "assets.title" }
   column assets-root (gap=lg)
+    row assets-header-row widths=["auto","1fr"]
+      text assets-title  → i18n "assets.title", size:lg, weight:bold
+      column assets-header-spacer     ← 1fr filler; future controls slot here
     column assets-section (gap=sm)              ← replaceable subtree
       row assets-filter-row widths=["240px","1fr"]
         select asset-type-select

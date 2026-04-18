@@ -84,8 +84,7 @@ func respondPostMutation(c *gin.Context, client assetMutator, params ListParams,
 		return
 	}
 	section := BuildAssetsSection(res, params, lang)
-	modalSlot := components.Column("assets-modal-slot")
-	root := components.ColumnWithGap("assets-root", "lg", section, modalSlot)
+	root := BuildAssetsRoot(section, lang)
 	fb := components.Snackbar("feedback", successMsg, "success")
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
