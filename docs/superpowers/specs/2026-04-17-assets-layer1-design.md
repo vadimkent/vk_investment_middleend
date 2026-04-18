@@ -203,7 +203,7 @@ Applies to both `GET /screens/assets` and `GET /actions/assets/list`.
 
 | Situation | HTTP | Body |
 |---|---|---|
-| Missing / invalid / expired JWT | 401 | `{"error":"unauthorized","redirect":"/screens/login"}` |
+| Missing / invalid / expired JWT | 401 | `{"error":"unauthorized","redirect":"/login"}` |
 | Backend returns 401 downstream | 401 | same |
 | Backend 5xx or network error | 502 | `{"error":{"code":"BACKEND_ERROR","message":"..."}}` |
 | Backend returns unexpected shape | 502 | same |
@@ -245,7 +245,7 @@ Pagination helpers are **not** extracted to `internal/shared` yet (YAGNI; trades
 
 ## Acceptance criteria
 
-- [ ] `GET /screens/assets` without `Authorization` returns `401 {"error":"unauthorized","redirect":"/screens/login"}`.
+- [ ] `GET /screens/assets` without `Authorization` returns `401 {"error":"unauthorized","redirect":"/login"}`.
 - [ ] With a valid JWT, the middleend issues `GET /v1/assets?size=10&sort=ticker&order=desc[&asset_type=…][&offset=…]` to the backend and forwards the `Authorization` header unchanged.
 - [ ] The response is a `screen` with `id: assets` and `props.title` resolved from `assets.title` for `Accept-Language`.
 - [ ] The tree contains `assets-section` with `assets-filter-form` (containing `asset-type-select`) and `assets-table` with the 6 columns in documented order.
