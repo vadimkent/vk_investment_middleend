@@ -15,7 +15,7 @@ Go · Gin · SDUI middleend (BFF).
 - Screen contracts: `spec/screens/<screen>/NN-<layer>.md`
 - Screen index: `spec/spec.md` (only links files inside `spec/`)
 
-**`docs/superpowers/` is plugin-generated transient output.** Not maintained. Do not rely on it and do not add references to it from `spec/`.
+`docs/superpowers/` holds Superpowers plugin artifacts (brainstorm designs, implementation plans). **The user does not maintain it.** Do not reference it from `spec/`, and do not assume it reflects current shipped behavior — only `spec/` does.
 
 ## Workflow — SDD
 Per screen: decompose into layers. For each layer: write the canonical spec in `spec/screens/<screen>/`, then implement the code in `internal/<screen>/`. The canonical spec must match shipped behavior.

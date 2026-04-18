@@ -27,7 +27,7 @@ Each screen is broken into **layers**. One layer at a time: spec → implement.
 
 Per layer: update the spec in `spec/`, then implement the code in `internal/<screen>/`, then the spec stays in sync with what shipped.
 
-Anything outside `spec/` (e.g. `docs/superpowers/`) is **plugin-generated transient output** — not maintained, can be ignored or deleted.
+`docs/superpowers/` contains artifacts from the Superpowers plugin (brainstorm designs, implementation plans). It is **not part of the user-maintained project docs** — the user is not responsible for keeping it in sync with the code. Treat files inside `spec/` as the contract.
 
 ## Rules for working on this repo
 
