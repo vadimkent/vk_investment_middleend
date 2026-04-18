@@ -87,6 +87,7 @@ func buildFilter(params ListParams, lang string) components.Component {
 			Loading:  "section",
 		},
 	)
+	newBtn.Props["size"] = "sm"
 	row := components.Row("assets-filter-row", []string{"240px", "1fr", "auto"}, sel, filler, newBtn)
 	row.Props["justify_items"] = "center"
 	return row
