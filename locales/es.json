@@ -124,7 +124,34 @@
     "empty_title": "Aún no hay activos",
     "empty_subtitle": "Cuando registres activos, aparecerán aquí.",
     "empty_filtered_title": "Ningún activo coincide con el filtro",
-    "empty_filtered_subtitle": "Probá cambiar o limpiar el filtro."
+    "empty_filtered_subtitle": "Probá cambiar o limpiar el filtro.",
+    "new": "Nuevo Activo",
+    "create": {
+      "title": "Crear Activo",
+      "submit": "Crear",
+      "success": "Activo creado"
+    },
+    "edit": {
+      "title": "Editar {ticker}",
+      "submit": "Guardar",
+      "success": "Activo actualizado"
+    },
+    "delete": {
+      "title": "Eliminar Activo",
+      "confirm": "¿Eliminar {ticker}? Esta acción no se puede deshacer.",
+      "force_label": "Eliminar también trades y snapshots asociados",
+      "submit": "Eliminar",
+      "success": "Activo eliminado",
+      "success_force": "Activo y datos asociados eliminados"
+    },
+    "form": {
+      "is_complex": "Activo complejo",
+      "external_ticker": "Ticker externo",
+      "external_ticker_placeholder": "Usa el ticker si queda vacío"
+    }
+  },
+  "common": {
+    "cancel": "Cancelar"
   },
   "home": {
     "welcome_title": "Bienvenido a VK Investments",

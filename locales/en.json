@@ -124,7 +124,34 @@
     "empty_title": "No assets registered yet",
     "empty_subtitle": "Once you register assets, they will appear here.",
     "empty_filtered_title": "No assets match the filter",
-    "empty_filtered_subtitle": "Try changing or clearing the filter."
+    "empty_filtered_subtitle": "Try changing or clearing the filter.",
+    "new": "New Asset",
+    "create": {
+      "title": "Create Asset",
+      "submit": "Create",
+      "success": "Asset created"
+    },
+    "edit": {
+      "title": "Edit {ticker}",
+      "submit": "Save",
+      "success": "Asset updated"
+    },
+    "delete": {
+      "title": "Delete Asset",
+      "confirm": "Delete {ticker}? This cannot be undone.",
+      "force_label": "Also delete associated trades and snapshots",
+      "submit": "Delete",
+      "success": "Asset deleted",
+      "success_force": "Asset and associated data deleted"
+    },
+    "form": {
+      "is_complex": "Complex asset",
+      "external_ticker": "External ticker",
+      "external_ticker_placeholder": "Defaults to ticker if empty"
+    }
+  },
+  "common": {
+    "cancel": "Cancel"
   },
   "home": {
     "welcome_title": "Welcome to VK Investments",
