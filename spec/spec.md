@@ -40,7 +40,7 @@ Screens (one file per screen, added as SDD progresses):
 |---|---|
 | Login | [`screens/login.md`](screens/login.md) |
 | Portfolio | [`screens/portfolio/`](screens/portfolio/) — decomposed into 6 layers; layer 1 live in [`01-positions.md`](screens/portfolio/01-positions.md) |
-| Assets | `screens/assets.md` — TBD |
+| Assets | `../docs/superpowers/specs/2026-04-17-assets-layer1-design.md` — L1: list + paginación + filtros |
 | Trades | `screens/trades.md` — TBD |
 | Snapshots | `screens/snapshots.md` — TBD |
 | Import | `screens/import.md` — TBD |
