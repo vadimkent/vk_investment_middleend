@@ -68,6 +68,12 @@ func (s *Server) setupRoutes() {
 	assetsUC := assets.NewGetUseCase(assetsClient)
 	protected.GET("/screens/assets", assets.NewHandler(assetsUC).Get)
 	protected.GET("/actions/assets/list", assets.NewListHandler(assetsUC).Get)
+	protected.GET("/actions/assets/create_modal", assets.NewCreateModalHandler().Get)
+	protected.GET("/actions/assets/edit_modal", assets.NewEditModalHandler(assetsClient).Get)
+	protected.GET("/actions/assets/delete_modal", assets.NewDeleteModalHandler(assetsClient).Get)
+	protected.POST("/actions/assets/create", assets.NewCreateHandler(assetsClient).Post)
+	protected.PATCH("/actions/assets/:id", assets.NewUpdateHandler(assetsClient).Patch)
+	protected.DELETE("/actions/assets/:id", assets.NewDeleteHandler(assetsClient).Delete)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
