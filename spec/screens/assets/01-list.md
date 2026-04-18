@@ -94,7 +94,8 @@ screen id=assets props={ title: i18n "assets.title" }
           text currency         (size:sm)
           text complex          ("✓" if is_complex else "—", size:sm)
           text price_provider   (value or "—"; "—" also when is_complex, size:sm)
-      row assets-pagination widths=["auto","1fr","auto"] gap="md"
+      row assets-pagination widths=["1fr","auto","auto","auto","1fr"] gap="sm" justify_items="center"
+        column pagination-left-spacer                ← 1fr filler (centers the cluster horizontally)
         button pagination-prev
           props: label=i18n "assets.pagination.prev", variant=secondary, style=ghost,
                  disabled: offset == 0
@@ -113,6 +114,7 @@ screen id=assets props={ title: i18n "assets.title" }
             endpoint: "/actions/assets/list?asset_type=<v>&offset=<nextOffset>",
             target_id: "assets-section", loading: "section"
           }]
+        column pagination-right-spacer               ← 1fr filler
 ```
 
 The pagination row is omitted when `total <= size`.

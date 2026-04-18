@@ -176,8 +176,13 @@ func buildPagination(result *ListResult, params ListParams, lang string) compone
 	infoText := renderPageOf(i18n.T(lang, "assets.pagination.page_of"), currentPage, totalPages)
 	info := components.TextStyled("pagination-info", infoText, "sm", "normal", "", "muted", "", "")
 
-	row := components.Row("assets-pagination", []string{"auto", "1fr", "auto"}, prev, info, next)
-	row.Props["gap"] = "md"
+	leftSpacer := components.Column("pagination-left-spacer")
+	rightSpacer := components.Column("pagination-right-spacer")
+	row := components.Row("assets-pagination",
+		[]string{"1fr", "auto", "auto", "auto", "1fr"},
+		leftSpacer, prev, info, next, rightSpacer)
+	row.Props["gap"] = "sm"
+	row.Props["justify_items"] = "center"
 	return row
 }
 
