@@ -44,15 +44,24 @@ func BuildCreateModal(listParams ListParams, lang, errMsg string) components.Com
 	if errMsg != "" {
 		fields = append(fields, components.TextStyled("modal-error", errMsg, "sm", "normal", "", "negative", "", ""))
 	}
+	tickerInput := input("create-ticker", "ticker", "text", i18n.T(lang, "assets.col.ticker"), "", "", true, 20, map[string]any{
+		"pattern":        `^[A-Z0-9.\-]+$`,
+		"auto_uppercase": true,
+	}, nil)
+	nameInput := input("create-name", "name", "text", i18n.T(lang, "assets.col.name"), "", "", true, 100, nil, nil)
+	typeSelect := selectField("create-asset-type", "asset_type", i18n.T(lang, "assets.col.type"), "", assetTypeOpts, true, nil)
+	currencySelect := selectField("create-currency", "currency", i18n.T(lang, "assets.col.currency"), "", currencyOpts, true, nil)
+
+	complexCheckbox := checkboxField("create-is-complex", "is_complex", i18n.T(lang, "assets.form.is_complex"), false, nil)
+	complexDescription := components.TextStyled("create-is-complex-description",
+		i18n.T(lang, "assets.form.is_complex_description"),
+		"xs", "normal", "", "muted", "", "")
+	complexGroup := components.ColumnWithGap("create-is-complex-group", "xs", complexCheckbox, complexDescription)
+
 	fields = append(fields,
-		input("create-ticker", "ticker", "text", i18n.T(lang, "assets.col.ticker"), "", "", true, 20, map[string]any{
-			"pattern":        `^[A-Z0-9.\-]+$`,
-			"auto_uppercase": true,
-		}, nil),
-		input("create-name", "name", "text", i18n.T(lang, "assets.col.name"), "", "", true, 100, nil, nil),
-		selectField("create-asset-type", "asset_type", i18n.T(lang, "assets.col.type"), "", assetTypeOpts, true, nil),
-		selectField("create-currency", "currency", i18n.T(lang, "assets.col.currency"), "", currencyOpts, true, nil),
-		checkboxField("create-is-complex", "is_complex", i18n.T(lang, "assets.form.is_complex"), false, nil),
+		components.RowWithGap("create-ticker-name-row", []string{"1fr", "1fr"}, "md", tickerInput, nameInput),
+		components.RowWithGap("create-type-currency-row", []string{"1fr", "1fr"}, "md", typeSelect, currencySelect),
+		complexGroup,
 		selectField("create-price-provider", "price_provider", i18n.T(lang, "assets.col.price_provider"), "", providerOpts, false,
 			&components.VisibleWhen{Field: "is_complex", Op: "eq", Value: false}),
 		input("create-external-ticker", "external_ticker", "text", i18n.T(lang, "assets.form.external_ticker"),
@@ -80,7 +89,8 @@ func BuildCreateModal(listParams ListParams, lang, errMsg string) components.Com
 		submitBtn,
 	)
 
-	form := components.Form("assets-create-form", fieldsCol, actionsRow)
+	formBody := components.ColumnWithGap("assets-create-form-body", "lg", fieldsCol, actionsRow)
+	form := components.Form("assets-create-form", formBody)
 	return components.ModalFull("assets-create-modal", i18n.T(lang, "assets.create.title"), "dialog", true, true, form)
 }
 
@@ -153,7 +163,8 @@ func BuildEditModal(a *Asset, listParams ListParams, lang, errMsg string) compon
 	)
 
 	title := strings.ReplaceAll(i18n.T(lang, "assets.edit.title"), "{ticker}", strings.ToUpper(a.Ticker))
-	form := components.Form("assets-edit-form", fieldsCol, actionsRow)
+	formBody := components.ColumnWithGap("assets-edit-form-body", "lg", fieldsCol, actionsRow)
+	form := components.Form("assets-edit-form", formBody)
 	return components.ModalFull("assets-edit-modal", title, "dialog", true, true, form)
 }
 
@@ -163,14 +174,15 @@ func BuildDeleteModal(assetID, ticker string, listParams ListParams, lang, errMs
 
 	message := strings.ReplaceAll(i18n.T(lang, "assets.delete.confirm"), "{ticker}", strings.ToUpper(ticker))
 
-	children := []components.Component{}
+	bodyChildren := []components.Component{}
 	if errMsg != "" {
-		children = append(children, components.TextStyled("modal-error", errMsg, "sm", "normal", "", "negative", "", ""))
+		bodyChildren = append(bodyChildren, components.TextStyled("modal-error", errMsg, "sm", "normal", "", "negative", "", ""))
 	}
-	children = append(children,
+	bodyChildren = append(bodyChildren,
 		components.Text("delete-message", message, "md", "normal"),
 		checkboxField("delete-force", "force", i18n.T(lang, "assets.delete.force_label"), false, nil),
 	)
+	bodyCol := components.ColumnWithGap("assets-delete-fields", "md", bodyChildren...)
 
 	cancelBtn := components.ButtonFull("delete-cancel", i18n.T(lang, "common.cancel"), "", "secondary", "ghost",
 		components.Dismiss())
@@ -189,9 +201,9 @@ func BuildDeleteModal(assetID, ticker string, listParams ListParams, lang, errMs
 		cancelBtn,
 		submitBtn,
 	)
-	children = append(children, actionsRow)
 
-	form := components.Form("assets-delete-form", children...)
+	formBody := components.ColumnWithGap("assets-delete-form-body", "lg", bodyCol, actionsRow)
+	form := components.Form("assets-delete-form", formBody)
 	return components.ModalFull("assets-delete-modal", i18n.T(lang, "assets.delete.title"), "dialog", true, true, form)
 }
 

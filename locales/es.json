@@ -146,6 +146,7 @@
     },
     "form": {
       "is_complex": "Activo complejo",
+      "is_complex_description": "Los activos complejos no tienen trades; su valor se fija manualmente vía snapshots.",
       "external_ticker": "Ticker externo",
       "external_ticker_placeholder": "Usa el ticker si queda vacío"
     }

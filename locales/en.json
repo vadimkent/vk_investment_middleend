@@ -146,6 +146,7 @@
     },
     "form": {
       "is_complex": "Complex asset",
+      "is_complex_description": "Complex assets have no trades; their value is set manually via snapshot entries.",
       "external_ticker": "External ticker",
       "external_ticker_placeholder": "Defaults to ticker if empty"
     }

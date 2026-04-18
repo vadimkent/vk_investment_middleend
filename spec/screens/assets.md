@@ -153,7 +153,7 @@ Namespace `assets.*`, plus `common.cancel` shared across screens.
 
 ### Form labels (shared across create and edit)
 
-`assets.form.is_complex`, `assets.form.external_ticker`, `assets.form.external_ticker_placeholder`.
+`assets.form.is_complex`, `assets.form.is_complex_description`, `assets.form.external_ticker`, `assets.form.external_ticker_placeholder`.
 
 ### Shared
 
