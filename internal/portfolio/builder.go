@@ -6,6 +6,7 @@ import (
 
 	"github.com/project/vk-investment-middleend/internal/components"
 	"github.com/project/vk-investment-middleend/internal/i18n"
+	"github.com/project/vk-investment-middleend/internal/shared/format"
 )
 
 func positionColumns(lang string) []components.TableColumn {
@@ -101,7 +102,7 @@ func buildTotalValueCard(m SummaryMetrics, lang string) components.Component {
 			if !ok {
 				continue
 			}
-			txt := components.Text("summary-value-total-value-"+c, FormatMoney(&v, c, lang), "xl", "bold")
+			txt := components.Text("summary-value-total-value-"+c, format.FormatMoney(&v, c, lang), "xl", "bold")
 			txt.Props["sensitive"] = true
 			values.Children = append(values.Children, txt)
 		}
@@ -116,7 +117,7 @@ func buildTotalPnLCard(m SummaryMetrics, lang string) components.Component {
 	} else {
 		for _, c := range m.CurrencyOrder {
 			v := m.TotalPnL[c]
-			txt := coloredValue("summary-value-total-pnl-"+c, FormatSignedMoney(&v, c, lang), pnlColor(&v))
+			txt := coloredValue("summary-value-total-pnl-"+c, format.FormatSignedMoney(&v, c, lang), pnlColor(&v))
 			txt.Props["sensitive"] = true
 			values.Children = append(values.Children, txt)
 		}
@@ -132,7 +133,7 @@ func buildPerformanceCard(m SummaryMetrics, lang string) components.Component {
 		for _, c := range m.CurrencyOrder {
 			pct := m.Performance[c]
 			values.Children = append(values.Children,
-				coloredValue("summary-value-performance-"+c, FormatSignedPercent(pct, lang), pnlColor(pct)))
+				coloredValue("summary-value-performance-"+c, format.FormatSignedPercent(pct, lang), pnlColor(pct)))
 		}
 	}
 	return wrapCard("performance", "portfolio.performance", lang, values)
@@ -146,7 +147,7 @@ func buildSnapshotChangeCard(m SummaryMetrics, lang string) components.Component
 		for _, c := range m.CurrencyOrder {
 			pct := m.SnapshotChange[c]
 			values.Children = append(values.Children,
-				coloredValue("summary-value-snapshot-change-"+c, FormatSignedPercent(pct, lang), pnlColor(pct)))
+				coloredValue("summary-value-snapshot-change-"+c, format.FormatSignedPercent(pct, lang), pnlColor(pct)))
 		}
 	}
 	return wrapCard("snapshot-change", "portfolio.snapshot_change", lang, values)
@@ -217,7 +218,7 @@ func buildPositionRow(p Position, lang string, now time.Time, isLive bool) compo
 	realized := p.RealizedPnL
 	pct := PnLPct(p.UnrealizedPnL, p.TotalCost)
 
-	marketValueContent := FormatMoney(p.CurrentValue, p.Currency, lang)
+	marketValueContent := format.FormatMoney(p.CurrentValue, p.Currency, lang)
 	marketValueColor := ""
 	if isLive && p.PriceSource != nil {
 		marketValueContent = priceSourceDot(*p.PriceSource) + " " + marketValueContent
@@ -228,13 +229,13 @@ func buildPositionRow(p Position, lang string, now time.Time, isLive bool) compo
 		components.Text("cell-ticker", p.Ticker, "sm", "bold"),
 		components.Text("cell-name", p.Name, "sm", "normal"),
 		components.Text("cell-type", p.AssetType, "sm", "normal"),
-		components.Text("cell-quantity", FormatQuantity(p.Quantity, lang), "sm", "normal"),
-		sensitiveText("cell-avg-cost", FormatMoney(p.AvgCost, p.Currency, lang), ""),
-		sensitiveText("cell-total-cost", FormatMoney(p.TotalCost, p.Currency, lang), ""),
+		components.Text("cell-quantity", format.FormatQuantity(p.Quantity, lang), "sm", "normal"),
+		sensitiveText("cell-avg-cost", format.FormatMoney(p.AvgCost, p.Currency, lang), ""),
+		sensitiveText("cell-total-cost", format.FormatMoney(p.TotalCost, p.Currency, lang), ""),
 		sensitiveColoredText("cell-market-value", marketValueContent, marketValueColor),
-		sensitiveColoredText("cell-unrealized-pnl", FormatSignedMoney(p.UnrealizedPnL, p.Currency, lang), pnlColor(p.UnrealizedPnL)),
-		coloredCell("cell-pnl-pct", FormatSignedPercent(pct, lang), pnlColor(pct)),
-		sensitiveColoredText("cell-realized-pnl", FormatSignedMoney(&realized, p.Currency, lang), pnlColor(&realized)),
+		sensitiveColoredText("cell-unrealized-pnl", format.FormatSignedMoney(p.UnrealizedPnL, p.Currency, lang), pnlColor(p.UnrealizedPnL)),
+		coloredCell("cell-pnl-pct", format.FormatSignedPercent(pct, lang), pnlColor(pct)),
+		sensitiveColoredText("cell-realized-pnl", format.FormatSignedMoney(&realized, p.Currency, lang), pnlColor(&realized)),
 		components.Text("cell-last-snapshot", FormatRelativeTime(p.LastSnapshotAt, now, lang), "sm", "normal"),
 	}
 	return components.TableRow("position-"+p.AssetID, cells...)
