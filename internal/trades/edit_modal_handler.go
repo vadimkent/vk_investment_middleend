@@ -2,14 +2,11 @@ package trades
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/project/vk-investment-middleend/internal/components"
-	"github.com/project/vk-investment-middleend/internal/shared"
-	"github.com/project/vk-investment-middleend/internal/shared/assetscatalog"
 )
 
 // tradeGetter is the narrow interface the edit/delete modal (and the
@@ -40,38 +37,24 @@ func NewEditModalHandler(client tradeGetter, catalog catalogFetcher) *EditModalH
 func (h *EditModalHandler) Get(c *gin.Context) {
 	id := c.Query("id")
 	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": "missing id"}})
+		respondBadRequest(c, "missing id")
 		return
 	}
 	params, err := parseListParams(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": err.Error()}})
+		respondBadRequest(c, err.Error())
 		return
 	}
 	auth := c.GetHeader("Authorization")
 	lang := parseLang(c)
 
 	trade, err := h.client.GetTrade(c.Request.Context(), auth, id)
-	if err != nil {
-		if errors.Is(err, ErrUnauthorized) {
-			shared.RespondUnauthorized(c, "/login")
-			return
-		}
-		if errors.Is(err, ErrTradeNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": gin.H{"code": "NOT_FOUND", "message": "trade not found"}})
-			return
-		}
-		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load trade"}})
+	if respondTradeFetchError(c, err, "could not load trade") {
 		return
 	}
 
 	cat, err := h.catalog.List(c.Request.Context(), auth)
-	if err != nil {
-		if errors.Is(err, assetscatalog.ErrUnauthorized) {
-			shared.RespondUnauthorized(c, "/login")
-			return
-		}
-		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load assets"}})
+	if respondCatalogFetchError(c, err, "could not load assets") {
 		return
 	}
 

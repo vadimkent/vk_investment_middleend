@@ -1,14 +1,11 @@
 package trades
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/project/vk-investment-middleend/internal/components"
-	"github.com/project/vk-investment-middleend/internal/shared"
-	"github.com/project/vk-investment-middleend/internal/shared/assetscatalog"
 )
 
 // CreateModalHandler serves GET /actions/trades/create_modal: returns the
@@ -26,19 +23,14 @@ func NewCreateModalHandler(catalog catalogFetcher) *CreateModalHandler {
 func (h *CreateModalHandler) Get(c *gin.Context) {
 	params, err := parseListParams(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": err.Error()}})
+		respondBadRequest(c, err.Error())
 		return
 	}
 	auth := c.GetHeader("Authorization")
 	lang := parseLang(c)
 
 	cat, err := h.catalog.List(c.Request.Context(), auth)
-	if err != nil {
-		if errors.Is(err, assetscatalog.ErrUnauthorized) {
-			shared.RespondUnauthorized(c, "/login")
-			return
-		}
-		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "could not load assets"}})
+	if respondCatalogFetchError(c, err, "could not load assets") {
 		return
 	}
 

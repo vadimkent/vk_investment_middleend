@@ -22,7 +22,7 @@ func NewListHandler(uc *GetUseCase) *ListHandler { return &ListHandler{uc: uc} }
 func (h *ListHandler) Get(c *gin.Context) {
 	params, err := parseListParams(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": err.Error()}})
+		respondBadRequest(c, err.Error())
 		return
 	}
 	auth := c.GetHeader("Authorization")
