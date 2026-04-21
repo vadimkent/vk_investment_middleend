@@ -29,3 +29,20 @@ func TableRow(id string, children ...Component) Component {
 		Children: children,
 	}
 }
+
+// TableRowExpandable is a table_row that carries a details subtree rendered as
+// a full-width panel when the row is expanded. Cells are the main-row cells
+// (one per column). details is the subtree rendered beneath the row on expand.
+// When any row in a table is expandable, the frontend auto-adds a chevron
+// column to the left of the header to preserve column alignment.
+func TableRowExpandable(id string, cells []Component, details ...Component) Component {
+	return Component{
+		Type: "table_row",
+		ID:   id,
+		Props: map[string]any{
+			"expandable": true,
+			"details":    details,
+		},
+		Children: cells,
+	}
+}
