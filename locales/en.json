@@ -221,6 +221,9 @@
     }
   },
   "snapshots": {
+    "create": {
+      "success": "Snapshot created"
+    },
     "delete": {
       "title": "Delete snapshot",
       "confirm": "Delete snapshot from {date}? This will affect portfolio calculations.",
