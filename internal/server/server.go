@@ -15,7 +15,9 @@ import (
 	"github.com/project/vk-investment-middleend/internal/home"
 	"github.com/project/vk-investment-middleend/internal/login"
 	"github.com/project/vk-investment-middleend/internal/portfolio"
+	"github.com/project/vk-investment-middleend/internal/shared/assetscatalog"
 	"github.com/project/vk-investment-middleend/internal/shell"
+	"github.com/project/vk-investment-middleend/internal/trades"
 )
 
 type Server struct {
@@ -74,6 +76,19 @@ func (s *Server) setupRoutes() {
 	protected.POST("/actions/assets/create", assets.NewCreateHandler(assetsClient).Post)
 	protected.PATCH("/actions/assets/:id", assets.NewUpdateHandler(assetsClient).Patch)
 	protected.DELETE("/actions/assets/:id", assets.NewDeleteHandler(assetsClient).Delete)
+
+	// --- trades ---
+	tradesClient := trades.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	catalog := assetscatalog.NewCatalog(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	tradesUC := trades.NewGetUseCase(tradesClient, catalog)
+	protected.GET("/screens/trades", trades.NewHandler(tradesUC).Get)
+	protected.GET("/actions/trades/list", trades.NewListHandler(tradesUC).Get)
+	protected.GET("/actions/trades/create_modal", trades.NewCreateModalHandler(catalog).Get)
+	protected.GET("/actions/trades/edit_modal", trades.NewEditModalHandler(tradesClient, catalog).Get)
+	protected.GET("/actions/trades/delete_modal", trades.NewDeleteModalHandler(tradesClient, catalog).Get)
+	protected.POST("/actions/trades/create", trades.NewCreateHandler(tradesClient, tradesUC, catalog).Post)
+	protected.PATCH("/actions/trades/:id", trades.NewUpdateHandler(tradesClient, tradesUC, catalog).Patch)
+	protected.DELETE("/actions/trades/:id", trades.NewDeleteHandler(tradesClient, tradesUC).Delete)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
