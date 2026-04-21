@@ -221,8 +221,72 @@
     }
   },
   "snapshots": {
+    "title": "Snapshots",
+    "new": "New Snapshot",
+    "auto": "Auto Snapshot",
+    "empty_title": "No snapshots yet",
+    "empty_subtitle": "Record your first portfolio snapshot from the header.",
+    "empty_filtered_title": "No snapshots match this filter",
+    "empty_filtered_subtitle": "Clear the filter to see all snapshots.",
+    "filter": {
+      "type": "Type",
+      "type_any": "Any",
+      "type_full": "Full",
+      "type_partial": "Partial"
+    },
+    "col": {
+      "date": "Date",
+      "type": "Type",
+      "entries": "Entries",
+      "sources": "Sources",
+      "notes": "Notes"
+    },
+    "entries": {
+      "col": {
+        "asset": "Asset",
+        "quantity": "Quantity",
+        "price": "Price",
+        "value_override": "Value Override",
+        "source": "Source"
+      }
+    },
+    "type": {
+      "full": "Full",
+      "partial": "Partial"
+    },
+    "source": {
+      "manual": "MANUAL",
+      "coingecko": "COINGECKO",
+      "twelve_data": "TWELVE_DATA",
+      "alpha_vantage": "ALPHA_VANTAGE"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page_of": "Page {current} of {total}"
+    },
+    "wizard": {
+      "info": "Info",
+      "info_label": "Info",
+      "summary": "Summary",
+      "summary_instructions": "Review the included entries and submit to record the snapshot.",
+      "step_of": "Step {current} of {total}",
+      "back": "Back",
+      "next": "Next",
+      "skip": "Skip",
+      "include": "Include",
+      "update": "Update",
+      "already_included": "Already in snapshot, cannot be removed"
+    },
     "create": {
-      "success": "Snapshot created"
+      "title": "New Snapshot",
+      "submit": "Record snapshot",
+      "success": "Snapshot recorded"
+    },
+    "edit": {
+      "title": "Edit snapshot from",
+      "submit": "Save changes",
+      "success": "Snapshot updated"
     },
     "delete": {
       "title": "Delete snapshot",
@@ -231,11 +295,21 @@
       "success": "Snapshot deleted"
     },
     "auto": {
-      "success": "Snapshot created automatically",
-      "banner": "Snapshot created automatically. Review the entries and save any changes.",
-      "warnings_title": "Some prices could not be fetched",
-      "no_providers": "No price providers are configured. Please set up a provider before using auto-snapshot.",
-      "all_failed": "All price providers failed. Please try again or create a snapshot manually."
+      "success": "Auto snapshot created",
+      "banner": "Snapshot created automatically. Adjust entries or close to keep as-is.",
+      "warnings_title": "Some assets could not be updated",
+      "no_providers": "No assets have a price provider configured. Set one up on the Assets screen first.",
+      "all_failed": "All provider calls failed. Try again in a moment."
+    },
+    "form": {
+      "recorded_at": "Recorded at",
+      "recorded_at_readonly": "Recorded at (read-only)",
+      "notes": "Notes",
+      "notes_placeholder": "Optional notes",
+      "toggle_price": "Price",
+      "toggle_override": "Value Override",
+      "current_price": "Price",
+      "current_value_override": "Value override"
     }
   },
   "common": {

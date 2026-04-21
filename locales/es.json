@@ -221,8 +221,72 @@
     }
   },
   "snapshots": {
+    "title": "Snapshots",
+    "new": "Nuevo Snapshot",
+    "auto": "Snapshot Automático",
+    "empty_title": "Aún no hay snapshots",
+    "empty_subtitle": "Registrá tu primer snapshot del portafolio desde el encabezado.",
+    "empty_filtered_title": "Ningún snapshot coincide con este filtro",
+    "empty_filtered_subtitle": "Limpiá el filtro para ver todos los snapshots.",
+    "filter": {
+      "type": "Tipo",
+      "type_any": "Todos",
+      "type_full": "Completo",
+      "type_partial": "Parcial"
+    },
+    "col": {
+      "date": "Fecha",
+      "type": "Tipo",
+      "entries": "Entradas",
+      "sources": "Fuentes",
+      "notes": "Notas"
+    },
+    "entries": {
+      "col": {
+        "asset": "Activo",
+        "quantity": "Cantidad",
+        "price": "Precio",
+        "value_override": "Valor manual",
+        "source": "Fuente"
+      }
+    },
+    "type": {
+      "full": "Completo",
+      "partial": "Parcial"
+    },
+    "source": {
+      "manual": "MANUAL",
+      "coingecko": "COINGECKO",
+      "twelve_data": "TWELVE_DATA",
+      "alpha_vantage": "ALPHA_VANTAGE"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "page_of": "Página {current} de {total}"
+    },
+    "wizard": {
+      "info": "Info",
+      "info_label": "Info",
+      "summary": "Resumen",
+      "summary_instructions": "Revisá las entradas incluidas y confirmá para registrar el snapshot.",
+      "step_of": "Paso {current} de {total}",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "skip": "Omitir",
+      "include": "Incluir",
+      "update": "Actualizar",
+      "already_included": "Ya está en el snapshot, no se puede eliminar"
+    },
     "create": {
-      "success": "Snapshot creado"
+      "title": "Nuevo Snapshot",
+      "submit": "Registrar snapshot",
+      "success": "Snapshot registrado"
+    },
+    "edit": {
+      "title": "Editar snapshot del",
+      "submit": "Guardar cambios",
+      "success": "Snapshot actualizado"
     },
     "delete": {
       "title": "Eliminar snapshot",
@@ -231,11 +295,21 @@
       "success": "Snapshot eliminado"
     },
     "auto": {
-      "success": "Snapshot creado automáticamente",
-      "banner": "Snapshot creado automáticamente. Revisá las entradas y guardá los cambios.",
-      "warnings_title": "Algunos precios no pudieron obtenerse",
-      "no_providers": "No hay proveedores de precios configurados. Configurá uno antes de usar el snapshot automático.",
-      "all_failed": "Todos los proveedores de precios fallaron. Intentá de nuevo o creá un snapshot manualmente."
+      "success": "Snapshot automático creado",
+      "banner": "Snapshot creado automáticamente. Ajustá las entradas o cerrá para conservarlo.",
+      "warnings_title": "Algunos activos no pudieron actualizarse",
+      "no_providers": "Ningún activo tiene un proveedor de precios configurado. Configurá uno en la pantalla de Activos.",
+      "all_failed": "Todas las llamadas a proveedores fallaron. Intentá de nuevo en un momento."
+    },
+    "form": {
+      "recorded_at": "Registrado el",
+      "recorded_at_readonly": "Registrado el (solo lectura)",
+      "notes": "Notas",
+      "notes_placeholder": "Notas opcionales",
+      "toggle_price": "Precio",
+      "toggle_override": "Valor manual",
+      "current_price": "Precio",
+      "current_value_override": "Valor manual"
     }
   },
   "common": {
