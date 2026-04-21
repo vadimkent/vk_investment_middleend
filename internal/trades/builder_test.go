@@ -16,9 +16,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	// Load locales so i18n.T resolves known keys; unknown keys still fall back
-	// to the key itself, which is acceptable for the trades.* namespace until
-	// Task 6.1 lands.
+	// Load locales so i18n.T resolves known keys.
 	_, thisFile, _, _ := runtime.Caller(0)
 	repoRoot := filepath.Join(filepath.Dir(thisFile), "..", "..")
 	_ = i18n.Load(filepath.Join(repoRoot, "locales"))
@@ -103,12 +101,12 @@ func TestBuildScreen_HeaderTitleAndNewButton(t *testing.T) {
 	title := findByID(tree, "trades-title")
 	require.NotNil(t, title)
 	assert.Equal(t, "text", title.Type)
-	assert.Equal(t, "trades.title", title.Props["content"])
+	assert.Equal(t, "Trades", title.Props["content"])
 
 	btn := findByID(tree, "trades-new-btn")
 	require.NotNil(t, btn)
 	assert.Equal(t, "button", btn.Type)
-	assert.Equal(t, "trades.new", btn.Props["label"])
+	assert.Equal(t, "New Trade", btn.Props["label"])
 	require.Len(t, btn.Actions, 1)
 	assert.Equal(t, "reload", btn.Actions[0].Type)
 	assert.Equal(t, "/actions/trades/create_modal", btn.Actions[0].Endpoint)
@@ -138,7 +136,7 @@ func TestBuildTradesSection_FilterAssetSelect(t *testing.T) {
 	// "Any" + 2 catalog assets.
 	require.Len(t, parsed, 3)
 	assert.Equal(t, "", parsed[0].Value)
-	assert.Equal(t, "trades.filter.asset_any", parsed[0].Label)
+	assert.Equal(t, "Any asset", parsed[0].Label)
 	assert.Equal(t, "aaa-1", parsed[1].Value)
 	assert.Equal(t, "AAPL", parsed[1].Label)
 	assert.Equal(t, "bbb-2", parsed[2].Value)
@@ -168,11 +166,11 @@ func TestBuildTradesSection_FilterTypeSelect(t *testing.T) {
 	require.NoError(t, json.Unmarshal(opts, &parsed))
 	require.Len(t, parsed, 3)
 	assert.Equal(t, "", parsed[0].Value)
-	assert.Equal(t, "trades.filter.type_all", parsed[0].Label)
+	assert.Equal(t, "All", parsed[0].Label)
 	assert.Equal(t, "BUY", parsed[1].Value)
-	assert.Equal(t, "trades.filter.type_buy", parsed[1].Label)
+	assert.Equal(t, "BUY", parsed[1].Label)
 	assert.Equal(t, "SELL", parsed[2].Value)
-	assert.Equal(t, "trades.filter.type_sell", parsed[2].Label)
+	assert.Equal(t, "SELL", parsed[2].Label)
 
 	require.Len(t, sel.Actions, 1)
 	act := sel.Actions[0]
@@ -208,15 +206,15 @@ func TestBuildTradesSection_TableHeadersAndRowCount(t *testing.T) {
 	var cols []components.TableColumn
 	require.NoError(t, json.Unmarshal(colsRaw, &cols))
 	require.Len(t, cols, 10)
-	assert.Equal(t, "trades.col.date", cols[0].Header)
-	assert.Equal(t, "trades.col.asset", cols[1].Header)
-	assert.Equal(t, "trades.col.type", cols[2].Header)
-	assert.Equal(t, "trades.col.quantity", cols[3].Header)
-	assert.Equal(t, "trades.col.price", cols[4].Header)
-	assert.Equal(t, "trades.col.total", cols[5].Header)
-	assert.Equal(t, "trades.col.fees", cols[6].Header)
-	assert.Equal(t, "trades.col.source", cols[7].Header)
-	assert.Equal(t, "trades.col.notes", cols[8].Header)
+	assert.Equal(t, "Date", cols[0].Header)
+	assert.Equal(t, "Asset", cols[1].Header)
+	assert.Equal(t, "Type", cols[2].Header)
+	assert.Equal(t, "Quantity", cols[3].Header)
+	assert.Equal(t, "Price/Unit", cols[4].Header)
+	assert.Equal(t, "Total", cols[5].Header)
+	assert.Equal(t, "Fees", cols[6].Header)
+	assert.Equal(t, "Source", cols[7].Header)
+	assert.Equal(t, "Notes", cols[8].Header)
 	assert.Equal(t, "", cols[9].Header)
 
 	require.Len(t, table.Children, 3)
@@ -351,8 +349,8 @@ func TestBuildTradesSection_EmptyNoFilter(t *testing.T) {
 	sub := findByID(*empty, "empty-subtitle")
 	require.NotNil(t, title)
 	require.NotNil(t, sub)
-	assert.Equal(t, "trades.empty_title", title.Props["content"])
-	assert.Equal(t, "trades.empty_subtitle", sub.Props["content"])
+	assert.Equal(t, "No trades yet", title.Props["content"])
+	assert.Equal(t, "Record your first trade to start tracking.", sub.Props["content"])
 }
 
 func TestBuildTradesSection_EmptyWithFilter(t *testing.T) {
@@ -367,8 +365,8 @@ func TestBuildTradesSection_EmptyWithFilter(t *testing.T) {
 	sub := findByID(sec, "empty-subtitle")
 	require.NotNil(t, title)
 	require.NotNil(t, sub)
-	assert.Equal(t, "trades.empty_filtered_title", title.Props["content"])
-	assert.Equal(t, "trades.empty_filtered_subtitle", sub.Props["content"])
+	assert.Equal(t, "No trades match the filters", title.Props["content"])
+	assert.Equal(t, "Try clearing the filters to see all trades.", sub.Props["content"])
 }
 
 func TestBuildTradesSection_PaginationOmittedWhenTotalFits(t *testing.T) {

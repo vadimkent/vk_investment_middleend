@@ -151,6 +151,75 @@
       "external_ticker_placeholder": "Defaults to ticker if empty"
     }
   },
+  "trades": {
+    "title": "Trades",
+    "new": "New Trade",
+    "empty_title": "No trades yet",
+    "empty_subtitle": "Record your first trade to start tracking.",
+    "empty_filtered_title": "No trades match the filters",
+    "empty_filtered_subtitle": "Try clearing the filters to see all trades.",
+    "filter": {
+      "asset": "Asset",
+      "asset_any": "Any asset",
+      "type": "Type",
+      "type_all": "All",
+      "type_buy": "BUY",
+      "type_sell": "SELL"
+    },
+    "col": {
+      "date": "Date",
+      "asset": "Asset",
+      "type": "Type",
+      "quantity": "Quantity",
+      "price": "Price/Unit",
+      "total": "Total",
+      "fees": "Fees",
+      "source": "Source",
+      "notes": "Notes"
+    },
+    "type": {
+      "buy": "BUY",
+      "sell": "SELL"
+    },
+    "source": {
+      "manual": "MANUAL",
+      "import": "IMPORT"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page_of": "Page {current} of {total}"
+    },
+    "create": {
+      "title": "New Trade",
+      "submit": "Register",
+      "success": "Trade registered"
+    },
+    "edit": {
+      "title": "Edit {date} · {ticker}",
+      "submit": "Save",
+      "success": "Trade updated"
+    },
+    "delete": {
+      "title": "Delete trade",
+      "confirm": "Delete this {type} of {quantity} {ticker} on {date}? This will affect AVCO calculations.",
+      "submit": "Delete",
+      "success": "Trade deleted"
+    },
+    "form": {
+      "asset": "Asset",
+      "trade_type": "Type",
+      "quantity": "Quantity",
+      "price_per_unit": "Price per unit",
+      "fees": "Fees",
+      "date": "Date",
+      "notes": "Notes",
+      "notes_placeholder": "Optional notes (max 500 chars)",
+      "no_assets_hint": "Register an asset first to record trades.",
+      "date_readonly": "Date",
+      "source_readonly": "Source"
+    }
+  },
   "common": {
     "cancel": "Cancel"
   },

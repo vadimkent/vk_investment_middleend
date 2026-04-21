@@ -142,7 +142,7 @@ func TestBuildCreateModal_EmptyCatalogDisablesSubmit(t *testing.T) {
 	hint := findByID(m, "trades-create-no-assets-hint")
 	require.NotNil(t, hint)
 	assert.Equal(t, "text", hint.Type)
-	assert.Equal(t, "trades.form.no_assets_hint", hint.Props["content"])
+	assert.Equal(t, "Register an asset first to record trades.", hint.Props["content"])
 }
 
 func TestBuildCreateModal_InlineErrorRendered(t *testing.T) {

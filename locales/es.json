@@ -151,6 +151,75 @@
       "external_ticker_placeholder": "Usa el ticker si queda vacío"
     }
   },
+  "trades": {
+    "title": "Operaciones",
+    "new": "Nueva operación",
+    "empty_title": "Sin operaciones",
+    "empty_subtitle": "Registrá tu primera operación para empezar a trackear.",
+    "empty_filtered_title": "Ninguna operación coincide con los filtros",
+    "empty_filtered_subtitle": "Probá limpiar los filtros para ver todas.",
+    "filter": {
+      "asset": "Activo",
+      "asset_any": "Cualquier activo",
+      "type": "Tipo",
+      "type_all": "Todos",
+      "type_buy": "COMPRA",
+      "type_sell": "VENTA"
+    },
+    "col": {
+      "date": "Fecha",
+      "asset": "Activo",
+      "type": "Tipo",
+      "quantity": "Cantidad",
+      "price": "Precio/Unidad",
+      "total": "Total",
+      "fees": "Comisiones",
+      "source": "Origen",
+      "notes": "Notas"
+    },
+    "type": {
+      "buy": "COMPRA",
+      "sell": "VENTA"
+    },
+    "source": {
+      "manual": "MANUAL",
+      "import": "IMPORTADO"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "page_of": "Página {current} de {total}"
+    },
+    "create": {
+      "title": "Nueva operación",
+      "submit": "Registrar",
+      "success": "Operación registrada"
+    },
+    "edit": {
+      "title": "Editar {date} · {ticker}",
+      "submit": "Guardar",
+      "success": "Operación actualizada"
+    },
+    "delete": {
+      "title": "Eliminar operación",
+      "confirm": "¿Eliminar esta {type} de {quantity} {ticker} del {date}? Esto afectará los cálculos AVCO.",
+      "submit": "Eliminar",
+      "success": "Operación eliminada"
+    },
+    "form": {
+      "asset": "Activo",
+      "trade_type": "Tipo",
+      "quantity": "Cantidad",
+      "price_per_unit": "Precio por unidad",
+      "fees": "Comisiones",
+      "date": "Fecha",
+      "notes": "Notas",
+      "notes_placeholder": "Notas opcionales (máx 500 caracteres)",
+      "no_assets_hint": "Registrá un activo primero para poder cargar operaciones.",
+      "date_readonly": "Fecha",
+      "source_readonly": "Origen"
+    }
+  },
   "common": {
     "cancel": "Cancelar"
   },

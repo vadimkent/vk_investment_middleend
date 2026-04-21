@@ -28,7 +28,7 @@ func BuildCreateModal(catalog []assetscatalog.Asset, p ListParams, lang, inlineE
 	assetOpts := make([]components.SelectOption, 0, len(eligible)+1)
 	assetOpts = append(assetOpts, components.SelectOption{
 		Value: "",
-		Label: i18n.T(lang, "trades.form.asset_placeholder"),
+		Label: i18n.T(lang, "trades.filter.asset_any"),
 	})
 	for _, a := range eligible {
 		assetOpts = append(assetOpts, components.SelectOption{Value: a.ID, Label: a.Ticker})
@@ -104,7 +104,7 @@ func BuildEditModal(t Trade, catalog []assetscatalog.Asset, p ListParams, lang, 
 	assetOpts := make([]components.SelectOption, 0, len(eligible)+1)
 	assetOpts = append(assetOpts, components.SelectOption{
 		Value: "",
-		Label: i18n.T(lang, "trades.form.asset_placeholder"),
+		Label: i18n.T(lang, "trades.filter.asset_any"),
 	})
 	for _, a := range eligible {
 		assetOpts = append(assetOpts, components.SelectOption{Value: a.ID, Label: a.Ticker})
@@ -331,31 +331,17 @@ func staticLabeled(id, label, value string) components.Component {
 }
 
 // interpolateTitle replaces {date} / {ticker} in a registered i18n template.
-// When the template lacks both placeholders (i.e. the key is unresolved and
-// i18n.T returned the raw key), it falls back to a composed "date · ticker"
-// label so the user still sees the essential context.
 func interpolateTitle(template, date, ticker string) string {
-	if strings.Contains(template, "{date}") || strings.Contains(template, "{ticker}") {
-		out := strings.ReplaceAll(template, "{date}", date)
-		out = strings.ReplaceAll(out, "{ticker}", ticker)
-		return out
-	}
-	return fmt.Sprintf("%s · %s", date, ticker)
+	return strings.NewReplacer("{date}", date, "{ticker}", ticker).Replace(template)
 }
 
 // interpolateDeleteConfirm replaces {type}/{quantity}/{ticker}/{date} in a
-// registered i18n template. When the template lacks the placeholders, it
-// falls back to a composed confirmation line that still surfaces the four
-// values (the UI is a destructive confirmation — the user must see what
-// they're deleting even before i18n keys are registered).
+// registered i18n template.
 func interpolateDeleteConfirm(template, tradeType, quantity, ticker, date string) string {
-	if strings.Contains(template, "{type}") || strings.Contains(template, "{quantity}") ||
-		strings.Contains(template, "{ticker}") || strings.Contains(template, "{date}") {
-		out := strings.ReplaceAll(template, "{type}", tradeType)
-		out = strings.ReplaceAll(out, "{quantity}", quantity)
-		out = strings.ReplaceAll(out, "{ticker}", ticker)
-		out = strings.ReplaceAll(out, "{date}", date)
-		return out
-	}
-	return fmt.Sprintf("Delete this %s of %s %s on %s?", tradeType, quantity, ticker, date)
+	return strings.NewReplacer(
+		"{type}", tradeType,
+		"{quantity}", quantity,
+		"{ticker}", ticker,
+		"{date}", date,
+	).Replace(template)
 }
