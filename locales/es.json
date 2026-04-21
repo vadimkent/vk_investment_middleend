@@ -220,11 +220,15 @@
       "source_readonly": "Origen"
     }
   },
+  "snapshots": {
+    "delete": {
+      "title": "Eliminar snapshot",
+      "confirm": "¿Eliminar el snapshot del {date}? Esto afectará los cálculos del portafolio.",
+      "submit": "Eliminar",
+      "success": "Snapshot eliminado"
+    }
+  },
   "common": {
     "cancel": "Cancelar"
-  },
-  "home": {
-    "welcome_title": "Bienvenido a VK Investments",
-    "subtitle": "Este es un middleend scaffoldeado que sirve componentes SDUI."
   }
 }

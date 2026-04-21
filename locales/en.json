@@ -220,11 +220,15 @@
       "source_readonly": "Source"
     }
   },
+  "snapshots": {
+    "delete": {
+      "title": "Delete snapshot",
+      "confirm": "Delete snapshot from {date}? This will affect portfolio calculations.",
+      "submit": "Delete",
+      "success": "Snapshot deleted"
+    }
+  },
   "common": {
     "cancel": "Cancel"
-  },
-  "home": {
-    "welcome_title": "Welcome to VK Investments",
-    "subtitle": "This is a scaffolded middleend serving SDUI components."
   }
 }
