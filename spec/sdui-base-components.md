@@ -243,12 +243,26 @@ A row inside a `table`. Uses CSS subgrid so every row shares the same column tra
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
 | — | — | — | Shape comes from the table's `columns` |
+| `expandable` | bool | no | Default `false`. When `true`, the row is toggleable — clicking the main row expands / collapses a full-width `details` panel rendered beneath it. The frontend renders a chevron indicator. |
 
 Each child of `table_row` is rendered into a cell aligned according to the column's `align`. Use `text`, `badge`, `image`, or any component as a cell.
 
+In addition to the cell `children`, expandable rows carry a `details` slot:
+
+| Slot | Type | Description |
+|------|------|-------------|
+| `details` | `Component[]` | Subtree rendered as a full-width panel directly beneath the row when expanded. Pre-emitted in the tree (not fetched on expand). Breaks the subgrid only for its own row. |
+
+When **any** row in a `table` is `expandable: true`, the frontend automatically prepends a 24px chevron column to the header (and to all rows — expandable or not — to preserve column alignment). This column is not part of `columns`; it is purely presentational.
+
+Expand state is client-side, keyed per `row.id`. Multiple rows may be expanded simultaneously. State resets on any `replace` that rebuilds the table subtree.
+
 ```go
 TableRow(id string, children ...Component) Component
+TableRowExpandable(id string, cells []Component, details ...Component) Component
 ```
+
+The existing `TableRow(id, children...)` signature is unchanged — non-expandable rows remain the default.
 
 ### divider
 

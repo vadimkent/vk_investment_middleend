@@ -205,7 +205,129 @@ Allocation donut by asset:
 
 ---
 
-## 3. Custom Attributes
+## 3. `wizard`
+
+Multi-step form container with local step state, Back/Next navigation without round-trips, and per-step include/skip logic. Used by the snapshots screen's create/edit flow; reusable for other multi-step flows (import, analysis).
+
+### Why custom
+
+A wizard requires local state for `currentStep`, Back/Next navigation without a server round-trip, per-step input persistence while the user moves between steps, and per-step validation before advancing. Composing this from base primitives (`visible_when` + a counter) is fragile and can't cleanly encode include/skip semantics. Server-driven navigation (one round-trip per Next) is chatty and sluggish for flows with many steps. The wizard encapsulates the step-state machine in the frontend, following the same pattern as `line_chart` and `pie_chart` encapsulate their interactive state.
+
+### Props
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| `mode` | enum | yes | `create` / `edit`. Used by the frontend to pick button copy and entry-step semantics (see `skippable`). |
+| `title` | string | yes | Wizard title. Localized by the middleend. |
+| `steps` | `Step[]` | yes | Ordered steps; at least 1. |
+| `submit_action` | `Action` | yes | Action executed from the summary step's Submit button (typically `submit` targeting the create / PATCH endpoint). |
+| `dismiss_action` | `Action` | yes | Action executed when the user closes the wizard (typically a client-side `replace` that empties the modal slot). |
+| `banner` | `Banner` | no | Optional banner rendered above the step content. Used by the auto-snapshot flow (info / warning) and validation-error re-emission (error). |
+| `initial_step_id` | string | no | Step id to open the wizard on. Defaults to the first step. The middleend sets this when re-emitting the wizard after a validation error, to focus the user on the relevant step. |
+
+### Sub-types
+
+**`Step`**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | yes | Stable identifier (react key + hidden-input grouping). |
+| `label` | string | yes | Short label for the step indicator (e.g. `Info`, `AAPL`, `Summary`). Localized by the middleend. |
+| `kind` | enum | yes | `info` / `entry` / `summary`. Drives the button set: `info` → Next; `entry` → Back / Skip / Include (or Back / Update when editing an existing entry); `summary` → Back / Submit. |
+| `skippable` | bool | yes | Only meaningful when `kind=entry`. `false` disables Skip and hides the "exclude" affordance — used in edit mode on entries that already exist in the snapshot. |
+| `include_default` | bool | yes | Only meaningful when `kind=entry`. Initial state of the step's "included" flag — `true` for existing entries in edit mode, `false` for new entries in create mode. |
+| `children` | `Component[]` | yes | The step's content (inputs, text). The wizard shows only the active step's children; other steps are hidden but their inputs persist client-side. |
+
+**`Banner`**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `variant` | enum | yes | `info` / `success` / `warning` / `error`. |
+| `message` | string | yes | Localized. |
+| `title` | string | no | Optional bold prefix (used for `warnings_title` in the auto-snapshot flow). |
+| `dismissible` | bool | no | Default `false`. When `true`, the user can close the banner without closing the wizard. |
+
+### Frontend behavior
+
+1. **Step indicator**: renders `Step X of Y` + a chip row with each step's `label`. Chips are clickable — free jump between steps. Jumping does not validate.
+2. **Buttons per kind**:
+   - `info` step: Next only.
+   - `entry` step: Back + Skip + Include (create mode) or Back + Update (edit mode, existing entry, `skippable: false`).
+   - `summary` step: Back + Submit.
+3. **Include map**: the wizard holds `{ stepId → included: bool }`, seeded from each step's `include_default`. Skip sets `false`; Include sets `true`; Update (edit mode) keeps `true` and advances.
+4. **Navigation**: Back always works (no validation). Next / Include validates the required inputs of the current step before advancing (using the input's own `required`, `pattern`, `min`, `max` props). Skip bypasses validation and marks the step excluded.
+5. **Summary step rendering**: the summary step's children come from the middleend as a short descriptive paragraph. The list of included entries is derived client-side from the include-map — not server-emitted — so it stays reactive to Skip/Include changes without re-emitting the wizard.
+6. **Submit**: on the summary step, the wizard collects inputs from (a) all `kind=info` steps (always included) and (b) all `kind=entry` steps where `included=true`. It then executes `submit_action` with that body.
+7. **Dismiss**: executes `dismiss_action`.
+
+### Hidden input naming
+
+For each `kind=entry` step representing an asset, inputs use bracket notation so the middleend can parse them into a structured entries array:
+
+- `entries[<asset_id>].mode` — `price` or `override`.
+- `entries[<asset_id>].current_price` — present when `mode=price`.
+- `entries[<asset_id>].current_value_override` — present when `mode=override`.
+
+`kind=info` steps use plain names: `recorded_at`, `notes`. Complex-asset entry steps omit `mode` (always `override`). The middleend handlers parse this flat shape into the backend's nested `entries` array.
+
+### Validation and BE-error handling
+
+Format validation runs through the `input` props (`required`, `max_length`, `pattern`, `min`, `max`). The wizard does not define its own validation primitives. Backend validation errors (422) arrive as an `ActionResponse` that replaces the modal subtree with the same wizard re-emitted — inputs preserved — plus an `error` banner. The wizard re-opens on the summary step by default; the middleend can override this via `initial_step_id` (e.g. to land on the `info` step for a `FUTURE_DATED_SNAPSHOT` error).
+
+### Example
+
+Minimal wizard with one info step, one entry step, and one summary step:
+
+```json
+{
+  "type": "wizard",
+  "id": "snapshot-create-wizard",
+  "props": {
+    "mode": "create",
+    "title": "New Snapshot",
+    "submit_action": { "trigger": "click", "type": "submit", "endpoint": "/actions/snapshots/create", "method": "POST", "target_id": "snapshots-root" },
+    "dismiss_action": { "trigger": "click", "type": "replace", "target_id": "snapshots-modal-slot", "tree": null },
+    "steps": [
+      {
+        "id": "info",
+        "label": "Info",
+        "kind": "info",
+        "skippable": false,
+        "include_default": true,
+        "children": [
+          { "type": "input", "id": "recorded-at", "props": { "name": "recorded_at", "input_type": "datetime-local", "label": "Date", "required": true } },
+          { "type": "textarea", "id": "notes", "props": { "name": "notes", "label": "Notes", "max_length": 500 } }
+        ]
+      },
+      {
+        "id": "entry-aapl-uuid",
+        "label": "AAPL",
+        "kind": "entry",
+        "skippable": true,
+        "include_default": false,
+        "children": [
+          { "type": "text", "id": "entry-header", "props": { "content": "Apple Inc", "size": "md", "weight": "bold" } },
+          { "type": "input", "id": "price-input", "props": { "name": "entries[aapl-uuid].current_price", "input_type": "number", "label": "Current Price", "required": true } }
+        ]
+      },
+      {
+        "id": "summary",
+        "label": "Summary",
+        "kind": "summary",
+        "skippable": false,
+        "include_default": true,
+        "children": [
+          { "type": "text", "id": "summary-desc", "props": { "content": "Review your entries and submit.", "size": "md", "weight": "normal" } }
+        ]
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 4. Custom Attributes
 
 Project-specific props that may appear on any component. The frontend reads them alongside base shared props (`align_items`, `gap`, etc.) and applies project-specific behavior.
 
@@ -240,7 +362,7 @@ When HideValues is active, the frontend renders `"••••"` instead of `"$1
 
 ---
 
-## 4. Custom Actions
+## 5. Custom Actions
 
 Project-specific action types that extend the base set in `sdui-actions.md`. The frontend maps these types to local behavior; no server round-trip is involved.
 
