@@ -229,6 +229,13 @@
       "confirm": "¿Eliminar el snapshot del {date}? Esto afectará los cálculos del portafolio.",
       "submit": "Eliminar",
       "success": "Snapshot eliminado"
+    },
+    "auto": {
+      "success": "Snapshot creado automáticamente",
+      "banner": "Snapshot creado automáticamente. Revisá las entradas y guardá los cambios.",
+      "warnings_title": "Algunos precios no pudieron obtenerse",
+      "no_providers": "No hay proveedores de precios configurados. Configurá uno antes de usar el snapshot automático.",
+      "all_failed": "Todos los proveedores de precios fallaron. Intentá de nuevo o creá un snapshot manualmente."
     }
   },
   "common": {

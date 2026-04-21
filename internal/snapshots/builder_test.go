@@ -102,6 +102,29 @@ func TestBuildScreen_ShapeAndIDs(t *testing.T) {
 	assert.Empty(t, modalSlot.Children)
 }
 
+// --- Test: BuildScreenWithModal ---
+
+func TestBuildScreenWithModal_InjectsModal(t *testing.T) {
+	res := &ListResult{Snapshots: []Snapshot{}, Total: 0, Size: 10, Offset: 0}
+	modal := components.Text("test-modal", "hello modal", "md", "normal")
+	tree := BuildScreenWithModal(res, sampleCatalog(), ListParams{}, "en", modal)
+
+	modalSlot := findByID(tree, ModalSlotID)
+	require.NotNil(t, modalSlot)
+	require.Len(t, modalSlot.Children, 1, "modal slot must contain the injected modal")
+	assert.Equal(t, "test-modal", modalSlot.Children[0].ID)
+}
+
+func TestBuildScreenWithModal_EmptyModal_NoChildren(t *testing.T) {
+	res := &ListResult{Snapshots: []Snapshot{}, Total: 0, Size: 10, Offset: 0}
+	// Zero-value Component — same as what BuildScreen passes.
+	tree := BuildScreenWithModal(res, sampleCatalog(), ListParams{}, "en", components.Component{})
+
+	modalSlot := findByID(tree, ModalSlotID)
+	require.NotNil(t, modalSlot)
+	assert.Empty(t, modalSlot.Children, "empty-modal variant must produce no children in slot")
+}
+
 func TestBuildScreen_RootHasThreeChildren(t *testing.T) {
 	res := &ListResult{Snapshots: []Snapshot{}, Total: 0, Size: 10, Offset: 0}
 	tree := BuildScreen(res, sampleCatalog(), ListParams{}, "en")

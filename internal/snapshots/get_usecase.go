@@ -41,6 +41,21 @@ func (uc *GetUseCase) Execute(ctx context.Context, authorization string, p ListP
 	return BuildScreen(res, cat, p, lang), nil
 }
 
+// ExecuteListResult fetches the raw list result and catalog without composing
+// a component tree. Used by handlers that need custom composition (e.g. the
+// auto-snapshot handler, which injects a wizard into the modal slot).
+func (uc *GetUseCase) ExecuteListResult(ctx context.Context, authorization string, p ListParams) (*ListResult, []assetscatalog.Asset, error) {
+	res, err := uc.client.List(ctx, authorization, p)
+	if err != nil {
+		return nil, nil, err
+	}
+	cat, err := uc.catalog.List(ctx, authorization)
+	if err != nil {
+		return nil, nil, err
+	}
+	return res, cat, nil
+}
+
 // ExecuteSection fetches the same data and returns only the list subtree.
 func (uc *GetUseCase) ExecuteSection(ctx context.Context, authorization string, p ListParams, lang string) (components.Component, error) {
 	res, err := uc.client.List(ctx, authorization, p)

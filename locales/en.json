@@ -229,6 +229,13 @@
       "confirm": "Delete snapshot from {date}? This will affect portfolio calculations.",
       "submit": "Delete",
       "success": "Snapshot deleted"
+    },
+    "auto": {
+      "success": "Snapshot created automatically",
+      "banner": "Snapshot created automatically. Review the entries and save any changes.",
+      "warnings_title": "Some prices could not be fetched",
+      "no_providers": "No price providers are configured. Please set up a provider before using auto-snapshot.",
+      "all_failed": "All price providers failed. Please try again or create a snapshot manually."
     }
   },
   "common": {

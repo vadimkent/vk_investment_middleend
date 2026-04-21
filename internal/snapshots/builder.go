@@ -22,9 +22,22 @@ const (
 
 // BuildScreen returns the full SDUI tree for GET /screens/snapshots.
 func BuildScreen(res *ListResult, catalog []assetscatalog.Asset, p ListParams, lang string) components.Component {
+	return BuildScreenWithModal(res, catalog, p, lang, components.Component{})
+}
+
+// BuildScreenWithModal renders the full screen tree with a specific modal
+// subtree injected into the modal slot (ModalSlotID). Used by the auto-snapshot
+// flow, which replaces the entire screen root with a refreshed list AND an
+// open edit wizard in one ActionResponse.
+func BuildScreenWithModal(res *ListResult, catalog []assetscatalog.Asset, p ListParams, lang string, modal components.Component) components.Component {
 	header := buildHeader(p, lang)
 	section := BuildSnapshotsSection(res, catalog, p, lang)
-	modalSlot := components.Column(ModalSlotID)
+	var modalSlot components.Component
+	if modal.Type == "" {
+		modalSlot = components.Column(ModalSlotID)
+	} else {
+		modalSlot = components.Column(ModalSlotID, modal)
+	}
 	root := components.ColumnWithGap("snapshots-root", "lg", header, section, modalSlot)
 	return components.Screen(ScreenID, i18n.T(lang, "snapshots.title"), root)
 }
