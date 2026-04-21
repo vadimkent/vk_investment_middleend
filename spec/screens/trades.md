@@ -60,12 +60,12 @@ Three logical regions stacked vertically:
 - **Cell rendering**:
   - `Date` — `YYYY-MM-DD` from the trade's `date` (the BE returns a full timestamp; we render the date portion only).
   - `Asset` — ticker resolved from `asset_id` via the asset catalog. If the asset is no longer in the catalog (e.g. deleted), render the raw UUID as a fallback (edge case; shouldn't normally happen).
-  - `Type` — badge. `BUY` green, `SELL` red. Text is uppercase.
+  - `Type` — styled text with a color token (`positive` for `BUY`, `negative` for `SELL`). Text is uppercase. The SDUI component library has no pill-style badge with color variant, so the middleend emits `text` with a color prop; frontends are free to render it as a pill if they want.
   - `Quantity` — `FormatQuantity` (locale-aware, strips trailing zeros, max 8 decimals).
   - `Price/Unit` — `FormatMoney(price_per_unit, asset.currency, lang)`.
   - `Total` — computed as `quantity × price_per_unit` and rendered via `FormatMoney(total, asset.currency, lang)`. Not sent by the backend.
   - `Fees` — `FormatMoney(fees, asset.currency, lang)`. Rendered as `—` when `fees == "0"`.
-  - `Source` — badge. `MANUAL` or `IMPORT`, uppercase.
+  - `Source` — plain `text`. `MANUAL` or `IMPORT`, uppercase. (Same component-library rationale as `Type`.)
   - `Notes` — plain text truncated to 40 chars with an ellipsis when longer. Full notes are visible in the Edit modal.
 - **No `sensitive` attribute** on any cell. Trades are not hidden by the portfolio HideValues toggle.
 
