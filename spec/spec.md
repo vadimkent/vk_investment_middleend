@@ -41,7 +41,13 @@ Screens (one file per screen, added as SDD progresses):
 | Login | [`screens/login.md`](screens/login.md) |
 | Portfolio | [`screens/portfolio.md`](screens/portfolio.md) |
 | Assets | [`screens/assets.md`](screens/assets.md) |
-| Trades | `screens/trades.md` — TBD |
+| Trades | [`screens/trades.md`](screens/trades.md) |
 | Snapshots | `screens/snapshots.md` — TBD |
 | Import | `screens/import.md` — TBD |
 | Analysis | `screens/analysis.md` — TBD |
+
+Shared specs (cross-screen helpers):
+
+| Spec | Description |
+|---|---|
+| [Assets Catalog](shared/assets-catalog.md) | Full asset list helper for selectors (trades, snapshots, import, analysis) |
