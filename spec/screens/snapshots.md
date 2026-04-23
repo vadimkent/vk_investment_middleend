@@ -93,7 +93,7 @@ Triggered by the header `New Snapshot` button.
    - **Step `info`** — inputs: `recorded_at` (datetime-local, required, `max` = now) and `notes` (textarea, optional, max 500 chars).
    - **Steps `entry`** — one per asset in the catalog. Step header shows ticker + name + asset_type badge. Per-step content:
      - If `is_complex = true`: single input `current_value_override` (text, required-when-included, `> 0`). No toggle.
-     - Otherwise: a segmented toggle **Price / Value Override** (default: Price) plus a single input bound to the selected mode. Switching the toggle clears the other field. Required-when-included, `> 0`.
+     - Otherwise: a `radio_group` **Price / Value Override** (`default_value: "price"`) plus two conditional inputs — `current_price` (visible when mode is `"price"`) and `current_value_override` (visible when mode is `"override"`). Required-when-included, `> 0`.
      - `skippable: true`, `include_default: false`.
    - **Step `summary`** — descriptive text; submit action targets `POST /actions/snapshots/create?is_full_snapshot=<f>&offset=<n>`.
 2. The create `POST` handler parses hidden form inputs per the wizard naming convention (`entries[<asset_id>].mode`, `entries[<asset_id>].current_price`, `entries[<asset_id>].current_value_override`), plus `recorded_at` and `notes`. Only included steps contribute entries to the BE body. `notes` is omitted when empty.
@@ -105,15 +105,13 @@ Triggered by the header `New Snapshot` button.
 Triggered by the header `Auto Snapshot` button. No pre-confirmation — the action fires directly.
 
 1. The middleend calls `POST /v1/snapshots/auto` with body `{}`.
-2. **Success (`201`)** — the middleend builds an `ActionResponse` that performs two replaces:
-   - Replaces the screen root with a fresh list (the new snapshot appears on page 1 by `recorded_at DESC`).
-   - Replaces `snapshots-modal-slot` with the **edit wizard** pre-populated on the newly-created snapshot, carrying:
-     - `banner`: `{ variant: "info", message: snapshots.auto.banner, dismissible: true }`.
-     - If `warnings` is non-empty, a second `variant: "warning"` banner with title `snapshots.auto.warnings_title` and the list of failed tickers.
+2. **Success (`201`)** — the middleend builds an `ActionResponse` (`action: "replace"`) that replaces the screen root with a fresh list AND injects the **edit wizard** pre-populated on the newly-created snapshot into `snapshots-modal-slot`:
+   - The wizard carries `banner: { variant: "info", message: <combined_message>, dismissible: true }`.
+   - `<combined_message>` is `snapshots.auto.banner`. If `warnings` is non-empty, the failed tickers are appended to the same message: `\n\n<snapshots.auto.warnings_title>: <ticker list>` (no separate warning banner).
    - `feedback`: `snapshots.auto.success` snackbar.
 3. **Terminal failures** (no snapshot created):
-   - `NO_PRICE_PROVIDERS_CONFIGURED` (422) → `ActionResponse{feedback: snackbar error}` using `snapshots.auto.no_providers`.
-   - `ALL_PROVIDERS_FAILED` (502) → snackbar error using `snapshots.auto.all_failed`.
+   - `NO_PRICE_PROVIDERS_CONFIGURED` (422) → `ActionResponse{action: "none", feedback: snackbar warning}` using `snapshots.auto.no_providers`.
+   - `ALL_PROVIDERS_FAILED` (502) → `ActionResponse{action: "none", feedback: snackbar error}` using `snapshots.auto.all_failed`.
    - `PROVIDER_NOT_CONFIGURED` (500) → surfaced as `502 BACKEND_ERROR`.
 
 Cancelling the post-auto wizard does not delete the snapshot — the banner copy makes this explicit.
@@ -161,7 +159,7 @@ Namespace `snapshots.*`, plus `common.cancel` shared across screens.
 
 ### Screen structure
 
-`snapshots.title`, `snapshots.new`, `snapshots.auto`, `snapshots.empty_title`, `snapshots.empty_subtitle`, `snapshots.empty_filtered_title`, `snapshots.empty_filtered_subtitle`.
+`snapshots.title`, `snapshots.new`, `snapshots.auto_btn`, `snapshots.empty_title`, `snapshots.empty_subtitle`, `snapshots.empty_filtered_title`, `snapshots.empty_filtered_subtitle`.
 
 ### Filter
 
@@ -185,7 +183,7 @@ Namespace `snapshots.*`, plus `common.cancel` shared across screens.
 
 ### Wizard
 
-`snapshots.wizard.info`, `snapshots.wizard.summary`, `snapshots.wizard.step_of` (`Step {current} of {total}`), `snapshots.wizard.back`, `snapshots.wizard.next`, `snapshots.wizard.skip`, `snapshots.wizard.include`, `snapshots.wizard.update`, `snapshots.wizard.already_included`.
+`snapshots.wizard.info`, `snapshots.wizard.info_label` (step label text), `snapshots.wizard.summary`, `snapshots.wizard.summary_instructions` (instructional text inside the summary step), `snapshots.wizard.step_of` (`Step {current} of {total}`), `snapshots.wizard.back`, `snapshots.wizard.next`, `snapshots.wizard.skip`, `snapshots.wizard.include`, `snapshots.wizard.update`, `snapshots.wizard.already_included`.
 
 ### Create modal
 
@@ -223,7 +221,7 @@ Concrete strings live in `locales/en.json` and `locales/es.json`. Missing-key fa
 | Invalid query param (`is_full_snapshot` outside `true`/`false`, `offset` non-integer or negative, missing `id` on modal endpoints) | 400 | `{"error":{"code":"BAD_REQUEST","message":"..."}}` |
 | Snapshot not found (edit / delete modal GET) | 404 | `{"error":{"code":"NOT_FOUND"}}` |
 | Backend validation error on a mutation (4xx with a `code`) | 200 | `ActionResponse{replace, target_id: <modal>, tree: <same wizard + inline error banner>}` |
-| `NO_PRICE_PROVIDERS_CONFIGURED` / `ALL_PROVIDERS_FAILED` (auto) | 200 | `ActionResponse{feedback: snackbar error}` (no modal opened) |
+| `NO_PRICE_PROVIDERS_CONFIGURED` / `ALL_PROVIDERS_FAILED` (auto) | 200 | `ActionResponse{action: "none", feedback: snackbar}` (no modal opened) |
 
 Backend error codes that surface as inline wizard errors: `ASSET_NOT_FOUND`, `FUTURE_DATED_SNAPSHOT`, `DUPLICATE_SNAPSHOT_ENTRY`, `MISSING_VALUE_OVERRIDE`, `CONFLICTING_SNAPSHOT_VALUE`, `SNAPSHOT_NOT_FOUND`. Use the localized `message` from the backend body; do not re-translate codes in the middleend.
 
@@ -244,7 +242,7 @@ Backend error codes that surface as inline wizard errors: `ASSET_NOT_FOUND`, `FU
 - [ ] Empty list distinguishes "no snapshots" from "no match for filter" via two different copy pairs.
 - [ ] Create wizard: step `info` (required `recorded_at`, optional `notes`) + one `entry` step per asset (toggle Price/Override for non-complex; forced Override for complex assets; `skippable: true`, `include_default: false`) + `summary`. Skipped steps contribute no entries to the submit body. `notes` omitted from the body when empty.
 - [ ] Edit wizard: `recorded_at` rendered as static text; existing-entry steps have `skippable: false, include_default: true` with pre-filled values and an `already_included` indicator; new-entry steps behave like create. PATCH body contains only the diff (changed entries + `notes` if changed).
-- [ ] Auto-snapshot: triggers `POST /v1/snapshots/auto`, on `201` replaces root and opens the edit wizard on the new snapshot with an info banner; if `warnings` is non-empty, adds a warning banner listing failed tickers. On `NO_PRICE_PROVIDERS_CONFIGURED` or `ALL_PROVIDERS_FAILED`, emits a snackbar error without opening a modal. `PROVIDER_NOT_CONFIGURED` surfaces as `502`.
+- [ ] Auto-snapshot: triggers `POST /v1/snapshots/auto`, on `201` replaces root and opens the edit wizard on the new snapshot with a single `info` banner; if `warnings` is non-empty, the failed tickers are appended to that same banner message (no separate warning banner). On `NO_PRICE_PROVIDERS_CONFIGURED` or `ALL_PROVIDERS_FAILED`, emits `ActionResponse{action:"none", feedback: snackbar}` without opening a modal. `PROVIDER_NOT_CONFIGURED` surfaces as `502`.
 - [ ] Delete modal: confirmation message interpolates the snapshot date; submit unconditionally deletes (no `force` flag).
 - [ ] Filter and offset persist across successful mutations (the fresh list uses the same values active at mutation time).
 - [ ] Success feedback uses the four success keys (`create.success`, `auto.success`, `edit.success`, `delete.success`).
