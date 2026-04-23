@@ -140,7 +140,7 @@ func buildTable(snaps []Snapshot, byID map[string]assetscatalog.Asset, p ListPar
 		{ID: "entries", Header: i18n.T(lang, "snapshots.col.entries"), Width: "80px"},
 		{ID: "sources", Header: i18n.T(lang, "snapshots.col.sources"), Width: "1fr"},
 		{ID: "notes", Header: i18n.T(lang, "snapshots.col.notes"), Width: "1fr"},
-		{ID: "actions", Header: "", Width: "80px"},
+		{ID: "actions", Header: "", Width: "120px", Align: "right"},
 	}
 	rows := make([]components.Component, 0, len(snaps))
 	for _, s := range snaps {
