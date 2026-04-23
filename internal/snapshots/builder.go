@@ -123,9 +123,11 @@ func buildFilter(p ListParams, lang string) components.Component {
 	newBtn.Props["size"] = "sm"
 	newBtn.Props["align_self"] = "right"
 
+	btnGap := components.Spacer("snapshots-filter-btn-gap", "sm")
+
 	row := components.Row("snapshots-filter-row",
-		[]string{"240px", "1fr", "auto", "auto"},
-		sel, filler, autoBtn, newBtn,
+		[]string{"240px", "1fr", "auto", "auto", "auto"},
+		sel, filler, autoBtn, btnGap, newBtn,
 	)
 	row.Props["justify_items"] = "center"
 	return row
