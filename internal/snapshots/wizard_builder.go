@@ -128,13 +128,10 @@ func formatRecordedAt(recordedAt string) string {
 	return recordedAt
 }
 
-// buildDismissAction returns the action that clears the modal slot.
+// buildDismissAction returns the action that closes the wizard. Matches the
+// same pattern used by the assets screen's cancel buttons.
 func buildDismissAction() components.Action {
-	return components.Action{
-		Trigger:  "click",
-		Type:     "replace",
-		TargetID: ModalSlotID,
-	}
+	return components.Dismiss()
 }
 
 // buildInfoStep builds the first "info" step for create mode (recorded_at input + notes).

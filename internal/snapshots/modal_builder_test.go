@@ -55,7 +55,7 @@ func TestBuildDeleteModal_BodyContainsDate(t *testing.T) {
 		"expected body text to contain the formatted date '2024-01-10', got: %q", content)
 }
 
-// Test 4: cancel button has a replace action targeting ModalSlotID with an empty tree.
+// Test 4: cancel button uses the client-side Dismiss action (matches assets pattern).
 func TestBuildDeleteModal_CancelButton(t *testing.T) {
 	s := testSnapshot()
 	m := BuildDeleteModal(s, ListParams{}, "en")
@@ -66,9 +66,9 @@ func TestBuildDeleteModal_CancelButton(t *testing.T) {
 	require.Len(t, cancel.Actions, 1, "cancel button must have exactly one action")
 	act := cancel.Actions[0]
 	assert.Equal(t, "click", act.Trigger)
-	assert.Equal(t, "replace", act.Type)
-	assert.Equal(t, ModalSlotID, act.TargetID)
-	assert.Empty(t, act.Endpoint, "dismiss replace must have no endpoint (empty tree)")
+	assert.Equal(t, "dismiss", act.Type)
+	assert.Empty(t, act.Endpoint, "dismiss must have no endpoint")
+	assert.Empty(t, act.TargetID, "dismiss has no target_id")
 }
 
 // Test 5: delete button has a submit action with method DELETE, correct endpoint, target ScreenID.

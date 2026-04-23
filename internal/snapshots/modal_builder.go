@@ -23,14 +23,9 @@ func BuildDeleteModal(s *Snapshot, p ListParams, lang string) components.Compone
 	bodyText := components.Text("snapshots-delete-message", message, "md", "normal")
 	bodyCol := components.ColumnWithGap("snapshots-delete-fields", "md", bodyText)
 
-	// Cancel: replace ModalSlotID with an empty tree (dismiss pattern).
-	cancelAction := components.Action{
-		Trigger:  "click",
-		Type:     "replace",
-		TargetID: ModalSlotID,
-	}
+	// Cancel: client-side dismiss — matches the assets screen pattern.
 	cancelBtn := components.ButtonFull("snapshots-delete-cancel", i18n.T(lang, "common.cancel"), "", "secondary", "ghost",
-		cancelAction)
+		components.Dismiss())
 
 	// Delete: submit DELETE to the snapshot endpoint.
 	deleteBtn := components.ButtonFull("snapshots-delete-submit", i18n.T(lang, "snapshots.delete.submit"), "", "destructive", "solid",

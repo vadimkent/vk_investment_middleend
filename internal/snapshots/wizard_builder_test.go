@@ -89,15 +89,15 @@ func TestBuildCreateWizard_SubmitAction(t *testing.T) {
 	assert.Equal(t, ScreenID, submit.TargetID)
 }
 
-// Test 4: dismiss_action targets ModalSlotID with type "replace".
+// Test 4: dismiss_action is the client-side Dismiss action (matches assets pattern).
 func TestBuildCreateWizard_DismissAction(t *testing.T) {
 	w := BuildCreateWizard(nil, defaultParams(), "en", "", "")
 
 	dismiss, ok := w.Props["dismiss_action"].(components.Action)
 	require.True(t, ok, "expected dismiss_action to be components.Action")
 
-	assert.Equal(t, ModalSlotID, dismiss.TargetID)
-	assert.Equal(t, "replace", dismiss.Type)
+	assert.Equal(t, "click", dismiss.Trigger)
+	assert.Equal(t, "dismiss", dismiss.Type)
 }
 
 // Test 5: First step is "info" with recorded_at input and notes textarea.
@@ -354,7 +354,7 @@ func TestBuildEditWizard_SubmitAction(t *testing.T) {
 	assert.Equal(t, ScreenID, submit.TargetID)
 }
 
-// Test E3: dismiss_action targets ModalSlotID.
+// Test E3: dismiss_action is the client-side Dismiss action (matches assets pattern).
 func TestBuildEditWizard_DismissAction(t *testing.T) {
 	s := sampleSnapshot()
 	w := BuildEditWizard(s, nil, defaultParams(), "en", "", "", nil)
@@ -362,8 +362,8 @@ func TestBuildEditWizard_DismissAction(t *testing.T) {
 	dismiss, ok := w.Props["dismiss_action"].(components.Action)
 	require.True(t, ok, "expected dismiss_action to be components.Action")
 
-	assert.Equal(t, ModalSlotID, dismiss.TargetID)
-	assert.Equal(t, "replace", dismiss.Type)
+	assert.Equal(t, "click", dismiss.Trigger)
+	assert.Equal(t, "dismiss", dismiss.Type)
 }
 
 // Test E4: Info step — first child is a text (not input) with the formatted date; second is notes textarea pre-filled.
