@@ -101,12 +101,8 @@ func buildFilter(p ListParams, lang string) components.Component {
 
 	defaultValue := boolPtrToString(p.IsFullSnapshot)
 
-	// On-change resets offset to 0 and sets is_full_snapshot to the selected {value}.
-	endpoint := buildListURL("/actions/snapshots/list", nil, 0)
-	// Replace the is_full_snapshot param with the interpolation placeholder.
-	// buildListURL without isFull gives /actions/snapshots/list with no params,
-	// so we build the endpoint manually for the on-change case.
-	endpoint = "/actions/snapshots/list?is_full_snapshot={value}&offset=0"
+	// On-change resets offset to 0 and binds is_full_snapshot to the select's {value}.
+	endpoint := "/actions/snapshots/list?is_full_snapshot={value}&offset=0"
 
 	return components.Component{
 		Type: "select",
@@ -391,15 +387,17 @@ func buildSourcesCompact(entries []Entry) string {
 	return strings.Join(ordered[:maxVisible], " · ") + fmt.Sprintf(" +%d", extra)
 }
 
-// notesString returns the notes string truncated to 40 chars, or "—" if empty.
+// notesString returns the notes string truncated to 40 runes, or "—" if empty.
+// Rune-aware so multibyte characters don't get sliced mid-sequence.
 func notesString(s string) string {
 	if s == "" {
 		return "—"
 	}
-	if len(s) <= 40 {
+	runes := []rune(s)
+	if len(runes) <= 40 {
 		return s
 	}
-	return s[:40] + "\u2026"
+	return string(runes[:40]) + "\u2026"
 }
 
 // parseFloat converts a string to *float64. Empty string or parse error → nil.

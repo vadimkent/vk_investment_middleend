@@ -97,10 +97,10 @@ func BuildEditWizard(s *Snapshot, catalog []assetscatalog.Asset, p ListParams, l
 		banner = &components.WizardBanner{Variant: "error", Message: inlineError}
 	}
 
-	// Build title with formatted date.
+	// Build title with formatted date — uses {date} placeholder like the delete modal.
 	formattedDate := formatRecordedAt(s.RecordedAt)
-	titleKey := i18n.T(lang, "snapshots.edit.title")
-	title := fmt.Sprintf("%s %s", titleKey, formattedDate)
+	titleTemplate := i18n.T(lang, "snapshots.edit.title")
+	title := strings.ReplaceAll(titleTemplate, "{date}", formattedDate)
 
 	return components.Wizard(WizardID, "edit", title, steps, submitAction, dismissAction, banner, initialStepID)
 }

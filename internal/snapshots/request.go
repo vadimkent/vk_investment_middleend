@@ -62,7 +62,7 @@ func asString(m map[string]any, key string) string {
 func parseWizardEntries(body map[string]any) []wizardEntry {
 	byID := map[string]*wizardEntry{}
 
-	for k, _ := range body {
+	for k := range body {
 		m := entryKeyRe.FindStringSubmatch(k)
 		if m == nil {
 			continue

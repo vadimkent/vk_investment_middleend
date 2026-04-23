@@ -284,7 +284,7 @@
       "success": "Snapshot registrado"
     },
     "edit": {
-      "title": "Editar snapshot del",
+      "title": "Editar snapshot del {date}",
       "submit": "Guardar cambios",
       "success": "Snapshot actualizado"
     },
