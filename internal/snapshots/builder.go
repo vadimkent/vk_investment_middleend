@@ -30,7 +30,7 @@ func BuildScreen(res *ListResult, catalog []assetscatalog.Asset, p ListParams, l
 // flow, which replaces the entire screen root with a refreshed list AND an
 // open edit wizard in one ActionResponse.
 func BuildScreenWithModal(res *ListResult, catalog []assetscatalog.Asset, p ListParams, lang string, modal components.Component) components.Component {
-	header := buildHeader(p, lang)
+	header := buildHeader(lang)
 	section := BuildSnapshotsSection(res, catalog, p, lang)
 	var modalSlot components.Component
 	if modal.Type == "" {
@@ -62,9 +62,53 @@ func BuildSnapshotsSection(res *ListResult, catalog []assetscatalog.Asset, p Lis
 
 // --- header ---
 
-func buildHeader(p ListParams, lang string) components.Component {
+func buildHeader(lang string) components.Component {
 	title := components.Text("snapshots-title", i18n.T(lang, "snapshots.title"), "lg", "bold")
 	spacer := components.Column("snapshots-header-spacer")
+	return components.Row("snapshots-header-row", []string{"auto", "1fr"}, title, spacer)
+}
+
+// --- filter row (select + Auto/New Snapshot buttons) ---
+
+func buildFilter(p ListParams, lang string) components.Component {
+	opts := []components.SelectOption{
+		{Value: "", Label: i18n.T(lang, "snapshots.filter.type_any")},
+		{Value: "true", Label: i18n.T(lang, "snapshots.filter.type_full")},
+		{Value: "false", Label: i18n.T(lang, "snapshots.filter.type_partial")},
+	}
+
+	defaultValue := boolPtrToString(p.IsFullSnapshot)
+
+	// On-change resets offset to 0 and binds is_full_snapshot to the select's {value}.
+	filterEndpoint := "/actions/snapshots/list?is_full_snapshot={value}&offset=0"
+
+	sel := components.Component{
+		Type: "select",
+		ID:   "snapshots-filter-type",
+		Props: map[string]any{
+			"name":          "is_full_snapshot",
+			"default_value": defaultValue,
+			"options":       opts,
+		},
+		Actions: []components.Action{
+			{
+				Trigger:  "change",
+				Type:     "reload",
+				Endpoint: filterEndpoint,
+				TargetID: SectionID,
+				Loading:  "section",
+			},
+		},
+	}
+
+	filler := components.Spacer("snapshots-filter-spacer", "none")
+
+	autoEndpoint := buildListURL("/actions/snapshots/auto", p.IsFullSnapshot, p.Offset)
+	autoBtn := components.ButtonFull("snapshots-auto-btn", i18n.T(lang, "snapshots.auto_btn"), "", "secondary", "solid",
+		components.Submit(autoEndpoint, "POST", ScreenID),
+	)
+	autoBtn.Props["size"] = "sm"
+	autoBtn.Props["align_self"] = "right"
 
 	newEndpoint := buildListURL("/actions/snapshots/create_wizard", p.IsFullSnapshot, p.Offset)
 	newBtn := components.ButtonFull("snapshots-new-btn", i18n.T(lang, "snapshots.new"), "", "primary", "solid",
@@ -77,51 +121,14 @@ func buildHeader(p ListParams, lang string) components.Component {
 		},
 	)
 	newBtn.Props["size"] = "sm"
+	newBtn.Props["align_self"] = "right"
 
-	autoEndpoint := buildListURL("/actions/snapshots/auto", p.IsFullSnapshot, p.Offset)
-	autoBtn := components.ButtonFull("snapshots-auto-btn", i18n.T(lang, "snapshots.auto_btn"), "", "secondary", "solid",
-		components.Submit(autoEndpoint, "POST", ScreenID),
+	row := components.Row("snapshots-filter-row",
+		[]string{"240px", "1fr", "auto", "auto"},
+		sel, filler, autoBtn, newBtn,
 	)
-	autoBtn.Props["size"] = "sm"
-
-	return components.Row("snapshots-header-row",
-		[]string{"auto", "1fr", "auto", "auto"},
-		title, spacer, newBtn, autoBtn,
-	)
-}
-
-// --- filter ---
-
-func buildFilter(p ListParams, lang string) components.Component {
-	opts := []components.SelectOption{
-		{Value: "", Label: i18n.T(lang, "snapshots.filter.type_any")},
-		{Value: "true", Label: i18n.T(lang, "snapshots.filter.type_full")},
-		{Value: "false", Label: i18n.T(lang, "snapshots.filter.type_partial")},
-	}
-
-	defaultValue := boolPtrToString(p.IsFullSnapshot)
-
-	// On-change resets offset to 0 and binds is_full_snapshot to the select's {value}.
-	endpoint := "/actions/snapshots/list?is_full_snapshot={value}&offset=0"
-
-	return components.Component{
-		Type: "select",
-		ID:   "snapshots-filter-type",
-		Props: map[string]any{
-			"name":          "is_full_snapshot",
-			"default_value": defaultValue,
-			"options":       opts,
-		},
-		Actions: []components.Action{
-			{
-				Trigger:  "change",
-				Type:     "reload",
-				Endpoint: endpoint,
-				TargetID: SectionID,
-				Loading:  "section",
-			},
-		},
-	}
+	row.Props["justify_items"] = "center"
+	return row
 }
 
 // --- table ---
