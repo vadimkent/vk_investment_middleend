@@ -138,7 +138,7 @@ func buildTable(snaps []Snapshot, byID map[string]assetscatalog.Asset, p ListPar
 		{ID: "date", Header: i18n.T(lang, "snapshots.col.date"), Width: "180px"},
 		{ID: "type", Header: i18n.T(lang, "snapshots.col.type"), Width: "100px"},
 		{ID: "entries", Header: i18n.T(lang, "snapshots.col.entries"), Width: "80px"},
-		{ID: "sources", Header: i18n.T(lang, "snapshots.col.sources"), Width: "1fr"},
+		{ID: "sources", Header: i18n.T(lang, "snapshots.col.sources"), Width: "200px"},
 		{ID: "notes", Header: i18n.T(lang, "snapshots.col.notes"), Width: "1fr"},
 		{ID: "actions", Header: "", Width: "120px", Align: "right"},
 	}
