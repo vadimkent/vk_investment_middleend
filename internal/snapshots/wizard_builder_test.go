@@ -433,17 +433,18 @@ func TestBuildEditWizard_MixedCatalogEntrySteps(t *testing.T) {
 	require.NotNil(t, overrideInput, "expected current_value_override input in complex step")
 	assert.Equal(t, "9999.00", overrideInput.Props["default_value"])
 
-	// An "already_included" text (i18n key returned as-is) must appear in the step.
+	// An "already_included" text must appear in the step (resolved via i18n).
+	const alreadyIncludedText = "Already in snapshot, cannot be removed"
 	foundAlready := false
 	for _, c := range all {
 		if c.Type == "text" {
-			if content, ok := c.Props["content"].(string); ok && content == "snapshots.wizard.already_included" {
+			if content, ok := c.Props["content"].(string); ok && content == alreadyIncludedText {
 				foundAlready = true
 				break
 			}
 		}
 	}
-	assert.True(t, foundAlready, "expected text with key snapshots.wizard.already_included in complex step")
+	assert.True(t, foundAlready, "expected already_included text in complex step")
 
 	// Step for simple-2 (NOT in snapshot): skippable=true, include_default=false.
 	simpleStep := steps[2]
@@ -455,7 +456,7 @@ func TestBuildEditWizard_MixedCatalogEntrySteps(t *testing.T) {
 	allSimple := flattenChildren(simpleStep.Children)
 	for _, c := range allSimple {
 		if c.Type == "text" {
-			assert.NotEqual(t, "snapshots.wizard.already_included", c.Props["content"],
+			assert.NotEqual(t, alreadyIncludedText, c.Props["content"],
 				"non-included step must not have already_included text")
 		}
 	}

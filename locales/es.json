@@ -223,7 +223,7 @@
   "snapshots": {
     "title": "Snapshots",
     "new": "Nuevo Snapshot",
-    "auto": "Snapshot Automático",
+    "auto_btn": "Snapshot Automático",
     "empty_title": "Aún no hay snapshots",
     "empty_subtitle": "Registrá tu primer snapshot del portafolio desde el encabezado.",
     "empty_filtered_title": "Ningún snapshot coincide con este filtro",

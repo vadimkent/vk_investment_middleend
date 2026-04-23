@@ -79,7 +79,7 @@ func buildHeader(p ListParams, lang string) components.Component {
 	newBtn.Props["size"] = "sm"
 
 	autoEndpoint := buildListURL("/actions/snapshots/auto", p.IsFullSnapshot, p.Offset)
-	autoBtn := components.ButtonFull("snapshots-auto-btn", i18n.T(lang, "snapshots.auto"), "", "secondary", "solid",
+	autoBtn := components.ButtonFull("snapshots-auto-btn", i18n.T(lang, "snapshots.auto_btn"), "", "secondary", "solid",
 		components.Submit(autoEndpoint, "POST", ScreenID),
 	)
 	autoBtn.Props["size"] = "sm"

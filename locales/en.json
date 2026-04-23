@@ -223,7 +223,7 @@
   "snapshots": {
     "title": "Snapshots",
     "new": "New Snapshot",
-    "auto": "Auto Snapshot",
+    "auto_btn": "Auto Snapshot",
     "empty_title": "No snapshots yet",
     "empty_subtitle": "Record your first portfolio snapshot from the header.",
     "empty_filtered_title": "No snapshots match this filter",
