@@ -12,11 +12,11 @@ import (
 	"github.com/project/vk-investment-middleend/internal/assets"
 	"github.com/project/vk-investment-middleend/internal/auth"
 	"github.com/project/vk-investment-middleend/internal/config"
-	"github.com/project/vk-investment-middleend/internal/home"
 	"github.com/project/vk-investment-middleend/internal/login"
 	"github.com/project/vk-investment-middleend/internal/portfolio"
 	"github.com/project/vk-investment-middleend/internal/shared/assetscatalog"
 	"github.com/project/vk-investment-middleend/internal/shell"
+	"github.com/project/vk-investment-middleend/internal/snapshots"
 	"github.com/project/vk-investment-middleend/internal/trades"
 )
 
@@ -53,13 +53,9 @@ func (s *Server) setupRoutes() {
 	shellHandler := shell.NewHandler(shellUC)
 	protected.GET("/shell", shellHandler.Get)
 
-	homeClient := home.NewClient(s.cfg.BackendURL)
-	homeUC := home.NewGetUseCase(homeClient)
-	homeHandler := home.NewHandler(homeUC)
-	protected.GET("/screens/home", homeHandler.Get)
-
 	portfolioClient := portfolio.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
 	portfolioHandler := portfolio.NewHandler(portfolio.NewGetUseCase(portfolioClient))
+	protected.GET("/screens/home", portfolioHandler.Get)
 	protected.GET("/screens/portfolio", portfolioHandler.Get)
 	protected.POST("/actions/portfolio/include_closed", portfolio.NewIncludeClosedHandler(portfolioClient).Post)
 	protected.GET("/actions/portfolio/evolution", portfolio.NewEvolutionHandler(portfolioClient).Get)
@@ -89,6 +85,19 @@ func (s *Server) setupRoutes() {
 	protected.POST("/actions/trades/create", trades.NewCreateHandler(tradesClient, tradesUC, catalog).Post)
 	protected.PATCH("/actions/trades/:id", trades.NewUpdateHandler(tradesClient, tradesUC, catalog).Patch)
 	protected.DELETE("/actions/trades/:id", trades.NewDeleteHandler(tradesClient, tradesUC).Delete)
+
+	// --- snapshots ---
+	snapshotsClient := snapshots.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	snapshotsUC := snapshots.NewGetUseCase(snapshotsClient, catalog)
+	protected.GET("/screens/snapshots", snapshots.NewHandler(snapshotsUC).Get)
+	protected.GET("/actions/snapshots/list", snapshots.NewListHandler(snapshotsUC).Get)
+	protected.GET("/actions/snapshots/create_wizard", snapshots.NewCreateWizardHandler(catalog).Get)
+	protected.GET("/actions/snapshots/edit_wizard", snapshots.NewEditWizardHandler(snapshotsClient, catalog).Get)
+	protected.GET("/actions/snapshots/delete_modal", snapshots.NewDeleteModalHandler(snapshotsClient).Get)
+	protected.POST("/actions/snapshots/create", snapshots.NewCreateHandler(snapshotsClient, snapshotsUC, catalog).Post)
+	protected.POST("/actions/snapshots/auto", snapshots.NewAutoHandler(snapshotsClient, snapshotsUC, catalog).Post)
+	protected.PATCH("/actions/snapshots/:id", snapshots.NewUpdateHandler(snapshotsClient, snapshotsClient, snapshotsUC, catalog).Patch)
+	protected.DELETE("/actions/snapshots/:id", snapshots.NewDeleteHandler(snapshotsClient, snapshotsUC).Delete)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
