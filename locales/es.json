@@ -312,6 +312,67 @@
       "current_value_override": "Valor manual"
     }
   },
+  "profile": {
+    "title": "Perfil",
+    "section": {
+      "profile": "Perfil",
+      "email": "Correo electrónico",
+      "password": "Contraseña"
+    },
+    "display_name": "Nombre",
+    "display_name_placeholder": "¿Cómo te llamamos?",
+    "default_currency": "Moneda por defecto",
+    "default_currency_none": "— Ninguna —",
+    "update": {
+      "save": "Guardar",
+      "success": "Perfil actualizado.",
+      "error": {
+        "invalid_display_name": "El nombre debe tener entre 1 y 100 caracteres.",
+        "invalid_currency": "Moneda inválida."
+      }
+    },
+    "email": {
+      "current": "Actual: {email}",
+      "new": "Nuevo correo",
+      "current_password": "Contraseña actual",
+      "save": "Guardar",
+      "success": "Correo actualizado.",
+      "error": {
+        "missing_fields": "Completá todos los campos.",
+        "invalid_credentials": "Contraseña incorrecta.",
+        "email_exists": "Este correo ya está en uso."
+      }
+    },
+    "password": {
+      "current": "Contraseña actual",
+      "new": "Nueva contraseña",
+      "confirm": "Confirmar nueva contraseña",
+      "save": "Guardar",
+      "success": "Contraseña actualizada.",
+      "error": {
+        "missing_fields": "Completá todos los campos.",
+        "do_not_match": "La nueva contraseña y la confirmación no coinciden.",
+        "invalid_credentials": "Contraseña actual incorrecta.",
+        "invalid_password": "La nueva contraseña debe tener al menos 8 caracteres."
+      }
+    },
+    "danger": {
+      "title": "Zona de peligro",
+      "body": "Borrá permanentemente tu cuenta y todos los datos. No se puede deshacer.",
+      "delete_button": "Eliminar cuenta",
+      "modal": {
+        "title": "Eliminar cuenta",
+        "body": "Todos tus datos serán eliminados. Esta acción no se puede deshacer.",
+        "password_label": "Ingresá tu contraseña para confirmar",
+        "cancel": "Cancelar",
+        "confirm": "Eliminar cuenta"
+      },
+      "error": {
+        "missing_fields": "Ingresá tu contraseña.",
+        "invalid_credentials": "Contraseña incorrecta."
+      }
+    }
+  },
   "common": {
     "cancel": "Cancelar"
   }

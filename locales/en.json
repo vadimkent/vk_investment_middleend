@@ -312,6 +312,67 @@
       "current_value_override": "Value override"
     }
   },
+  "profile": {
+    "title": "Profile",
+    "section": {
+      "profile": "Profile",
+      "email": "Email",
+      "password": "Password"
+    },
+    "display_name": "Display name",
+    "display_name_placeholder": "How should we call you?",
+    "default_currency": "Default currency",
+    "default_currency_none": "— None —",
+    "update": {
+      "save": "Save",
+      "success": "Profile updated.",
+      "error": {
+        "invalid_display_name": "Display name must be between 1 and 100 characters.",
+        "invalid_currency": "Invalid currency."
+      }
+    },
+    "email": {
+      "current": "Current: {email}",
+      "new": "New email",
+      "current_password": "Current password",
+      "save": "Save",
+      "success": "Email updated.",
+      "error": {
+        "missing_fields": "Please fill in all required fields.",
+        "invalid_credentials": "Incorrect password.",
+        "email_exists": "This email is already in use."
+      }
+    },
+    "password": {
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "save": "Save",
+      "success": "Password updated.",
+      "error": {
+        "missing_fields": "Please fill in all required fields.",
+        "do_not_match": "New password and confirmation do not match.",
+        "invalid_credentials": "Incorrect current password.",
+        "invalid_password": "New password must be at least 8 characters."
+      }
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "body": "Permanently delete your account and all data. This cannot be undone.",
+      "delete_button": "Delete account",
+      "modal": {
+        "title": "Delete account",
+        "body": "All your data will be erased. This cannot be undone.",
+        "password_label": "Enter your password to confirm",
+        "cancel": "Cancel",
+        "confirm": "Delete account"
+      },
+      "error": {
+        "missing_fields": "Please enter your password.",
+        "invalid_credentials": "Incorrect password."
+      }
+    }
+  },
   "common": {
     "cancel": "Cancel"
   }
