@@ -61,8 +61,8 @@ There is no empty state — an authenticated user always has a `User` record. Th
 ### Profile card (`profile-card`)
 
 **Inputs:**
-- `display_name` — text, label `profile.display_name`, placeholder `profile.display_name.placeholder`, `defaultValue = me.display_name ?? ""`, `maxLength: 100`, not required.
-- `default_currency` — select, label `profile.default_currency`. Options: a first item `"— None —"` (`profile.default_currency.none`) with empty value, followed by every entry in `config.currencies` in BE order. `defaultValue = me.preferences.default_currency ?? ""`, not required.
+- `display_name` — text, label `profile.display_name`, placeholder `profile.display_name_placeholder`, `defaultValue = me.display_name ?? ""`, `maxLength: 100`, not required.
+- `default_currency` — select, label `profile.default_currency`. Options: a first item `"— None —"` (`profile.default_currency_none`) with empty value, followed by every entry in `config.currencies` in BE order. `defaultValue = me.preferences.default_currency ?? ""`, not required.
 - `[ Save ]` button — primary, submits the form to `POST /actions/profile/update`.
 
 **Submit body** (`POST /actions/profile/update`):
@@ -173,8 +173,8 @@ Namespace `profile.*`. Languages `en` and `es`. Missing-key fallback: `en`, then
 
 ### Profile card
 `profile.section.profile`,
-`profile.display_name`, `profile.display_name.placeholder`,
-`profile.default_currency`, `profile.default_currency.none`,
+`profile.display_name`, `profile.display_name_placeholder`,
+`profile.default_currency`, `profile.default_currency_none`,
 `profile.update.save`,
 `profile.update.success`,
 `profile.update.error.invalid_display_name`,
