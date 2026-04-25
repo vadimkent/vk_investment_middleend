@@ -10,3 +10,4 @@ legacy_fe_specs/
 *.dylib
 *.test
 *.out
+.worktrees/
