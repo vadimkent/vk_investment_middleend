@@ -1,12 +1,11 @@
 package trades
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -77,20 +76,24 @@ func updatedTrade() *Trade {
 	return &t
 }
 
-func baseEditForm() url.Values {
-	v := url.Values{}
-	v.Set("asset_id", validAssetUUID)
-	v.Set("trade_type", "BUY")
-	v.Set("quantity", "10")
-	v.Set("price_per_unit", "100")
-	v.Set("fees", "1")
-	v.Set("notes", "hello")
-	return v
+func baseEditBody() map[string]any {
+	return map[string]any{
+		"asset_id":       validAssetUUID,
+		"trade_type":     "BUY",
+		"quantity":       "10",
+		"price_per_unit": "100",
+		"fees":           "1",
+		"notes":          "hello",
+	}
 }
 
-func patchUpdate(r *gin.Engine, id, rawQuery string, form url.Values) *httptest.ResponseRecorder {
-	req := httptest.NewRequest(http.MethodPatch, "/actions/trades/"+id+rawQuery, strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+func patchUpdate(r *gin.Engine, id, rawQuery string, body map[string]any) *httptest.ResponseRecorder {
+	raw, err := json.Marshal(body)
+	if err != nil {
+		panic(err)
+	}
+	req := httptest.NewRequest(http.MethodPatch, "/actions/trades/"+id+rawQuery, bytes.NewReader(raw))
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer tok")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -104,10 +107,10 @@ func TestUpdateHandler_HappyPath_PartialDiff(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("quantity", "20") // only change
+	reqBody := baseEditBody()
+	reqBody["quantity"] = "20" // only change
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", reqBody)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, 1, fu.getCalls)
@@ -150,7 +153,7 @@ func TestUpdateHandler_NoOp_NoPatchCall(t *testing.T) {
 	r := newUpdateHandlerRouter(h)
 
 	// Form is identical to the original.
-	w := patchUpdate(r, "t1", "", baseEditForm())
+	w := patchUpdate(r, "t1", "", baseEditBody())
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, 1, fu.getCalls)
@@ -170,11 +173,11 @@ func TestUpdateHandler_DateSilentlyIgnored(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("quantity", "20")
-	form.Set("date", "2099-01-01")
+	body := baseEditBody()
+	body["quantity"] = "20"
+	body["date"] = "2099-01-01"
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	require.Equal(t, 1, fu.updCalls)
@@ -189,11 +192,11 @@ func TestUpdateHandler_SourceSilentlyIgnored(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("quantity", "20")
-	form.Set("source", "IMPORT")
+	body := baseEditBody()
+	body["quantity"] = "20"
+	body["source"] = "IMPORT"
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	require.Equal(t, 1, fu.updCalls)
@@ -210,10 +213,10 @@ func TestUpdateHandler_FeesCanonicalization_EmptyVsZero(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("fees", "0") // canonical form of empty
+	body := baseEditBody()
+	body["fees"] = "0" // canonical form of empty
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, 0, fu.updCalls, "empty vs '0' → no diff, no PATCH")
@@ -228,10 +231,10 @@ func TestUpdateHandler_FeesCanonicalization_ZeroVsEmpty(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("fees", "") // canonicalizes to "0"
+	body := baseEditBody()
+	body["fees"] = "" // canonicalizes to "0"
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, 0, fu.updCalls, "'0' vs empty → no diff, no PATCH")
@@ -246,10 +249,10 @@ func TestUpdateHandler_NotesEmptyEquivalence(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("notes", "") // both empty
+	body := baseEditBody()
+	body["notes"] = "" // both empty
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, 0, fu.updCalls, "notes both empty → no diff")
@@ -267,9 +270,9 @@ func TestUpdateHandler_MissingID(t *testing.T) {
 	// Mount on a path that doesn't expose :id so c.Param("id") is "".
 	r.PATCH("/actions/trades/", h.Patch)
 
-	req := httptest.NewRequest(http.MethodPatch, "/actions/trades/",
-		strings.NewReader(baseEditForm().Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	raw, _ := json.Marshal(baseEditBody())
+	req := httptest.NewRequest(http.MethodPatch, "/actions/trades/", bytes.NewReader(raw))
+	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
@@ -292,7 +295,7 @@ func TestUpdateHandler_BadQuery(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	w := patchUpdate(r, "t1", "?offset=-1", baseEditForm())
+	w := patchUpdate(r, "t1", "?offset=-1", baseEditBody())
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Equal(t, 0, fu.getCalls)
@@ -306,7 +309,7 @@ func TestUpdateHandler_GetTradeUnauthorized(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	w := patchUpdate(r, "t1", "", baseEditForm())
+	w := patchUpdate(r, "t1", "", baseEditBody())
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.Equal(t, 0, fu.updCalls)
@@ -324,7 +327,7 @@ func TestUpdateHandler_GetTradeNotFound(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	w := patchUpdate(r, "t1", "", baseEditForm())
+	w := patchUpdate(r, "t1", "", baseEditBody())
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Equal(t, 0, fu.updCalls)
@@ -343,7 +346,7 @@ func TestUpdateHandler_GetTradeBackendError(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	w := patchUpdate(r, "t1", "", baseEditForm())
+	w := patchUpdate(r, "t1", "", baseEditBody())
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
 	assert.Equal(t, 0, fu.updCalls)
@@ -365,10 +368,10 @@ func TestUpdateHandler_UpdateValidationError(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("quantity", "20") // force a diff
+	reqBody := baseEditBody()
+	reqBody["quantity"] = "20" // force a diff
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", reqBody)
 
 	require.Equal(t, http.StatusOK, w.Code) // modal replay
 	assert.Equal(t, 1, fu.updCalls)
@@ -393,10 +396,10 @@ func TestUpdateHandler_UpdateUnauthorized(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("quantity", "20")
+	reqBody := baseEditBody()
+	reqBody["quantity"] = "20"
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", reqBody)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
@@ -413,10 +416,10 @@ func TestUpdateHandler_UpdateBackendError(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("quantity", "20")
+	reqBody := baseEditBody()
+	reqBody["quantity"] = "20"
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", reqBody)
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
 
@@ -437,10 +440,10 @@ func TestUpdateHandler_ValidationErrorCatalogRefetchFails(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("quantity", "20")
+	reqBody := baseEditBody()
+	reqBody["quantity"] = "20"
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", reqBody)
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
 }
@@ -453,10 +456,10 @@ func TestUpdateHandler_ScreenRebuildFails(t *testing.T) {
 	h := NewUpdateHandler(fu, NewGetUseCase(tf, cf), cf)
 	r := newUpdateHandlerRouter(h)
 
-	form := baseEditForm()
-	form.Set("quantity", "20")
+	reqBody := baseEditBody()
+	reqBody["quantity"] = "20"
 
-	w := patchUpdate(r, "t1", "", form)
+	w := patchUpdate(r, "t1", "", reqBody)
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
 }

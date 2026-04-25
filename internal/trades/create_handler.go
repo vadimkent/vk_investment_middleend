@@ -43,7 +43,12 @@ func (h *CreateHandler) Post(c *gin.Context) {
 	auth := c.GetHeader("Authorization")
 	lang := parseLang(c)
 
-	body := buildCreateBody(c)
+	submitted, err := parseJSONBody(c)
+	if err != nil {
+		respondBadRequest(c, "invalid JSON body")
+		return
+	}
+	body := normalizeCreateBody(submitted)
 
 	_, err = h.creator.CreateTrade(c.Request.Context(), auth, body)
 	if err != nil {
@@ -93,32 +98,31 @@ func (h *CreateHandler) Post(c *gin.Context) {
 	})
 }
 
-// buildCreateBody maps the submitted form to the backend's trade body.
-// Rules:
-//   - asset_id, trade_type, quantity, price_per_unit, date pass through verbatim.
-//   - fees defaults to "0" when empty.
+// normalizeCreateBody transforms the raw JSON body submitted by the frontend
+// into the shape the backend expects:
+//   - source is always "MANUAL" — NEVER taken from the submission.
+//   - fees defaults to "0" when missing or empty.
 //   - date is normalised: a bare "YYYY-MM-DD" becomes "YYYY-MM-DDT00:00:00Z";
 //     anything else (already RFC3339) passes through.
-//   - source is always "MANUAL" — NEVER taken from the form.
-//   - notes is included only when non-empty.
-func buildCreateBody(c *gin.Context) map[string]any {
+//   - notes is stripped when empty (backend treats absent as empty).
+func normalizeCreateBody(submitted map[string]any) map[string]any {
 	body := map[string]any{
-		"asset_id":       c.PostForm("asset_id"),
-		"trade_type":     c.PostForm("trade_type"),
-		"quantity":       c.PostForm("quantity"),
-		"price_per_unit": c.PostForm("price_per_unit"),
+		"asset_id":       asString(submitted, "asset_id"),
+		"trade_type":     asString(submitted, "trade_type"),
+		"quantity":       asString(submitted, "quantity"),
+		"price_per_unit": asString(submitted, "price_per_unit"),
 		"source":         "MANUAL",
 	}
 
-	fees := c.PostForm("fees")
+	fees := asString(submitted, "fees")
 	if fees == "" {
 		fees = "0"
 	}
 	body["fees"] = fees
 
-	body["date"] = normaliseDate(c.PostForm("date"))
+	body["date"] = normaliseDate(asString(submitted, "date"))
 
-	if notes := c.PostForm("notes"); notes != "" {
+	if notes := asString(submitted, "notes"); notes != "" {
 		body["notes"] = notes
 	}
 

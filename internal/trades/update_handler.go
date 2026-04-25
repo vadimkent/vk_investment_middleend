@@ -55,7 +55,12 @@ func (h *UpdateHandler) Patch(c *gin.Context) {
 		return
 	}
 
-	body := buildUpdateDiff(c, *original)
+	submitted, err := parseJSONBody(c)
+	if err != nil {
+		respondBadRequest(c, "invalid JSON body")
+		return
+	}
+	body := buildUpdateDiff(submitted, *original)
 
 	if len(body) > 0 {
 		_, err = h.client.UpdateTrade(c.Request.Context(), auth, id, body)
@@ -105,38 +110,46 @@ func (h *UpdateHandler) Patch(c *gin.Context) {
 	})
 }
 
-// buildUpdateDiff compares the submitted form against the original trade and
-// returns a PATCH body containing only the mutable fields whose submitted
-// value differs from the original. The `date` and `source` form fields (if
-// submitted at all) are silently ignored — they're immutable per the backend
-// contract. `fees` is canonicalized: empty string and "0" are equivalent.
-// `notes` empty string is treated as "no notes" (absent == empty).
-func buildUpdateDiff(c *gin.Context, original Trade) map[string]any {
+// buildUpdateDiff compares the submitted JSON body against the original trade
+// and returns a PATCH body containing only the mutable fields whose submitted
+// value differs from the original. Fields not present in the submission are
+// treated as "no change" (not as "clear to empty"). The `date` and `source`
+// keys, if submitted, are silently ignored — immutable per the backend contract.
+// `fees` is canonicalized: empty string and "0" are equivalent. `notes` empty
+// string is treated as "no notes" (absent == empty).
+func buildUpdateDiff(submitted map[string]any, original Trade) map[string]any {
 	body := map[string]any{}
 
-	if v := c.PostForm("asset_id"); v != original.AssetID {
-		body["asset_id"] = v
-	}
-	if v := c.PostForm("trade_type"); v != original.TradeType {
-		body["trade_type"] = v
-	}
-	if v := c.PostForm("quantity"); v != original.Quantity {
-		body["quantity"] = v
-	}
-	if v := c.PostForm("price_per_unit"); v != original.PricePerUnit {
-		body["price_per_unit"] = v
+	check := func(key, originalVal string) {
+		v, ok := submitted[key]
+		if !ok {
+			return
+		}
+		s, _ := v.(string)
+		if s != originalVal {
+			body[key] = s
+		}
 	}
 
+	check("asset_id", original.AssetID)
+	check("trade_type", original.TradeType)
+	check("quantity", original.Quantity)
+	check("price_per_unit", original.PricePerUnit)
+
 	// Fees: canonicalize "" to "0" on both sides so ""↔"0" are equivalent.
-	submittedFees := canonicalizeFees(c.PostForm("fees"))
-	originalFees := canonicalizeFees(original.Fees)
-	if submittedFees != originalFees {
-		body["fees"] = c.PostForm("fees")
+	if v, ok := submitted["fees"]; ok {
+		s, _ := v.(string)
+		if canonicalizeFees(s) != canonicalizeFees(original.Fees) {
+			body["fees"] = s
+		}
 	}
 
 	// Notes: empty/absent are equivalent.
-	if v := c.PostForm("notes"); v != original.Notes {
-		body["notes"] = v
+	if v, ok := submitted["notes"]; ok {
+		s, _ := v.(string)
+		if s != original.Notes {
+			body["notes"] = s
+		}
 	}
 
 	return body

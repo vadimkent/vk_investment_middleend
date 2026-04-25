@@ -1,12 +1,11 @@
 package trades
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -46,21 +45,25 @@ func newCreatedTrade() *Trade {
 	}
 }
 
-func baseForm() url.Values {
-	v := url.Values{}
-	v.Set("asset_id", validAssetUUID)
-	v.Set("trade_type", "BUY")
-	v.Set("quantity", "10")
-	v.Set("price_per_unit", "100")
-	v.Set("fees", "")
-	v.Set("date", "2024-01-15")
-	v.Set("notes", "")
-	return v
+func baseBody() map[string]any {
+	return map[string]any{
+		"asset_id":       validAssetUUID,
+		"trade_type":     "BUY",
+		"quantity":       "10",
+		"price_per_unit": "100",
+		"fees":           "",
+		"date":           "2024-01-15",
+		"notes":          "",
+	}
 }
 
-func postCreate(r *gin.Engine, rawQuery string, form url.Values) *httptest.ResponseRecorder {
-	req := httptest.NewRequest(http.MethodPost, "/actions/trades/create"+rawQuery, strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+func postCreate(r *gin.Engine, rawQuery string, body map[string]any) *httptest.ResponseRecorder {
+	raw, err := json.Marshal(body)
+	if err != nil {
+		panic(err)
+	}
+	req := httptest.NewRequest(http.MethodPost, "/actions/trades/create"+rawQuery, bytes.NewReader(raw))
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer tok")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -75,7 +78,7 @@ func TestCreateHandler_HappyPath(t *testing.T) {
 	h := NewCreateHandler(tc, uc, cf)
 	r := newCreateHandlerRouter(h)
 
-	w := postCreate(r, "", baseForm())
+	w := postCreate(r, "", baseBody())
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, 1, tc.calls)
@@ -111,9 +114,9 @@ func TestCreateHandler_FeesDefault(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	form := baseForm()
-	form.Set("fees", "")
-	w := postCreate(r, "", form)
+	body := baseBody()
+	body["fees"] = ""
+	w := postCreate(r, "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "0", tc.gotBody["fees"])
@@ -126,9 +129,9 @@ func TestCreateHandler_FeesProvided(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	form := baseForm()
-	form.Set("fees", "1.50")
-	w := postCreate(r, "", form)
+	body := baseBody()
+	body["fees"] = "1.50"
+	w := postCreate(r, "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "1.50", tc.gotBody["fees"])
@@ -141,9 +144,9 @@ func TestCreateHandler_NotesOmittedWhenEmpty(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	form := baseForm()
-	form.Set("notes", "")
-	w := postCreate(r, "", form)
+	body := baseBody()
+	body["notes"] = ""
+	w := postCreate(r, "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	_, hasNotes := tc.gotBody["notes"]
@@ -157,9 +160,9 @@ func TestCreateHandler_NotesIncludedWhenPresent(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	form := baseForm()
-	form.Set("notes", "hello")
-	w := postCreate(r, "", form)
+	body := baseBody()
+	body["notes"] = "hello"
+	w := postCreate(r, "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "hello", tc.gotBody["notes"])
@@ -172,10 +175,10 @@ func TestCreateHandler_SourceAlwaysInjected(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	form := baseForm()
-	// Attempt to spoof source via form — the handler must ignore it.
-	form.Set("source", "IMPORTED")
-	w := postCreate(r, "", form)
+	body := baseBody()
+	// Attempt to spoof source via the body — the handler must ignore it.
+	body["source"] = "IMPORTED"
+	w := postCreate(r, "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "MANUAL", tc.gotBody["source"], "source must never come from the form")
@@ -188,9 +191,9 @@ func TestCreateHandler_DateConversion(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	form := baseForm()
-	form.Set("date", "2024-03-10")
-	w := postCreate(r, "", form)
+	body := baseBody()
+	body["date"] = "2024-03-10"
+	w := postCreate(r, "", body)
 
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "2024-03-10T00:00:00Z", tc.gotBody["date"])
@@ -203,7 +206,7 @@ func TestCreateHandler_BadQuery(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	w := postCreate(r, "?offset=-1", baseForm())
+	w := postCreate(r, "?offset=-1", baseBody())
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Equal(t, 0, tc.calls, "backend must not be called on bad query")
@@ -222,7 +225,7 @@ func TestCreateHandler_ValidationError(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	w := postCreate(r, "", baseForm())
+	w := postCreate(r, "", baseBody())
 
 	require.Equal(t, http.StatusOK, w.Code) // modal replay on validation error
 	assert.Equal(t, 1, tc.calls)
@@ -245,7 +248,7 @@ func TestCreateHandler_ValidationErrorCatalogRefetchFails(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	w := postCreate(r, "", baseForm())
+	w := postCreate(r, "", baseBody())
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
 }
@@ -257,7 +260,7 @@ func TestCreateHandler_Unauthorized(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	w := postCreate(r, "", baseForm())
+	w := postCreate(r, "", baseBody())
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
@@ -274,7 +277,7 @@ func TestCreateHandler_BackendError(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	w := postCreate(r, "", baseForm())
+	w := postCreate(r, "", baseBody())
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
 
@@ -293,7 +296,7 @@ func TestCreateHandler_ScreenRebuildFails(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	w := postCreate(r, "", baseForm())
+	w := postCreate(r, "", baseBody())
 
 	assert.Equal(t, http.StatusBadGateway, w.Code)
 }
@@ -306,7 +309,7 @@ func TestCreateHandler_ScreenRebuildUnauthorized(t *testing.T) {
 	h := NewCreateHandler(tc, NewGetUseCase(tf, cf), cf)
 	r := newCreateHandlerRouter(h)
 
-	w := postCreate(r, "", baseForm())
+	w := postCreate(r, "", baseBody())
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
