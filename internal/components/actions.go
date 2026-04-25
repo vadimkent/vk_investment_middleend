@@ -100,6 +100,13 @@ func NavigateResponse(url string, feedback *Component) ActionResponse {
 	return ActionResponse{Action: "navigate", TargetID: url, Feedback: feedback}
 }
 
+// LogoutResponse creates an action response that clears the auth token on the
+// client and navigates to redirectURL. Used by destructive flows like
+// delete-account where the session must end alongside the navigation.
+func LogoutResponse(redirectURL string) ActionResponse {
+	return ActionResponse{Action: "logout", TargetID: redirectURL}
+}
+
 // RefreshResponse creates an action response that refreshes the current screen.
 func RefreshResponse(feedback *Component) ActionResponse {
 	return ActionResponse{Action: "refresh", Feedback: feedback}

@@ -72,3 +72,11 @@ func TestToggleSidebar_JSONShape(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, `{"trigger":"click","type":"toggle_sidebar"}`, string(b))
 }
+
+func TestLogoutResponse(t *testing.T) {
+	resp := LogoutResponse("/screens/login")
+	assert.Equal(t, "logout", resp.Action)
+	assert.Equal(t, "/screens/login", resp.TargetID)
+	assert.Nil(t, resp.Tree)
+	assert.Nil(t, resp.Feedback)
+}
