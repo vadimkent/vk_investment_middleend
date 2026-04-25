@@ -576,6 +576,46 @@ c := components.ModalFull("confirm", "Confirm Delete", "dialog", true, true,
 )
 ```
 
+#### Modal slot pattern
+
+A **modal slot** is a project convention used by every screen with create/edit/delete flows (`assets`, `trades`, `snapshots`, `profile`). It is the stable target a screen's mutation/modal actions point at via `replace`.
+
+**Shape.** Each screen tree has three siblings under its root, in this order:
+
+```
+screen
+└── column "<screen>-root"  (gap: lg)
+    ├── header              (title + global actions)
+    ├── section             (filter + table/list + pagination — id "<screen>-section")
+    └── modal-slot          (column id="<screen>-modal-slot", initially empty)
+```
+
+The modal slot is a `column` with a known id ending in `-modal-slot` (e.g. `snapshots-modal-slot`). It starts with no children.
+
+**Replace targeting.** Actions that open a modal/wizard emit:
+
+```json
+{
+  "action": "replace",
+  "target_id": "<screen>-modal-slot",
+  "tree": <subtree to inject>
+}
+```
+
+The frontend swaps the slot's children for the new subtree.
+
+**Why a sibling of section.**
+- Filter/pagination of the section can `replace` `<screen>-section` without disturbing an open modal.
+- Mutation success replaces the screen root (`<screen>-root`) entirely — the fresh tree carries an empty modal slot, so the modal closes and the list refreshes in one response.
+- The frontend doesn't need to know what kind of subtree lands in the slot — `modal`, `wizard`, or any other component.
+
+**Frontend rendering.** The slot is a presentational container: when it has children, the frontend renders them as an overlay layer above the section (dialog on desktop, drawer/sheet on mobile). Empty slot → no overlay. Components placed inside the slot may carry their own chrome (`modal` has its own title bar and dismiss button) or rely on the slot's overlay container (`wizard` does this).
+
+**Closing a modal.**
+- A `dismiss` action on a button → frontend closes the overlay locally and clears the slot.
+- A `replace` action on `<screen>-modal-slot` with an empty `tree` → equivalent server-driven close.
+- A successful mutation that replaces the screen root → slot is empty in the fresh tree, overlay closes.
+
 ### badge
 
 Small indicator overlaid on a child component. Wraps a single child.

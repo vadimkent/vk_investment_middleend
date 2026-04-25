@@ -211,7 +211,7 @@ Multi-step form container with local step state, Back/Next navigation without ro
 
 ### Presentation
 
-The middleend emits a bare `wizard` component — it is **not** wrapped in a `modal`. The frontend is responsible for presenting it. When the wizard is placed inside a screen's modal slot (e.g. `snapshots-modal-slot`), the frontend renders it as an overlay (dialog on desktop, drawer/sheet on mobile). When placed inline as a child of a screen's content tree, the frontend renders it inline. The `dismiss_action` is the wizard's contract for "the user closed it" — typically `components.Dismiss()`, which the frontend interprets as "close the overlay" or "remove from the tree."
+The middleend emits a bare `wizard` component — it is **not** wrapped in a `modal`. The frontend is responsible for presenting it. When the wizard lives in a [modal slot](sdui-base-components.md#modal-slot-pattern) (e.g. `snapshots-modal-slot`), the slot's overlay container renders it as a dialog on desktop or a drawer/sheet on mobile. When placed inline as a child of a screen's content tree, the frontend renders it inline. The `dismiss_action` is the wizard's contract for "the user closed it" — typically `components.Dismiss()`, which the frontend interprets as "close the overlay" or "remove from the tree."
 
 ### Why custom
 
