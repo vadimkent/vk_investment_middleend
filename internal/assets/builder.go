@@ -89,6 +89,7 @@ func buildFilter(params ListParams, lang string) components.Component {
 	)
 	newBtn.Props["size"] = "sm"
 	newBtn.Props["justify_self"] = "bottom"
+	newBtn.Props["align_self"] = "right"
 	row := components.Row("assets-filter-row", []string{"240px", "1fr", "auto"}, sel, filler, newBtn)
 	row.Props["justify_items"] = "center"
 	return row
@@ -187,6 +188,7 @@ func buildPagination(result *ListResult, params ListParams, lang string) compone
 		leftSpacer, prev, info, next, rightSpacer)
 	row.Props["gap"] = "sm"
 	row.Props["justify_items"] = "center"
+	row.Props["align_items"] = "center"
 	return row
 }
 

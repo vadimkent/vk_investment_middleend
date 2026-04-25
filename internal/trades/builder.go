@@ -52,6 +52,15 @@ func BuildTradesSection(res *ListResult, catalog []assetscatalog.Asset, p ListPa
 func buildHeader(lang string) components.Component {
 	title := components.Text("trades-title", i18n.T(lang, "trades.title"), "lg", "bold")
 	spacer := components.Column("trades-header-spacer")
+	return components.Row("trades-header-row", []string{"auto", "1fr"}, title, spacer)
+}
+
+// --- filters ---
+
+func buildFilters(catalog []assetscatalog.Asset, p ListParams, lang string) components.Component {
+	assetSel := buildAssetFilter(catalog, p, lang)
+	typeSel := buildTypeFilter(p, lang)
+	filler := components.Column("trades-filter-spacer")
 	newBtn := components.ButtonFull("trades-new-btn", i18n.T(lang, "trades.new"), "", "primary", "solid",
 		components.Action{
 			Trigger:  "click",
@@ -63,16 +72,9 @@ func buildHeader(lang string) components.Component {
 	)
 	newBtn.Props["size"] = "sm"
 	newBtn.Props["justify_self"] = "bottom"
-	return components.Row("trades-header-row", []string{"auto", "1fr", "auto"}, title, spacer, newBtn)
-}
-
-// --- filters ---
-
-func buildFilters(catalog []assetscatalog.Asset, p ListParams, lang string) components.Component {
-	assetSel := buildAssetFilter(catalog, p, lang)
-	typeSel := buildTypeFilter(p, lang)
-	filler := components.Column("trades-filter-spacer")
-	row := components.Row("trades-filter-row", []string{"240px", "200px", "1fr"}, assetSel, typeSel, filler)
+	newBtn.Props["align_self"] = "right"
+	row := components.RowWithGap("trades-filter-row", []string{"240px", "200px", "1fr", "auto"}, "md", assetSel, typeSel, filler, newBtn)
+	row.Props["justify_items"] = "center"
 	return row
 }
 
@@ -141,8 +143,8 @@ func buildTypeFilter(p ListParams, lang string) components.Component {
 
 func buildTable(trades []Trade, byID map[string]assetscatalog.Asset, p ListParams, lang string) components.Component {
 	cols := []components.TableColumn{
-		{ID: "date", Header: i18n.T(lang, "trades.col.date"), Width: "110px"},
-		{ID: "asset", Header: i18n.T(lang, "trades.col.asset"), Width: "100px"},
+		{ID: "date", Header: i18n.T(lang, "trades.col.date"), Width: "130px"},
+		{ID: "asset", Header: i18n.T(lang, "trades.col.asset"), Width: "120px"},
 		{ID: "type", Header: i18n.T(lang, "trades.col.type"), Width: "80px"},
 		{ID: "quantity", Header: i18n.T(lang, "trades.col.quantity"), Width: "120px", Align: "right"},
 		{ID: "price", Header: i18n.T(lang, "trades.col.price"), Width: "120px", Align: "right"},
@@ -278,6 +280,7 @@ func buildPagination(res *ListResult, p ListParams, lang string) components.Comp
 		leftSpacer, prev, info, next, rightSpacer)
 	row.Props["gap"] = "sm"
 	row.Props["justify_items"] = "center"
+	row.Props["align_items"] = "center"
 	return row
 }
 
