@@ -43,6 +43,7 @@ Screens (one file per screen, added as SDD progresses):
 | Assets | [`screens/assets.md`](screens/assets.md) |
 | Trades | [`screens/trades.md`](screens/trades.md) |
 | Snapshots | [`screens/snapshots.md`](screens/snapshots.md) |
+| Profile | [`screens/profile.md`](screens/profile.md) |
 | Import | `screens/import.md` — TBD |
 | Analysis | `screens/analysis.md` — TBD |
 
