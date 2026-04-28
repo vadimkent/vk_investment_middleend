@@ -9,7 +9,7 @@ type Action struct {
 	Endpoint string `json:"endpoint,omitempty"`
 	Method   string `json:"method,omitempty"`
 	TargetID string `json:"target_id,omitempty"`
-	Loading  string `json:"loading,omitempty"`
+	Loading  any `json:"loading,omitempty"`
 }
 
 // ActionResponse is the standard response for submit/reload actions.
@@ -116,4 +116,25 @@ func RefreshResponse(feedback *Component) ActionResponse {
 func ErrorResponse(message string) ActionResponse {
 	fb := Snackbar("feedback", message, "error")
 	return ActionResponse{Action: "none", Feedback: &fb}
+}
+
+// LoadingSpec is the object form of an action's loading indicator. When
+// emitted, it serializes as {"scope":"…","messages":[…]} alongside any other
+// fields. The string-token form ("section" / "full") remains valid via the
+// `any`-typed Loading field on Action.
+type LoadingSpec struct {
+	Scope    string   `json:"scope"`
+	Messages []string `json:"messages,omitempty"`
+}
+
+// LoadingFullWithMessages returns a LoadingSpec scoped to "full" and carrying
+// the given cycling phrases. Use this when the action's wait may be long
+// enough that a bare spinner feels frozen.
+func LoadingFullWithMessages(messages []string) LoadingSpec {
+	return LoadingSpec{Scope: "full", Messages: messages}
+}
+
+// LoadingSectionWithMessages is the section-scoped equivalent.
+func LoadingSectionWithMessages(messages []string) LoadingSpec {
+	return LoadingSpec{Scope: "section", Messages: messages}
 }
