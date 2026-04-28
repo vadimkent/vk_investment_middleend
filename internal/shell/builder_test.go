@@ -306,7 +306,7 @@ func TestBuildShell_NavFooterProfileButtonsHaveGhostAndIcon(t *testing.T) {
 	expanded := findDescendantByID(*footer, "profile-btn")
 	require.NotNil(t, expanded)
 	assert.Equal(t, "button", expanded.Type)
-	assert.Equal(t, "Profile", expanded.Props["label"])
+	assert.Equal(t, "", expanded.Props["label"])
 	assert.Equal(t, "user", expanded.Props["icon"])
 	assert.Equal(t, "ghost", expanded.Props["style"])
 	require.Len(t, expanded.Actions, 1)
