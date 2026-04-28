@@ -46,7 +46,7 @@ func TestUpdateHandler_Happy(t *testing.T) {
 	cfg := &stubCfg{res: sampleConfig()}
 	r := newUpdateRouter(upd, cfg)
 
-	w := postJSON(t, r, "/actions/profile/update", `{"display_name":"Vadim","preferences":{"default_currency":"EUR"}}`)
+	w := postJSON(t, r, "/actions/profile/update", `{"display_name":"Vadim","default_currency":"EUR"}`)
 	require.Equal(t, http.StatusOK, w.Code)
 
 	var resp map[string]any
@@ -62,7 +62,7 @@ func TestUpdateHandler_EmptyDisplayNameSentAsNull(t *testing.T) {
 	cfg := &stubCfg{res: sampleConfig()}
 	r := newUpdateRouter(upd, cfg)
 
-	w := postJSON(t, r, "/actions/profile/update", `{"display_name":"  ","preferences":{"default_currency":""}}`)
+	w := postJSON(t, r, "/actions/profile/update", `{"display_name":"  ","default_currency":""}`)
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Nil(t, upd.gotBody["display_name"])
 	prefs := upd.gotBody["preferences"].(map[string]any)
@@ -74,7 +74,7 @@ func TestUpdateHandler_BackendValidationError_BannerInline(t *testing.T) {
 	cfg := &stubCfg{res: sampleConfig()}
 	r := newUpdateRouter(upd, cfg)
 
-	w := postJSON(t, r, "/actions/profile/update", `{"display_name":"x","preferences":{"default_currency":"USD"}}`)
+	w := postJSON(t, r, "/actions/profile/update", `{"display_name":"x","default_currency":"USD"}`)
 	require.Equal(t, http.StatusOK, w.Code)
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
@@ -89,7 +89,7 @@ func TestUpdateHandler_InvalidCurrencyError(t *testing.T) {
 	cfg := &stubCfg{res: sampleConfig()}
 	r := newUpdateRouter(upd, cfg)
 
-	w := postJSON(t, r, "/actions/profile/update", `{"preferences":{"default_currency":"XXX"}}`)
+	w := postJSON(t, r, "/actions/profile/update", `{"default_currency":"XXX"}`)
 	require.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "profile-card-error")
 }

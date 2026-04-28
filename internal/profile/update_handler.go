@@ -69,16 +69,16 @@ func (h *UpdateHandler) Post(c *gin.Context) {
 	})
 }
 
-// readProfileFields pulls the two fields we care about from an arbitrary JSON
-// body. Empty / whitespace strings are normalised to "".
+// readProfileFields pulls the two fields from the form-serialized JSON body.
+// Inputs are flat (display_name, default_currency) — the FE serializes form
+// input names directly, not the nested shape the BE expects. Empty /
+// whitespace strings are normalised to "".
 func readProfileFields(in map[string]any) (displayName, currency string) {
 	if v, ok := in["display_name"].(string); ok {
 		displayName = strings.TrimSpace(v)
 	}
-	if prefs, ok := in["preferences"].(map[string]any); ok {
-		if v, ok := prefs["default_currency"].(string); ok {
-			currency = strings.TrimSpace(v)
-		}
+	if v, ok := in["default_currency"].(string); ok {
+		currency = strings.TrimSpace(v)
 	}
 	return
 }
