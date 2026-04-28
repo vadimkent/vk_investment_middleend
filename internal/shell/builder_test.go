@@ -258,11 +258,12 @@ func TestBuildShell_NavFooterEmitsExpandedRowAndCollapsedColumn(t *testing.T) {
 	assert.Equal(t, "sm", expanded.Props["gap"])
 	assert.Equal(t, "center", expanded.Props["align_items"])
 	assert.Equal(t, "center", expanded.Props["justify_items"])
-	assert.Equal(t, []string{"auto", "auto", "auto"}, expanded.Props["widths"])
-	require.Len(t, expanded.Children, 3)
+	assert.Equal(t, []string{"auto", "auto", "auto", "auto"}, expanded.Props["widths"])
+	require.Len(t, expanded.Children, 4)
 	assert.Equal(t, "sidebar-toggle", expanded.Children[0].ID)
 	assert.Equal(t, "theme-toggle", expanded.Children[1].ID)
-	assert.Equal(t, "logout-btn", expanded.Children[2].ID)
+	assert.Equal(t, "profile-btn", expanded.Children[2].ID)
+	assert.Equal(t, "logout-btn", expanded.Children[3].ID)
 
 	collapsed := footer.Children[1]
 	assert.Equal(t, "column", collapsed.Type)
@@ -271,10 +272,11 @@ func TestBuildShell_NavFooterEmitsExpandedRowAndCollapsedColumn(t *testing.T) {
 	assert.Equal(t, "sm", collapsed.Props["gap"])
 	assert.Equal(t, "center", collapsed.Props["align_items"])
 	assert.Equal(t, "center", collapsed.Props["justify_items"])
-	require.Len(t, collapsed.Children, 3)
+	require.Len(t, collapsed.Children, 4)
 	assert.Equal(t, "sidebar-toggle-collapsed", collapsed.Children[0].ID)
 	assert.Equal(t, "theme-toggle-collapsed", collapsed.Children[1].ID)
-	assert.Equal(t, "logout-btn-collapsed", collapsed.Children[2].ID)
+	assert.Equal(t, "profile-btn-collapsed", collapsed.Children[2].ID)
+	assert.Equal(t, "logout-btn-collapsed", collapsed.Children[3].ID)
 }
 
 func TestBuildShell_NavFooterSidebarTogglesFireToggleSidebar(t *testing.T) {
@@ -294,6 +296,32 @@ func TestBuildShell_NavFooterSidebarTogglesFireToggleSidebar(t *testing.T) {
 		assert.Equal(t, "toggle_sidebar", toggle.Actions[0].Type)
 		assert.Equal(t, "toggle_sidebar", toggle.Actions[1].Type)
 	}
+}
+
+func TestBuildShell_NavFooterProfileButtonsHaveGhostAndIcon(t *testing.T) {
+	shell := BuildShell("en", "web")
+	footer := findChild(shell, "nav_footer")
+	require.NotNil(t, footer)
+
+	expanded := findDescendantByID(*footer, "profile-btn")
+	require.NotNil(t, expanded)
+	assert.Equal(t, "button", expanded.Type)
+	assert.Equal(t, "Profile", expanded.Props["label"])
+	assert.Equal(t, "user", expanded.Props["icon"])
+	assert.Equal(t, "ghost", expanded.Props["style"])
+	require.Len(t, expanded.Actions, 1)
+	assert.Equal(t, "navigate", expanded.Actions[0].Type)
+	assert.Equal(t, "/screens/profile", expanded.Actions[0].URL)
+
+	collapsed := findDescendantByID(*footer, "profile-btn-collapsed")
+	require.NotNil(t, collapsed)
+	assert.Equal(t, "button", collapsed.Type)
+	assert.Equal(t, "", collapsed.Props["label"])
+	assert.Equal(t, "user", collapsed.Props["icon"])
+	assert.Equal(t, "ghost", collapsed.Props["style"])
+	require.Len(t, collapsed.Actions, 1)
+	assert.Equal(t, "navigate", collapsed.Actions[0].Type)
+	assert.Equal(t, "/screens/profile", collapsed.Actions[0].URL)
 }
 
 func TestBuildShell_NavFooterLogoutButtonsHaveGhostAndIcon(t *testing.T) {

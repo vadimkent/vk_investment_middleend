@@ -135,13 +135,16 @@ func buildNavFooterExpanded(lang string) components.Component {
 		i18n.T(lang, "nav.theme_light"), i18n.T(lang, "nav.theme_dark"),
 		components.ToggleTheme(), components.ToggleTheme(),
 	)
+	profile := components.Button("profile-btn", i18n.T(lang, "nav.profile"), components.Navigate("/screens/profile"))
+	profile.Props["icon"] = "user"
+	profile.Props["style"] = "ghost"
 	logout := components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout())
 	logout.Props["icon"] = "logout"
 	logout.Props["style"] = "ghost"
 
 	row := components.RowWithGap("footer-expanded",
-		[]string{"auto", "auto", "auto"}, "sm",
-		sidebarToggle, themeToggle, logout,
+		[]string{"auto", "auto", "auto", "auto"}, "sm",
+		sidebarToggle, themeToggle, profile, logout,
 	)
 	row.Props["sidebar_visibility"] = "expanded"
 	row.Props["align_items"] = "center"
@@ -160,12 +163,15 @@ func buildNavFooterCollapsed(lang string) components.Component {
 		i18n.T(lang, "nav.theme_light"), i18n.T(lang, "nav.theme_dark"),
 		components.ToggleTheme(), components.ToggleTheme(),
 	)
+	profile := components.Button("profile-btn-collapsed", "", components.Navigate("/screens/profile"))
+	profile.Props["icon"] = "user"
+	profile.Props["style"] = "ghost"
 	logout := components.Button("logout-btn-collapsed", "", components.Logout())
 	logout.Props["icon"] = "logout"
 	logout.Props["style"] = "ghost"
 
 	col := components.ColumnWithGap("footer-collapsed", "sm",
-		sidebarToggle, themeToggle, logout,
+		sidebarToggle, themeToggle, profile, logout,
 	)
 	col.Props["sidebar_visibility"] = "collapsed"
 	col.Props["align_items"] = "center"

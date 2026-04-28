@@ -10,6 +10,7 @@
     "snapshots": "Snapshots",
     "import": "Import",
     "analysis": "Analysis",
+    "profile": "Profile",
     "logout": "Log out",
     "theme_light": "Switch to dark mode",
     "theme_dark": "Switch to light mode",
