@@ -12,6 +12,7 @@ import (
 	"github.com/project/vk-investment-middleend/internal/assets"
 	"github.com/project/vk-investment-middleend/internal/auth"
 	"github.com/project/vk-investment-middleend/internal/config"
+	"github.com/project/vk-investment-middleend/internal/imports"
 	"github.com/project/vk-investment-middleend/internal/login"
 	"github.com/project/vk-investment-middleend/internal/portfolio"
 	"github.com/project/vk-investment-middleend/internal/profile"
@@ -110,6 +111,17 @@ func (s *Server) setupRoutes() {
 	protected.POST("/actions/snapshots/auto", snapshots.NewAutoHandler(snapshotsClient, snapshotsUC, catalog).Post)
 	protected.PATCH("/actions/snapshots/:id", snapshots.NewUpdateHandler(snapshotsClient, snapshotsClient, snapshotsUC, catalog).Patch)
 	protected.DELETE("/actions/snapshots/:id", snapshots.NewDeleteHandler(snapshotsClient, snapshotsUC).Delete)
+
+	// --- imports / exports ---
+	importsClient := imports.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	protected.GET("/screens/import", imports.NewHandler().Get)
+	protected.POST("/actions/import/analyze", imports.NewAnalyzeHandler(importsClient).Post)
+	protected.POST("/actions/import/sessions/:id/resolve_gaps", imports.NewResolveGapsHandler(importsClient).Post)
+	protected.POST("/actions/import/sessions/:id/confirm", imports.NewConfirmHandler(importsClient).Post)
+	protected.POST("/actions/import/sessions/:id/cancel", imports.NewCancelHandler(importsClient).Post)
+	protected.GET("/actions/import/export", imports.NewExportHandler(importsClient).Get)
+	protected.POST("/actions/import/restore", imports.NewRestoreHandler(importsClient).Post)
+	protected.GET("/actions/import/restore_idle", imports.NewRestoreIdleHandler().Get)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
