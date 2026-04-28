@@ -374,6 +374,86 @@
       }
     }
   },
+  "import": {
+    "title": "Importar y Exportar",
+    "ai": {
+      "title": "Importar datos históricos",
+      "description": "Subí un archivo de tu broker o exchange — CSV, XLS, TXT y más. La IA lo va a parsear, mapear las columnas a activos y operaciones, y vas a poder revisar todo antes de confirmar."
+    },
+    "upload": {
+      "label": "Archivo",
+      "placeholder": "Arrastrá un archivo aquí o hacé clic para buscarlo",
+      "hint_ai": "CSV, TSV, XLS, XLSX, TXT — máximo 5 MB",
+      "hint_restore": "CSV — máximo 10 MB",
+      "error_size": "El archivo supera el límite de {limit}.",
+      "error_format": "Formato no soportado.",
+      "reattach_hint": "Volvé a seleccionar el archivo para reintentar"
+    },
+    "hint": {
+      "label": "Pista (opcional)",
+      "placeholder": "ej. historial de operaciones de Broker X, montos en USD"
+    },
+    "analyze": "Analizar archivo",
+    "loading": {
+      "analyze": {
+        "1": "Detectando columnas…",
+        "2": "Mapeando tickers…",
+        "3": "Resolviendo monedas…",
+        "4": "Armando previsualización…",
+        "5": "Validando consistencia…"
+      }
+    },
+    "review": {
+      "blocking_banner": "Este archivo tiene {n} cuestiones que requieren tu intervención antes de importar.",
+      "ready_banner": "Listo para importar — revisá la previsualización y confirmá.",
+      "summary": "Resumen IA",
+      "assumptions": "Suposiciones ({n})",
+      "issues": "Cuestiones",
+      "warnings": "{n} advertencias",
+      "preview": "Previsualización",
+      "preview.assets": "Activos ({n})",
+      "preview.trades": "Operaciones ({n})",
+      "preview.snapshots": "Snapshots ({n})",
+      "confirm": "Confirmar importación",
+      "cancel": "Cancelar",
+      "status": {
+        "needs_review": "Requiere revisión",
+        "ready": "Listo"
+      }
+    },
+    "gaps": {
+      "affected_rows": "Filas afectadas: {rows}",
+      "input_placeholder": "Ingresá un valor…",
+      "save": "Guardar resoluciones"
+    },
+    "success": "Importación completa: {assets} activos, {trades} operaciones, {snapshots} snapshots.",
+    "cancelled": "Importación cancelada.",
+    "session_expired": "La sesión de importación expiró — volvé a subir el archivo.",
+    "failure_generic": "La importación falló. Probá de nuevo.",
+    "export": {
+      "title": "Exportar datos",
+      "description": "Descargá todos tus datos en un único CSV. Sirve como backup o para migrar a otra instancia.",
+      "submit": "Exportar todo"
+    },
+    "restore": {
+      "title": "Restaurar desde backup",
+      "description": "Subí un CSV exportado previamente desde esta app. Los registros existentes se omiten — es seguro correrlo varias veces.",
+      "submit": "Restaurar",
+      "success_title": "Restauración exitosa",
+      "col": {
+        "imported": "Importadas",
+        "skipped": "Omitidas"
+      },
+      "row": {
+        "assets": "Activos",
+        "trades": "Operaciones",
+        "snapshots": "Snapshots",
+        "snapshot_entries": "Entradas de snapshot"
+      },
+      "try_again": "Restaurar otro archivo",
+      "error_generic": "La restauración falló. Probá de nuevo."
+    }
+  },
   "common": {
     "cancel": "Cancelar"
   }

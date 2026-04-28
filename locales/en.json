@@ -374,6 +374,86 @@
       }
     }
   },
+  "import": {
+    "title": "Import & Export",
+    "ai": {
+      "title": "Import historical data",
+      "description": "Upload a file from your broker or exchange — CSV, XLS, TXT and more. The AI will parse it, map columns to assets and trades, and let you review everything before committing."
+    },
+    "upload": {
+      "label": "File",
+      "placeholder": "Drop a file here or click to browse",
+      "hint_ai": "CSV, TSV, XLS, XLSX, TXT — max 5 MB",
+      "hint_restore": "CSV — max 10 MB",
+      "error_size": "File exceeds the {limit} limit.",
+      "error_format": "Unsupported file format.",
+      "reattach_hint": "Re-select the file to retry"
+    },
+    "hint": {
+      "label": "Hint (optional)",
+      "placeholder": "e.g. trade history from Broker X, amounts in USD"
+    },
+    "analyze": "Analyze file",
+    "loading": {
+      "analyze": {
+        "1": "Detecting columns…",
+        "2": "Mapping tickers…",
+        "3": "Resolving currencies…",
+        "4": "Building preview…",
+        "5": "Validating consistency…"
+      }
+    },
+    "review": {
+      "blocking_banner": "This file has {n} issues that need your input before importing.",
+      "ready_banner": "Ready to import — review the preview and confirm.",
+      "summary": "AI Summary",
+      "assumptions": "Assumptions ({n})",
+      "issues": "Issues",
+      "warnings": "{n} warnings",
+      "preview": "Preview",
+      "preview.assets": "Assets ({n})",
+      "preview.trades": "Trades ({n})",
+      "preview.snapshots": "Snapshots ({n})",
+      "confirm": "Confirm import",
+      "cancel": "Cancel",
+      "status": {
+        "needs_review": "Needs review",
+        "ready": "Ready"
+      }
+    },
+    "gaps": {
+      "affected_rows": "Affected rows: {rows}",
+      "input_placeholder": "Enter value…",
+      "save": "Save resolutions"
+    },
+    "success": "Import complete: {assets} assets, {trades} trades, {snapshots} snapshots.",
+    "cancelled": "Import cancelled.",
+    "session_expired": "Import session expired — please re-upload the file.",
+    "failure_generic": "Import failed. Please try again.",
+    "export": {
+      "title": "Export data",
+      "description": "Download all your data as a single CSV file. Use it as a backup or to migrate to another instance.",
+      "submit": "Export all data"
+    },
+    "restore": {
+      "title": "Restore from backup",
+      "description": "Upload a CSV file previously exported from this app. Existing records are skipped — safe to run multiple times.",
+      "submit": "Restore",
+      "success_title": "Restored successfully",
+      "col": {
+        "imported": "Imported",
+        "skipped": "Skipped"
+      },
+      "row": {
+        "assets": "Assets",
+        "trades": "Trades",
+        "snapshots": "Snapshots",
+        "snapshot_entries": "Snapshot entries"
+      },
+      "try_again": "Restore another file",
+      "error_generic": "Restore failed. Please try again."
+    }
+  },
   "common": {
     "cancel": "Cancel"
   }
