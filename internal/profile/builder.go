@@ -94,7 +94,8 @@ func buildEmailCardWith(currentEmail, newEmail, lang, errMessage string) compone
 			interpolate(i18n.T(lang, "profile.email.current"), map[string]string{"email": currentEmail}),
 			"sm", "regular", "block", "muted", "", ""),
 	)
-	fields := components.ColumnWithGap("email-fields", "md",
+	fields := components.RowWithGap("email-fields",
+		[]string{"1fr", "1fr"}, "md",
 		components.InputFull("input-new-email", "new_email", "email",
 			i18n.T(lang, "profile.email.new"), "", newEmail, true, false, 0),
 		components.InputFull("input-current-password", "current_password", "password",
@@ -123,7 +124,8 @@ func buildEmailCardWith(currentEmail, newEmail, lang, errMessage string) compone
 // BuildPasswordCard renders the Password section. All three inputs are always
 // empty on render (success or error).
 func BuildPasswordCard(lang, errMessage string) components.Component {
-	fields := components.ColumnWithGap("password-fields", "md",
+	fields := components.RowWithGap("password-fields",
+		[]string{"1fr", "1fr", "1fr"}, "md",
 		components.InputFull("input-current-password", "current_password", "password",
 			i18n.T(lang, "profile.password.current"), "", "", true, false, 0),
 		components.InputFull("input-new-password", "new_password", "password",
