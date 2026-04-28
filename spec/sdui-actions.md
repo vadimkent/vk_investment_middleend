@@ -35,13 +35,31 @@ The substituted value is URL-encoded by the frontend before being spliced into t
 
 ## 2b. Loading Indicators
 
-Any action that hits the middleend (`submit`, `reload`) can declare a `loading` field to show a visual indicator while the request is in flight:
+Any action that hits the middleend (`submit`, `reload`) can declare a `loading` field to show a visual indicator while the request is in flight. Two equivalent forms are accepted:
+
+**Form A — string token (default for short waits):**
 
 | Value | Behavior |
 |---|---|
 | `"section"` | Renders a semi-transparent overlay with spinner on the subtree whose `id` matches `target_id`. |
 | `"full"` | Renders a fullscreen overlay (`z-50`) with spinner over the entire viewport. |
 | (absent) | No loading indicator. The action completes silently. |
+
+**Form B — object with cycling messages (for long waits):**
+
+```json
+"loading": {
+  "scope": "section" | "full",
+  "messages": ["Detecting columns…", "Mapping tickers…", "Resolving currencies…"]
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `scope` | enum | yes | `"section"` or `"full"` — same semantics as Form A. |
+| `messages` | string[] | no | Localized phrases the frontend rotates through every **2 seconds** in order, looping at the end. Empty / absent → behaves like Form A. |
+
+The frontend renders the spinner (unchanged) plus, when `messages` is non-empty, a single line of text below the spinner that cycles with a brief cross-fade. Messages are purely cosmetic — they have no relationship to actual server-side progress.
 
 The middleend decides **when** to show loading and **what scope** — the frontend only implements the visual. Loading clears automatically when the action response arrives.
 
@@ -54,6 +72,26 @@ Client-side-only actions (`toggle_sensitive`, `navigate`, `refresh`, etc.) ignor
   "endpoint": "/actions/portfolio/live_data?live=true",
   "target_id": "live-data-section",
   "loading": "section"
+}
+```
+
+```json
+{
+  "trigger": "click",
+  "type": "submit",
+  "endpoint": "/actions/import/analyze",
+  "method": "POST",
+  "target_id": "import-modal-slot",
+  "loading": {
+    "scope": "full",
+    "messages": [
+      "Detecting columns…",
+      "Mapping tickers…",
+      "Resolving currencies…",
+      "Building preview…",
+      "Validating consistency…"
+    ]
+  }
 }
 ```
 
