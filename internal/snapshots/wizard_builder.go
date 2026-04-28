@@ -340,6 +340,7 @@ func buildSummaryStep(lang string) components.WizardStep {
 	)
 	return components.WizardStep{
 		ID:             "summary",
+		Label:          i18n.T(lang, "snapshots.wizard.summary"),
 		Kind:           "summary",
 		Skippable:      false,
 		IncludeDefault: true,
