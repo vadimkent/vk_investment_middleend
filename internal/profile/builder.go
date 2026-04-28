@@ -54,7 +54,8 @@ func buildProfileCardWith(displayName, currency string, cfg *AppConfig, lang, er
 	for _, code := range cfg.Currencies {
 		currencyOptions = append(currencyOptions, components.SelectOption{Value: code, Label: code})
 	}
-	fields := components.ColumnWithGap("profile-fields", "md",
+	fields := components.RowWithGap("profile-fields",
+		[]string{"1fr", "1fr"}, "md",
 		components.InputFull("input-display-name", "display_name", "text",
 			i18n.T(lang, "profile.display_name"),
 			i18n.T(lang, "profile.display_name_placeholder"),
