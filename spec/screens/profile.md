@@ -65,17 +65,20 @@ There is no empty state — an authenticated user always has a `User` record. Th
 - `default_currency` — select, label `profile.default_currency`. Options: a first item `"— None —"` (`profile.default_currency_none`) with empty value, followed by every entry in `config.currencies` in BE order. `defaultValue = me.preferences.default_currency ?? ""`, not required.
 - `[ Save ]` button — primary, submits the form to `POST /actions/profile/update`.
 
-**Submit body** (`POST /actions/profile/update`):
+**Submit body** (`POST /actions/profile/update`) — flat, mirrors form input names:
 ```json
-{ "display_name": <string|null>, "preferences": { "default_currency": <string|null> } }
+{ "display_name": <string>, "default_currency": <string> }
 ```
 
 Mapping rules:
 - Each string field is trimmed before validation.
-- Trimmed `display_name == ""` → `null` (clear).
-- `default_currency == ""` → `null` (clear).
+- Trimmed `display_name == ""` → forwarded as `null` (clear).
+- `default_currency == ""` → forwarded as `null` (clear).
 
-**Forwarded to BE:** `PATCH /v1/user/me` with the same body shape.
+**Forwarded to BE:** `PATCH /v1/user/me` with the BE-expected nested shape — the middleend lifts `default_currency` under `preferences`:
+```json
+{ "display_name": <string|null>, "preferences": { "default_currency": <string|null> } }
+```
 
 **Responses:**
 - `200` from BE → `ActionResponse{ replace profile-card }` re-rendering the card with values from the BE response, plus `feedback: snackbar success` (`profile.update.success`).
