@@ -24,16 +24,38 @@ func NewGetUseCase(me meFetcher, cfg configFetcher) *GetUseCase {
 	return &GetUseCase{me: me, cfg: cfg}
 }
 
-// Execute fetches the current user and the config in sequence (matching the
-// pattern used by snapshots — sequential with short-circuit on error).
+// Execute fetches the current user and the config in parallel, then builds the
+// screen. If me errors, that error takes precedence; otherwise cfg's error is
+// returned.
 func (uc *GetUseCase) Execute(ctx context.Context, authorization, lang string) (components.Component, error) {
-	me, err := uc.me.GetMe(ctx, authorization)
-	if err != nil {
-		return components.Component{}, err
+	type meResult struct {
+		user *User
+		err  error
 	}
-	cfg, err := uc.cfg.GetConfig(ctx, authorization)
-	if err != nil {
-		return components.Component{}, err
+	type cfgResult struct {
+		cfg *AppConfig
+		err error
 	}
-	return BuildScreen(me, cfg, lang), nil
+	meCh := make(chan meResult, 1)
+	cfgCh := make(chan cfgResult, 1)
+
+	go func() {
+		u, err := uc.me.GetMe(ctx, authorization)
+		meCh <- meResult{u, err}
+	}()
+	go func() {
+		c, err := uc.cfg.GetConfig(ctx, authorization)
+		cfgCh <- cfgResult{c, err}
+	}()
+
+	mr := <-meCh
+	cr := <-cfgCh
+
+	if mr.err != nil {
+		return components.Component{}, mr.err
+	}
+	if cr.err != nil {
+		return components.Component{}, cr.err
+	}
+	return BuildScreen(mr.user, cr.cfg, lang), nil
 }

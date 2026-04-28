@@ -46,13 +46,22 @@ func TestGetUseCase_Happy(t *testing.T) {
 	assert.Equal(t, "screen", asJSON(t, tree)["type"])
 }
 
-func TestGetUseCase_MeUnauthorized_ShortCircuits(t *testing.T) {
+func TestGetUseCase_MeUnauthorized_ReturnsMeError(t *testing.T) {
 	m := &stubMe{err: ErrUnauthorized}
-	cfg := &stubCfg{}
+	cfg := &stubCfg{res: sampleConfig()}
 	uc := NewGetUseCase(m, cfg)
 	_, err := uc.Execute(context.Background(), "", "en")
 	assert.True(t, errors.Is(err, ErrUnauthorized))
-	assert.Equal(t, 0, cfg.calls, "config should not be called after me failed")
+}
+
+func TestGetUseCase_ParallelFetches(t *testing.T) {
+	m := &stubMe{res: sampleUser()}
+	cfg := &stubCfg{res: sampleConfig()}
+	uc := NewGetUseCase(m, cfg)
+	_, err := uc.Execute(context.Background(), "Bearer t", "en")
+	require.NoError(t, err)
+	assert.Equal(t, 1, m.calls)
+	assert.Equal(t, 1, cfg.calls)
 }
 
 func TestGetUseCase_ConfigError(t *testing.T) {
