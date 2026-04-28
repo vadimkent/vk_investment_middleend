@@ -117,7 +117,7 @@ func buildFilter(p ListParams, lang string) components.Component {
 			Type:     "reload",
 			Endpoint: newEndpoint,
 			TargetID: ModalSlotID,
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	newBtn.Props["size"] = "sm"
@@ -187,7 +187,7 @@ func buildRowActions(snapshotID string) components.Component {
 			Type:     "reload",
 			Endpoint: editEndpoint,
 			TargetID: ModalSlotID,
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	editBtn.Props["icon"] = "pencil"
@@ -199,7 +199,7 @@ func buildRowActions(snapshotID string) components.Component {
 			Type:     "reload",
 			Endpoint: deleteEndpoint,
 			TargetID: ModalSlotID,
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	deleteBtn.Props["icon"] = "trash"

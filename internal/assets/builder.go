@@ -84,7 +84,7 @@ func buildFilter(params ListParams, lang string) components.Component {
 			Type:     "reload",
 			Endpoint: "/actions/assets/create_modal",
 			TargetID: "assets-modal-slot",
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	newBtn.Props["size"] = "sm"
@@ -132,7 +132,7 @@ func buildRow(a Asset) components.Component {
 			Type:     "reload",
 			Endpoint: "/actions/assets/edit_modal?id=" + a.ID,
 			TargetID: "assets-modal-slot",
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	editBtn.Props["icon"] = "pencil"
@@ -142,7 +142,7 @@ func buildRow(a Asset) components.Component {
 			Type:     "reload",
 			Endpoint: "/actions/assets/delete_modal?id=" + a.ID,
 			TargetID: "assets-modal-slot",
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	deleteBtn.Props["icon"] = "trash"

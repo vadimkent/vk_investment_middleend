@@ -67,7 +67,7 @@ func buildFilters(catalog []assetscatalog.Asset, p ListParams, lang string) comp
 			Type:     "reload",
 			Endpoint: "/actions/trades/create_modal",
 			TargetID: ModalSlotID,
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	newBtn.Props["size"] = "sm"
@@ -214,7 +214,7 @@ func buildRowActions(tradeID string, p ListParams) components.Component {
 			Type:     "reload",
 			Endpoint: editEndpoint,
 			TargetID: ModalSlotID,
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	editBtn.Props["icon"] = "pencil"
@@ -226,7 +226,7 @@ func buildRowActions(tradeID string, p ListParams) components.Component {
 			Type:     "reload",
 			Endpoint: deleteEndpoint,
 			TargetID: ModalSlotID,
-			Loading:  "section",
+			Loading:  "full",
 		},
 	)
 	deleteBtn.Props["icon"] = "trash"
