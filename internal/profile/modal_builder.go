@@ -14,18 +14,24 @@ func BuildDeleteModal(lang, errMessage string) components.Component {
 	if errMessage != "" {
 		body = append(body, components.TextStyled("delete-modal-error", errMessage, "sm", "regular", "block", "error", "", ""))
 	}
-	form := components.Form("delete-form",
-		components.InputFull("input-delete-password", "password", "password",
-			i18n.T(lang, "profile.danger.modal.password_label"), "", "", true, false, 0),
-		components.ButtonFull("delete-cancel-btn",
-			i18n.T(lang, "profile.danger.modal.cancel"),
-			"", "secondary", "ghost",
-			components.Dismiss()),
-		components.ButtonFull("delete-confirm-btn",
-			i18n.T(lang, "profile.danger.modal.confirm"),
-			"", "destructive", "solid",
-			components.Submit("/actions/profile/delete_account", "POST", "delete-form")),
+	passwordInput := components.InputFull("input-delete-password", "password", "password",
+		i18n.T(lang, "profile.danger.modal.password_label"), "", "", true, false, 0)
+	cancelBtn := components.ButtonFull("delete-cancel-btn",
+		i18n.T(lang, "profile.danger.modal.cancel"),
+		"", "secondary", "ghost",
+		components.Dismiss())
+	confirmBtn := components.ButtonFull("delete-confirm-btn",
+		i18n.T(lang, "profile.danger.modal.confirm"),
+		"", "destructive", "solid",
+		components.Submit("/actions/profile/delete_account", "POST", "delete-form"))
+	actionsRow := components.RowWithGap("delete-actions",
+		[]string{"1fr", "auto", "auto"}, "sm",
+		components.Spacer("delete-actions-spacer", "none"),
+		cancelBtn,
+		confirmBtn,
 	)
+	formBody := components.ColumnWithGap("delete-form-body", "lg", passwordInput, actionsRow)
+	form := components.Form("delete-form", formBody)
 	body = append(body, form)
 	return components.ModalFull(DeleteModalID,
 		i18n.T(lang, "profile.danger.modal.title"),
