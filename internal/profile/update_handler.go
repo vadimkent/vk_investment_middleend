@@ -63,7 +63,7 @@ func (h *UpdateHandler) Post(c *gin.Context) {
 	fb := components.Snackbar("feedback", i18n.T(lang, "profile.update.success"), "success")
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
-		TargetID: ProfileCardID,
+		TargetID: ProfileFormID,
 		Tree:     &tree,
 		Feedback: &fb,
 	})
@@ -113,7 +113,7 @@ func (h *UpdateHandler) respondValidation(c *gin.Context, lang, displayName, cur
 	tree := buildProfileCardWith(displayName, currency, cfg, lang, msg)
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
-		TargetID: ProfileCardID,
+		TargetID: ProfileFormID,
 		Tree:     &tree,
 	})
 }

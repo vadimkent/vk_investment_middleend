@@ -34,7 +34,7 @@ func TestUpdateEmail_Happy_RebuildsCardWithNewEmail(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "replace", resp["action"])
-	assert.Equal(t, EmailCardID, resp["target_id"])
+	assert.Equal(t, EmailFormID, resp["target_id"])
 	require.NotNil(t, resp["feedback"])
 	assert.Contains(t, w.Body.String(), "new@example.com")
 }

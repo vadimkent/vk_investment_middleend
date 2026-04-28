@@ -52,7 +52,7 @@ func TestUpdateHandler_Happy(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "replace", resp["action"])
-	assert.Equal(t, ProfileCardID, resp["target_id"])
+	assert.Equal(t, ProfileFormID, resp["target_id"])
 	require.NotNil(t, resp["feedback"])
 	assert.Equal(t, "Vadim", upd.gotBody["display_name"])
 }
@@ -79,7 +79,7 @@ func TestUpdateHandler_BackendValidationError_BannerInline(t *testing.T) {
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
 	assert.Equal(t, "replace", resp["action"])
-	assert.Equal(t, ProfileCardID, resp["target_id"])
+	assert.Equal(t, ProfileFormID, resp["target_id"])
 	assert.Nil(t, resp["feedback"])
 	assert.Contains(t, w.Body.String(), "profile-card-error")
 }

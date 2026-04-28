@@ -11,8 +11,11 @@ import (
 const (
 	ScreenID       = "profile"
 	ProfileCardID  = "profile-card"
+	ProfileFormID  = "profile-form"
 	EmailCardID    = "email-card"
+	EmailFormID    = "email-form"
 	PasswordCardID = "password-card"
+	PasswordFormID = "password-form"
 	DangerCardID   = "danger-card"
 	ModalSlotID    = "profile-modal-slot"
 	DeleteModalID  = "profile-delete-modal"
@@ -66,19 +69,18 @@ func buildProfileCardWith(displayName, currency string, cfg *AppConfig, lang, er
 	)
 	saveBtn := components.ButtonFull("profile-save", i18n.T(lang, "profile.update.save"),
 		"", "primary", "solid",
-		components.Submit("/actions/profile/update", "POST", "profile-form"))
+		components.Submit("/actions/profile/update", "POST", ProfileFormID))
 	actions := components.RowWithGap("profile-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("profile-actions-spacer", "none"),
 		saveBtn,
 	)
-	form := components.Form("profile-form",
-		components.ColumnWithGap("profile-form-body", "lg", fields, actions),
-	)
-	return components.Card(ProfileCardID, cardContent("profile-card-content", lang,
+	formBody := components.ColumnWithGap("profile-form-body", "lg", fields, actions)
+	card := components.Card(ProfileCardID, cardContent("profile-card-content", lang,
 		"profile-section-title", "profile.section.profile",
 		"profile-card-error", errMessage,
-		form,
+		formBody,
 	))
+	return components.Form(ProfileFormID, card)
 }
 
 // BuildEmailCard renders the Email section. newEmail is the preserved input
@@ -103,22 +105,21 @@ func buildEmailCardWith(currentEmail, newEmail, lang, errMessage string) compone
 	)
 	saveBtn := components.ButtonFull("email-save", i18n.T(lang, "profile.email.save"),
 		"", "primary", "solid",
-		components.Submit("/actions/profile/update_email", "POST", "email-form"))
+		components.Submit("/actions/profile/update_email", "POST", EmailFormID))
 	actions := components.RowWithGap("email-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("email-actions-spacer", "none"),
 		saveBtn,
 	)
-	form := components.Form("email-form",
-		components.ColumnWithGap("email-form-body", "lg", fields, actions),
-	)
+	formBody := components.ColumnWithGap("email-form-body", "lg", fields, actions)
 	body := []components.Component{header}
 	if errMessage != "" {
 		body = append(body, components.TextStyled("email-card-error", errMessage, "sm", "regular", "block", "error", "", ""))
 	}
-	body = append(body, form)
-	return components.Card(EmailCardID,
+	body = append(body, formBody)
+	card := components.Card(EmailCardID,
 		components.ColumnWithGap("email-card-content", "md", body...),
 	)
+	return components.Form(EmailFormID, card)
 }
 
 // BuildPasswordCard renders the Password section. All three inputs are always
@@ -135,19 +136,18 @@ func BuildPasswordCard(lang, errMessage string) components.Component {
 	)
 	saveBtn := components.ButtonFull("password-save", i18n.T(lang, "profile.password.save"),
 		"", "primary", "solid",
-		components.Submit("/actions/profile/change_password", "POST", "password-form"))
+		components.Submit("/actions/profile/change_password", "POST", PasswordFormID))
 	actions := components.RowWithGap("password-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("password-actions-spacer", "none"),
 		saveBtn,
 	)
-	form := components.Form("password-form",
-		components.ColumnWithGap("password-form-body", "lg", fields, actions),
-	)
-	return components.Card(PasswordCardID, cardContent("password-card-content", lang,
+	formBody := components.ColumnWithGap("password-form-body", "lg", fields, actions)
+	card := components.Card(PasswordCardID, cardContent("password-card-content", lang,
 		"password-section-title", "profile.section.password",
 		"password-card-error", errMessage,
-		form,
+		formBody,
 	))
+	return components.Form(PasswordFormID, card)
 }
 
 // BuildDangerCard renders the Danger Zone section. The button opens the delete

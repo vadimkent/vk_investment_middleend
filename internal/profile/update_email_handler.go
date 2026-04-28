@@ -46,7 +46,7 @@ func (h *UpdateEmailHandler) Post(c *gin.Context) {
 		if errors.As(err, &be) {
 			tree := buildEmailCardWith(currentEmailFromMe(c, h.me, auth), newEmail, lang, i18n.T(lang, emailErrorKey(be.Code)))
 			c.JSON(http.StatusOK, components.ActionResponse{
-				Action: "replace", TargetID: EmailCardID, Tree: &tree,
+				Action: "replace", TargetID: EmailFormID, Tree: &tree,
 			})
 			return
 		}
@@ -63,7 +63,7 @@ func (h *UpdateEmailHandler) Post(c *gin.Context) {
 	tree := BuildEmailCard(updated, lang, "", "")
 	fb := components.Snackbar("feedback", i18n.T(lang, "profile.email.success"), "success")
 	c.JSON(http.StatusOK, components.ActionResponse{
-		Action: "replace", TargetID: EmailCardID, Tree: &tree, Feedback: &fb,
+		Action: "replace", TargetID: EmailFormID, Tree: &tree, Feedback: &fb,
 	})
 }
 

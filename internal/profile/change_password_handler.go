@@ -64,14 +64,14 @@ func (h *ChangePasswordHandler) Post(c *gin.Context) {
 	tree := BuildPasswordCard(lang, "")
 	fb := components.Snackbar("feedback", i18n.T(lang, "profile.password.success"), "success")
 	c.JSON(http.StatusOK, components.ActionResponse{
-		Action: "replace", TargetID: PasswordCardID, Tree: &tree, Feedback: &fb,
+		Action: "replace", TargetID: PasswordFormID, Tree: &tree, Feedback: &fb,
 	})
 }
 
 func respondPasswordError(c *gin.Context, lang, key string) {
 	tree := BuildPasswordCard(lang, i18n.T(lang, key))
 	c.JSON(http.StatusOK, components.ActionResponse{
-		Action: "replace", TargetID: PasswordCardID, Tree: &tree,
+		Action: "replace", TargetID: PasswordFormID, Tree: &tree,
 	})
 }
 
