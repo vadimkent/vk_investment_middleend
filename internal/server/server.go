@@ -14,6 +14,7 @@ import (
 	"github.com/project/vk-investment-middleend/internal/config"
 	"github.com/project/vk-investment-middleend/internal/login"
 	"github.com/project/vk-investment-middleend/internal/portfolio"
+	"github.com/project/vk-investment-middleend/internal/profile"
 	"github.com/project/vk-investment-middleend/internal/shared/assetscatalog"
 	"github.com/project/vk-investment-middleend/internal/shell"
 	"github.com/project/vk-investment-middleend/internal/snapshots"
@@ -85,6 +86,17 @@ func (s *Server) setupRoutes() {
 	protected.POST("/actions/trades/create", trades.NewCreateHandler(tradesClient, tradesUC, catalog).Post)
 	protected.PATCH("/actions/trades/:id", trades.NewUpdateHandler(tradesClient, tradesUC, catalog).Patch)
 	protected.DELETE("/actions/trades/:id", trades.NewDeleteHandler(tradesClient, tradesUC).Delete)
+
+	// --- profile ---
+	profileClient := profile.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	profileConfigClient := profile.NewConfigClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
+	profileUC := profile.NewGetUseCase(profileClient, profileConfigClient)
+	protected.GET("/screens/profile", profile.NewHandler(profileUC).Get)
+	protected.POST("/actions/profile/update", profile.NewUpdateHandler(profileClient, profileConfigClient).Post)
+	protected.POST("/actions/profile/update_email", profile.NewUpdateEmailHandler(profileClient, profileClient).Post)
+	protected.POST("/actions/profile/change_password", profile.NewChangePasswordHandler(profileClient).Post)
+	protected.GET("/actions/profile/delete_modal", profile.NewDeleteModalHandler().Get)
+	protected.POST("/actions/profile/delete_account", profile.NewDeleteHandler(profileClient).Post)
 
 	// --- snapshots ---
 	snapshotsClient := snapshots.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)

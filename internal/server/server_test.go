@@ -69,3 +69,25 @@ func TestServer_LoginScreenIsPublic(t *testing.T) {
 	s.router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
+
+func TestRouter_HasProfileRoutes(t *testing.T) {
+	s := New(testConfig())
+	routes := s.router.Routes()
+	wanted := map[string]bool{
+		"GET /screens/profile":                  false,
+		"POST /actions/profile/update":          false,
+		"POST /actions/profile/update_email":    false,
+		"POST /actions/profile/change_password": false,
+		"GET /actions/profile/delete_modal":     false,
+		"POST /actions/profile/delete_account":  false,
+	}
+	for _, ri := range routes {
+		key := ri.Method + " " + ri.Path
+		if _, ok := wanted[key]; ok {
+			wanted[key] = true
+		}
+	}
+	for k, found := range wanted {
+		assert.Truef(t, found, "route missing: %s", k)
+	}
+}
