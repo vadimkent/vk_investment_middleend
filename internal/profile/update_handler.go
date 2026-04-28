@@ -59,7 +59,7 @@ func (h *UpdateHandler) Post(c *gin.Context) {
 		respondBackendError(c, "could not load currencies")
 		return
 	}
-	tree := BuildProfileCard(updated, cfg, lang, "")
+	tree := BuildProfileForm(updated, cfg, lang, "")
 	fb := components.Snackbar("feedback", i18n.T(lang, "profile.update.success"), "success")
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
@@ -110,7 +110,7 @@ func (h *UpdateHandler) respondValidation(c *gin.Context, lang, displayName, cur
 		return
 	}
 	msg := i18n.T(lang, profileErrorKey(be.Code))
-	tree := buildProfileCardWith(displayName, currency, cfg, lang, msg)
+	tree := buildProfileFormWith(displayName, currency, cfg, lang, msg)
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action:   "replace",
 		TargetID: ProfileFormID,

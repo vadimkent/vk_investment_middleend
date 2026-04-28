@@ -61,7 +61,7 @@ func (h *ChangePasswordHandler) Post(c *gin.Context) {
 		return
 	}
 
-	tree := BuildPasswordCard(lang, "")
+	tree := BuildPasswordForm(lang, "")
 	fb := components.Snackbar("feedback", i18n.T(lang, "profile.password.success"), "success")
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action: "replace", TargetID: PasswordFormID, Tree: &tree, Feedback: &fb,
@@ -69,7 +69,7 @@ func (h *ChangePasswordHandler) Post(c *gin.Context) {
 }
 
 func respondPasswordError(c *gin.Context, lang, key string) {
-	tree := BuildPasswordCard(lang, i18n.T(lang, key))
+	tree := BuildPasswordForm(lang, i18n.T(lang, key))
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action: "replace", TargetID: PasswordFormID, Tree: &tree,
 	})

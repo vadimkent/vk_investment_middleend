@@ -45,14 +45,22 @@ func BuildScreen(me *User, cfg *AppConfig, lang string) components.Component {
 	return components.Screen(ScreenID, i18n.T(lang, "profile.title"), col)
 }
 
-// BuildProfileCard renders the Profile section using values from the User.
+// BuildProfileCard wraps the Profile form in a Card. Used by BuildScreen on
+// initial render. Handlers re-emit only the Form via BuildProfileForm.
 func BuildProfileCard(me *User, cfg *AppConfig, lang, errMessage string) components.Component {
-	return buildProfileCardWith(strDeref(me.DisplayName), strDeref(me.Preferences.DefaultCurrency), cfg, lang, errMessage)
+	return components.Card(ProfileCardID, BuildProfileForm(me, cfg, lang, errMessage))
 }
 
-// buildProfileCardWith allows the update handler to re-emit with preserved
+// BuildProfileForm returns the Profile form subtree (target_id = ProfileFormID).
+// Card is the visual / positioning context (Form inside Card so the FE loading
+// overlay anchors to the card).
+func BuildProfileForm(me *User, cfg *AppConfig, lang, errMessage string) components.Component {
+	return buildProfileFormWith(strDeref(me.DisplayName), strDeref(me.Preferences.DefaultCurrency), cfg, lang, errMessage)
+}
+
+// buildProfileFormWith allows the update handler to re-emit with preserved
 // (possibly invalid) inputs.
-func buildProfileCardWith(displayName, currency string, cfg *AppConfig, lang, errMessage string) components.Component {
+func buildProfileFormWith(displayName, currency string, cfg *AppConfig, lang, errMessage string) components.Component {
 	currencyOptions := []components.SelectOption{{Value: "", Label: i18n.T(lang, "profile.default_currency_none")}}
 	for _, code := range cfg.Currencies {
 		currencyOptions = append(currencyOptions, components.SelectOption{Value: code, Label: code})
@@ -75,21 +83,26 @@ func buildProfileCardWith(displayName, currency string, cfg *AppConfig, lang, er
 		saveBtn,
 	)
 	formBody := components.ColumnWithGap("profile-form-body", "lg", fields, actions)
-	card := components.Card(ProfileCardID, cardContent("profile-card-content", lang,
+	content := cardContent("profile-card-content", lang,
 		"profile-section-title", "profile.section.profile",
 		"profile-card-error", errMessage,
 		formBody,
-	))
-	return components.Form(ProfileFormID, card)
+	)
+	return components.Form(ProfileFormID, content)
 }
 
-// BuildEmailCard renders the Email section. newEmail is the preserved input
-// after a validation error; pass "" on the happy path.
+// BuildEmailCard wraps the Email form in a Card. Used by BuildScreen on initial
+// render. Handlers re-emit only the Form via BuildEmailForm.
 func BuildEmailCard(me *User, lang, newEmail, errMessage string) components.Component {
-	return buildEmailCardWith(me.Email, newEmail, lang, errMessage)
+	return components.Card(EmailCardID, BuildEmailForm(me, lang, newEmail, errMessage))
 }
 
-func buildEmailCardWith(currentEmail, newEmail, lang, errMessage string) components.Component {
+// BuildEmailForm returns the Email form subtree (target_id = EmailFormID).
+func BuildEmailForm(me *User, lang, newEmail, errMessage string) components.Component {
+	return buildEmailFormWith(me.Email, newEmail, lang, errMessage)
+}
+
+func buildEmailFormWith(currentEmail, newEmail, lang, errMessage string) components.Component {
 	header := components.ColumnWithGap("email-header", "xs",
 		components.Text("email-section-title", i18n.T(lang, "profile.section.email"), "lg", "bold"),
 		components.TextStyled("email-current",
@@ -116,15 +129,19 @@ func buildEmailCardWith(currentEmail, newEmail, lang, errMessage string) compone
 		body = append(body, components.TextStyled("email-card-error", errMessage, "sm", "regular", "block", "error", "", ""))
 	}
 	body = append(body, formBody)
-	card := components.Card(EmailCardID,
-		components.ColumnWithGap("email-card-content", "md", body...),
-	)
-	return components.Form(EmailFormID, card)
+	content := components.ColumnWithGap("email-card-content", "md", body...)
+	return components.Form(EmailFormID, content)
 }
 
-// BuildPasswordCard renders the Password section. All three inputs are always
-// empty on render (success or error).
+// BuildPasswordCard wraps the Password form in a Card. Used by BuildScreen on
+// initial render. Handlers re-emit only the Form via BuildPasswordForm.
 func BuildPasswordCard(lang, errMessage string) components.Component {
+	return components.Card(PasswordCardID, BuildPasswordForm(lang, errMessage))
+}
+
+// BuildPasswordForm returns the Password form subtree (target_id = PasswordFormID).
+// All three inputs are always empty on render (success or error).
+func BuildPasswordForm(lang, errMessage string) components.Component {
 	fields := components.RowWithGap("password-fields",
 		[]string{"1fr", "1fr", "1fr"}, "md",
 		components.InputFull("input-current-password", "current_password", "password",
@@ -142,12 +159,12 @@ func BuildPasswordCard(lang, errMessage string) components.Component {
 		saveBtn,
 	)
 	formBody := components.ColumnWithGap("password-form-body", "lg", fields, actions)
-	card := components.Card(PasswordCardID, cardContent("password-card-content", lang,
+	content := cardContent("password-card-content", lang,
 		"password-section-title", "profile.section.password",
 		"password-card-error", errMessage,
 		formBody,
-	))
-	return components.Form(PasswordFormID, card)
+	)
+	return components.Form(PasswordFormID, content)
 }
 
 // BuildDangerCard renders the Danger Zone section. The button opens the delete

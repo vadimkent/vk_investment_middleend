@@ -44,7 +44,7 @@ func (h *UpdateEmailHandler) Post(c *gin.Context) {
 		}
 		var be *BackendValidationError
 		if errors.As(err, &be) {
-			tree := buildEmailCardWith(currentEmailFromMe(c, h.me, auth), newEmail, lang, i18n.T(lang, emailErrorKey(be.Code)))
+			tree := buildEmailFormWith(currentEmailFromMe(c, h.me, auth), newEmail, lang, i18n.T(lang, emailErrorKey(be.Code)))
 			c.JSON(http.StatusOK, components.ActionResponse{
 				Action: "replace", TargetID: EmailFormID, Tree: &tree,
 			})
@@ -60,7 +60,7 @@ func (h *UpdateEmailHandler) Post(c *gin.Context) {
 		respondBackendError(c, "could not refresh profile")
 		return
 	}
-	tree := BuildEmailCard(updated, lang, "", "")
+	tree := BuildEmailForm(updated, lang, "", "")
 	fb := components.Snackbar("feedback", i18n.T(lang, "profile.email.success"), "success")
 	c.JSON(http.StatusOK, components.ActionResponse{
 		Action: "replace", TargetID: EmailFormID, Tree: &tree, Feedback: &fb,
