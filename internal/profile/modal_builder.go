@@ -24,14 +24,7 @@ func BuildDeleteModal(lang, errMessage string) components.Component {
 		components.ButtonFull("delete-confirm-btn",
 			i18n.T(lang, "profile.danger.modal.confirm"),
 			"", "destructive", "solid",
-			components.Action{
-				Trigger:  "click",
-				Type:     "submit",
-				Method:   "POST",
-				Endpoint: "/actions/profile/delete_account",
-				TargetID: "delete-form",
-				Loading:  "full",
-			}),
+			components.Submit("/actions/profile/delete_account", "POST", "delete-form")),
 	)
 	body = append(body, form)
 	return components.ModalFull(DeleteModalID,

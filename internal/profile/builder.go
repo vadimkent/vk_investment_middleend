@@ -177,7 +177,13 @@ func BuildDangerCard(lang string) components.Component {
 	deleteBtn := components.ButtonFull("danger-delete-btn",
 		i18n.T(lang, "profile.danger.delete_button"),
 		"", "destructive", "solid",
-		components.Reload("/actions/profile/delete_modal", ModalSlotID))
+		components.Action{
+			Trigger:  "click",
+			Type:     "reload",
+			Endpoint: "/actions/profile/delete_modal",
+			TargetID: ModalSlotID,
+			Loading:  "full",
+		})
 	actions := components.RowWithGap("danger-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("danger-actions-spacer", "none"),
 		deleteBtn,
