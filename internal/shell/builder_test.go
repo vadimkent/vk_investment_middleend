@@ -332,7 +332,7 @@ func TestBuildShell_NavFooterLogoutButtonsHaveGhostAndIcon(t *testing.T) {
 	expanded := findDescendantByID(*footer, "logout-btn")
 	require.NotNil(t, expanded)
 	assert.Equal(t, "button", expanded.Type)
-	assert.Equal(t, "Log out", expanded.Props["label"])
+	assert.Equal(t, "", expanded.Props["label"])
 	assert.Equal(t, "logout", expanded.Props["icon"])
 	assert.Equal(t, "ghost", expanded.Props["style"])
 	require.Len(t, expanded.Actions, 1)

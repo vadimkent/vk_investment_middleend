@@ -138,7 +138,7 @@ func buildNavFooterExpanded(lang string) components.Component {
 	profile := components.Button("profile-btn", "", components.Navigate("/screens/profile"))
 	profile.Props["icon"] = "user"
 	profile.Props["style"] = "ghost"
-	logout := components.Button("logout-btn", i18n.T(lang, "nav.logout"), components.Logout())
+	logout := components.Button("logout-btn", "", components.Logout())
 	logout.Props["icon"] = "logout"
 	logout.Props["style"] = "ghost"
 
