@@ -331,7 +331,59 @@ Minimal wizard with one info step, one entry step, and one summary step:
 
 ---
 
-## 4. Custom Attributes
+## 4. `file_upload`
+
+Drag-and-drop + click-to-browse file picker with local validation. Used by the Import & Export screen for the AI Import upload form and the Restore upload form. Generic by design — any future flow that needs a file as part of a multipart submit can reuse it.
+
+### Why custom
+
+The base SDUI catalog has no `input` variant for files. Browsers do not let JavaScript programmatically reattach a previously-picked File across re-renders, and SDUI re-renders are server-driven — so a custom component that owns local file state, drag-and-drop affordances, and pre-submit validation (size, format) is the cleanest way to model file inputs without leaking browser-specific quirks into every consumer.
+
+### Props
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| `name` | string | yes | Multipart field name on submit (e.g. `"file"`). |
+| `label` | string | yes | Visible label rendered above the dropzone. Localized by the middleend. |
+| `placeholder` | string | yes | Dropzone copy when no file is selected (e.g. *"Drop a file here or click to browse"*). Localized. |
+| `hint` | string | no | Auxiliary copy beneath the dropzone (formats / size limit). Localized. |
+| `accept` | string | no | Comma-separated extensions / MIME types (e.g. `".csv,.tsv,.xlsx"`). Drives the native `<input type="file" accept>` and the local format check. Absent → any file. |
+| `max_size_bytes` | int | no | Local size limit in bytes. When the user picks a larger file, render `error_message_size` inline and clear the selection. Absent → no local limit. |
+| `error_message_size` | string | no | Localized message when `max_size_bytes` is exceeded. May contain `{limit}` rendered as a human-readable size (e.g. "5 MB"). |
+| `error_message_format` | string | no | Localized message when the file's extension / MIME type doesn't match `accept`. |
+| `prefill_filename` | string | no | When set, render the dropzone in the "file selected" state with this filename **but no actual File object behind it** — purely informational. Used by the middleend when re-emitting a form after a server-side error. To re-submit, the user must re-pick the file (browsers do not let JS reattach a previously-picked File). The dropzone signals this state with the small caption from `reattach_hint`. |
+| `reattach_hint` | string | no | Localized small caption shown alongside `prefill_filename` (e.g. "Re-select the file to retry"). |
+
+### Frontend behavior
+
+- Render: a dashed-bordered dropzone (~10rem tall) with an upload icon centered and the placeholder text below. When a file is selected, the placeholder is replaced by the filename (mono-friendly truncation if long). Hover, drag-over, and focus states match the design system's other interactive controls.
+- Native `<input type="file">` is hidden; the dropzone forwards click to it. Drop events on the dropzone are captured (`preventDefault` on dragover, intercept the file from `dataTransfer.files[0]` on drop).
+- On a new file selection: run the format check against `accept` (if set), then the size check against `max_size_bytes` (if set). On failure, show the corresponding error inline beneath the dropzone and do **not** retain the file.
+- On `submit` of the enclosing form: contributes its file to the `multipart/form-data` body under `name`. If no file is present, the form-level submit button must be disabled by its consumer (the file_upload does not own form-level disabling).
+- Reset: a fresh `replace` from the server (matching `id`) clears any local file and any local error. `prefill_filename` lets the server hint at the previously-uploaded filename for context.
+
+### Example
+
+```json
+{
+  "type": "file_upload",
+  "id": "import-file",
+  "props": {
+    "name": "file",
+    "label": "File",
+    "placeholder": "Drop a file here or click to browse",
+    "hint": "CSV, TSV, XLS, XLSX, TXT — max 5 MB",
+    "accept": ".csv,.tsv,.xls,.xlsx,.txt",
+    "max_size_bytes": 5242880,
+    "error_message_size": "File exceeds the {limit} limit.",
+    "error_message_format": "Unsupported file format."
+  }
+}
+```
+
+---
+
+## 5. Custom Attributes
 
 Project-specific props that may appear on any component. The frontend reads them alongside base shared props (`align_items`, `gap`, etc.) and applies project-specific behavior.
 
@@ -366,7 +418,7 @@ When HideValues is active, the frontend renders `"••••"` instead of `"$1
 
 ---
 
-## 5. Custom Actions
+## 6. Custom Actions
 
 Project-specific action types that extend the base set in `sdui-actions.md`. The frontend maps these types to local behavior; no server round-trip is involved.
 
