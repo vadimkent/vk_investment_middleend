@@ -44,7 +44,7 @@ Screens (one file per screen, added as SDD progresses):
 | Trades | [`screens/trades.md`](screens/trades.md) |
 | Snapshots | [`screens/snapshots.md`](screens/snapshots.md) |
 | Profile | [`screens/profile.md`](screens/profile.md) |
-| Import | `screens/import.md` — TBD |
+| Import | [`screens/import.md`](screens/import.md) |
 | Analysis | `screens/analysis.md` — TBD |
 
 Shared specs (cross-screen helpers):
