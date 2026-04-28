@@ -53,7 +53,7 @@ func buildProfileCardWith(displayName, currency string, cfg *AppConfig, lang, er
 	)
 	saveBtn := components.ButtonFull("profile-save", i18n.T(lang, "profile.update.save"),
 		"", "primary", "solid",
-		components.Submit("/actions/profile/update", "POST", ProfileCardID))
+		components.Submit("/actions/profile/update", "POST", "profile-form"))
 	actions := components.RowWithGap("profile-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("profile-actions-spacer", "none"),
 		saveBtn,
@@ -89,7 +89,7 @@ func buildEmailCardWith(currentEmail, newEmail, lang, errMessage string) compone
 	)
 	saveBtn := components.ButtonFull("email-save", i18n.T(lang, "profile.email.save"),
 		"", "primary", "solid",
-		components.Submit("/actions/profile/update_email", "POST", EmailCardID))
+		components.Submit("/actions/profile/update_email", "POST", "email-form"))
 	actions := components.RowWithGap("email-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("email-actions-spacer", "none"),
 		saveBtn,
@@ -120,7 +120,7 @@ func BuildPasswordCard(lang, errMessage string) components.Component {
 	)
 	saveBtn := components.ButtonFull("password-save", i18n.T(lang, "profile.password.save"),
 		"", "primary", "solid",
-		components.Submit("/actions/profile/change_password", "POST", PasswordCardID))
+		components.Submit("/actions/profile/change_password", "POST", "password-form"))
 	actions := components.RowWithGap("password-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("password-actions-spacer", "none"),
 		saveBtn,
