@@ -15,8 +15,16 @@ const (
 	acceptRestore = ".csv"
 )
 
-// BuildRoot is the top-level screen tree at GET /screens/import.
+// BuildRoot is the top-level screen tree at GET /screens/import. It wraps
+// BuildRootColumn in a Screen for the initial full-page render.
 func BuildRoot(lang string) components.Component {
+	return components.Screen("import-screen", i18n.T(lang, "import.title"), BuildRootColumn(lang))
+}
+
+// BuildRootColumn returns just the import-root column (no Screen wrapper).
+// Used as the tree of ActionResponse{replace, target_id="import-root"} so the
+// replace lands cleanly without nesting a Screen inside the column slot.
+func BuildRootColumn(lang string) components.Component {
 	header := buildHeader(lang)
 	section := components.Component{
 		Type: "column",
@@ -27,13 +35,12 @@ func BuildRoot(lang string) components.Component {
 			buildExportRestoreGroup(lang),
 		},
 	}
-	root := components.Component{
+	return components.Component{
 		Type: "column",
 		ID:   "import-root",
 		Props: map[string]any{"gap": "lg"},
 		Children: []components.Component{header, section, BuildEmptyModalSlot()},
 	}
-	return components.Screen("import-screen", i18n.T(lang, "import.title"), root)
 }
 
 // BuildEmptyModalSlot is the empty modal-slot sibling under import-root.
