@@ -73,5 +73,6 @@ func NewRestoreIdleHandler() *RestoreIdleHandler { return &RestoreIdleHandler{} 
 
 func (h *RestoreIdleHandler) Get(c *gin.Context) {
 	lang := resolveLang(c)
-	c.JSON(http.StatusOK, BuildRestoreCardIdle(lang, "", ""))
+	tree := BuildRestoreCardIdle(lang, "", "")
+	c.JSON(http.StatusOK, components.ReplaceResponse("restore-card", tree, nil))
 }

@@ -81,4 +81,10 @@ func TestRestoreIdleHandler_ReturnsIdleCard(t *testing.T) {
 	if !strings.Contains(rec.Body.String(), `"id":"restore-card"`) {
 		t.Fatal("missing restore-card in response")
 	}
+	if !strings.Contains(rec.Body.String(), `"action":"replace"`) {
+		t.Fatal("expected ActionResponse with action=replace")
+	}
+	if !strings.Contains(rec.Body.String(), `"target_id":"restore-card"`) {
+		t.Fatal("expected target_id=restore-card in ActionResponse")
+	}
 }
