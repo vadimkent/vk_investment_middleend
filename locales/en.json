@@ -19,13 +19,24 @@
   },
   "auth": {
     "login_title": "Log in",
+    "register_title": "Create account",
     "email_label": "Email",
     "email_placeholder": "you@example.com",
     "password_label": "Password",
     "password_placeholder": "Your password",
+    "confirm_password_label": "Confirm password",
+    "confirm_password_placeholder": "Repeat your password",
     "submit": "Log in",
+    "register_submit": "Create account",
     "no_account_prompt": "Don't have an account?",
-    "register_link": "Sign up"
+    "register_link": "Sign up",
+    "have_account_prompt": "Already have an account?",
+    "login_link": "Log in",
+    "register_success": "Account created. Please log in.",
+    "error_email_exists": "An account with this email already exists.",
+    "error_registration_disabled": "Registration is currently disabled.",
+    "error_validation": "Please check the form and try again.",
+    "error_transient": "Something went wrong. Please try again."
   },
   "portfolio": {
     "title": "Portfolio",

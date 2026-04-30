@@ -19,13 +19,24 @@
   },
   "auth": {
     "login_title": "Iniciar sesión",
+    "register_title": "Crear cuenta",
     "email_label": "Correo",
     "email_placeholder": "vos@ejemplo.com",
     "password_label": "Contraseña",
     "password_placeholder": "Tu contraseña",
+    "confirm_password_label": "Confirmar contraseña",
+    "confirm_password_placeholder": "Repetí tu contraseña",
     "submit": "Ingresar",
+    "register_submit": "Crear cuenta",
     "no_account_prompt": "¿No tenés cuenta?",
-    "register_link": "Registrarme"
+    "register_link": "Registrarme",
+    "have_account_prompt": "¿Ya tenés cuenta?",
+    "login_link": "Ingresar",
+    "register_success": "Cuenta creada. Iniciá sesión.",
+    "error_email_exists": "Ya existe una cuenta con ese email.",
+    "error_registration_disabled": "El registro está deshabilitado.",
+    "error_validation": "Revisá el formulario e intentá de nuevo.",
+    "error_transient": "Hubo un problema. Intentá de nuevo."
   },
   "portfolio": {
     "title": "Portafolio",
