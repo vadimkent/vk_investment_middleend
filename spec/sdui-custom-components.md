@@ -457,3 +457,40 @@ The `icon_toggle` for HideValues carries this action in both slots (the action i
   ]
 }
 ```
+
+### `download`
+
+Triggers a file download from a middleend endpoint. The frontend hands the URL to the browser's native download mechanism so the response (bytes with `Content-Disposition: attachment`) is saved as a file rather than parsed as an `ActionResponse`.
+
+| Param | Type | Description |
+|---|---|---|
+| `url` | string | Middleend endpoint (relative or absolute). Must respond with `Content-Disposition: attachment; filename="..."` and the body bytes. |
+
+```json
+{
+  "trigger": "click",
+  "type": "download",
+  "url": "/actions/import/export"
+}
+```
+
+When the frontend receives this action:
+1. Create a transient hidden `<a href={url} download>` element in the DOM (or the equivalent platform primitive on native), click it, then remove it. The browser handles the rest: sends the GET with the user's auth (cookies / `Authorization` per the FE's HTTP layer), reads the `Content-Disposition`, and saves the file to the user's downloads folder.
+2. No `ActionResponse` is parsed. No SDUI subtree is replaced. No loading indicator is rendered (the browser shows its own download UI).
+3. **Auth handling.** If the endpoint returns `401`, it must respond with an HTTP `302 Location: /login` redirect (not the JSON `{error:"unauthorized", redirect:"/login"}` shape used by `submit` / `reload`). The browser follows the redirect natively. Endpoints serving `download` traffic must implement this.
+4. **Errors.** `5xx` surfaces as whatever the browser does with a failed download (typically the error body shown as text or saved as a file with the error body — acceptable v1). The frontend has no opportunity to render an inline error.
+
+**When to use:**
+- Use `download` for any middleend endpoint that returns binary / CSV / file bytes meant to be saved by the user.
+- Do **not** use `open_url` for this purpose — `open_url` is for navigating to external URLs (external docs, third-party sites).
+- Do **not** use `submit` or `reload` — those parse JSON `ActionResponse` and replace SDUI subtrees, which is wrong for a file body.
+
+```go
+Download(url string) Action
+```
+
+```go
+components.Button("export-btn", "Export all data",
+    components.Download("/actions/import/export"),
+)
+```

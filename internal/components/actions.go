@@ -68,6 +68,15 @@ func OpenURL(url string) Action {
 	return Action{Trigger: "click", Type: "open_url", URL: url}
 }
 
+// Download creates a file-download action targeting a middleend endpoint.
+// See spec/sdui-custom-components.md §6 `download`. The endpoint must return
+// bytes with Content-Disposition: attachment and must redirect 302 → /login on
+// 401 (the browser follows it natively; SDUI's WithAuth JSON shape does not
+// apply).
+func Download(url string) Action {
+	return Action{Trigger: "click", Type: "download", URL: url}
+}
+
 // Dismiss creates a dismiss action.
 func Dismiss() Action {
 	return Action{Trigger: "click", Type: "dismiss"}

@@ -168,7 +168,7 @@ func analyzeLoadingMessages(lang string) []string {
 func BuildExportCard(lang string) components.Component {
 	exportBtn := components.ButtonFull("export-btn", i18n.T(lang, "import.export.submit"),
 		"", "primary", "solid",
-		components.OpenURL("/actions/import/export"),
+		components.Download("/actions/import/export"),
 	)
 	exportBtn.Props["size"] = "sm"
 	actions := components.RowWithGap("export-actions", []string{"1fr", "auto"}, "sm",
