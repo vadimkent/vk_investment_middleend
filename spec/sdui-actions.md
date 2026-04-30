@@ -235,21 +235,6 @@ ToggleSidebar() Action
 
 ---
 
-## 2c. Submitting on Enter
-
-`Form` is a `<div data-sdui-form="true">`, not an HTML `<form>` — so the browser does not natively translate Enter-key presses on inputs into a form submit. The frontend reproduces the standard "press Enter to submit" behavior in user-space:
-
-- Every `<button>` whose action has `type: "submit"` is rendered with `data-sdui-submit="true"`.
-- `Input` listens for `keydown`. When the key is `Enter` (no IME composition in progress), the input walks up to the nearest `[data-sdui-form="true"]` ancestor, finds the first descendant `[data-sdui-submit="true"]:not([disabled])`, and calls `.click()`.
-- The clicked button runs its existing `submit` flow — `hasInvalidFields` check, `revealErrors` if blocked, `collectFormData`, dispatch. Nothing in the submit path is duplicated.
-- `Textarea` does **not** trap Enter; the browser default (insert newline) is preserved.
-- If the form has no `data-sdui-submit="true"` button (e.g. forms that auto-submit via `change` actions), Enter does nothing.
-- If the form has multiple submit buttons (uncommon — typically only one alongside `cancel` / `navigate` siblings), the first in DOM order wins.
-
-**Middleend takeaway:** no contract change required. To opt into Enter-to-submit, simply emit a `button` with a `submit` action inside the form — the same shape used today. To opt out, omit the submit button (rare).
-
----
-
 ## 3. Action Response
 
 Standard response from the middleend when the frontend executes a `submit` or `reload` action.
