@@ -9,13 +9,12 @@ import (
 )
 
 // BuildRestoreCardSuccess renders the success state of restore-card.
-// The "Restore another file" button replaces the card with the idle subtree
-// embedded in the response (no extra round-trip).
+// The "Restore another file" button reloads the card's idle subtree.
 func BuildRestoreCardSuccess(lang string, r *RestoreResult) components.Component {
-	headers := []map[string]any{
-		{"label": ""},
-		{"label": i18n.T(lang, "import.restore.col.imported"), "align": "right"},
-		{"label": i18n.T(lang, "import.restore.col.skipped"), "align": "right"},
+	cols := []components.TableColumn{
+		{ID: "label", Header: "", Width: "1fr"},
+		{ID: "imported", Header: i18n.T(lang, "import.restore.col.imported"), Width: "120px", Align: "right"},
+		{ID: "skipped", Header: i18n.T(lang, "import.restore.col.skipped"), Width: "120px", Align: "right"},
 	}
 	type rowSpec struct {
 		key   string
@@ -32,18 +31,16 @@ func BuildRestoreCardSuccess(lang string, r *RestoreResult) components.Component
 
 	tableRows := make([]components.Component, 0, len(rows))
 	for _, row := range rows {
-		tableRows = append(tableRows, components.Component{
-			Type: "table_row", ID: "restore-success-row-" + row.key,
-			Props: map[string]any{},
-			Children: []components.Component{
-				components.Text(fmt.Sprintf("restore-row-%s-label", row.key), row.label, "sm", "normal"),
-				components.Text(fmt.Sprintf("restore-row-%s-imp", row.key), strconv.Itoa(row.imp), "sm", "medium"),
-				components.Text(fmt.Sprintf("restore-row-%s-skip", row.key), strconv.Itoa(row.skip), "sm", "normal"),
-			},
-		})
+		tableRows = append(tableRows, components.TableRow(
+			"restore-success-row-"+row.key,
+			components.Text(fmt.Sprintf("restore-row-%s-label", row.key), row.label, "sm", "normal"),
+			components.Text(fmt.Sprintf("restore-row-%s-imp", row.key), strconv.Itoa(row.imp), "sm", "medium"),
+			components.Text(fmt.Sprintf("restore-row-%s-skip", row.key), strconv.Itoa(row.skip), "sm", "normal"),
+		))
 	}
 
-	tryAgainBtn := components.ButtonFull("restore-try-again-btn", i18n.T(lang, "import.restore.try_again"), "", "outline", "outline",
+	tryAgainBtn := components.ButtonFull("restore-try-again-btn", i18n.T(lang, "import.restore.try_again"),
+		"", "secondary", "ghost",
 		components.Action{
 			Trigger:  "click",
 			Type:     "reload",
@@ -52,20 +49,16 @@ func BuildRestoreCardSuccess(lang string, r *RestoreResult) components.Component
 			Loading:  "section",
 		},
 	)
+	tryAgainBtn.Props["size"] = "sm"
+	actions := components.RowWithGap("restore-success-actions", []string{"1fr", "auto"}, "sm",
+		components.Spacer("restore-success-actions-spacer", "none"),
+		tryAgainBtn,
+	)
 
-	return components.Component{
-		Type: "card", ID: "restore-card",
-		Props: map[string]any{},
-		Children: []components.Component{
-			components.Text("restore-success-title", i18n.T(lang, "import.restore.success_title"), "lg", "bold"),
-			{
-				Type: "table", ID: "restore-success-table",
-				Props: map[string]any{
-					"headers": headers,
-				},
-				Children: tableRows,
-			},
-			tryAgainBtn,
-		},
-	}
+	body := components.ColumnWithGap("restore-success-body", "lg",
+		components.Text("restore-success-title", i18n.T(lang, "import.restore.success_title"), "lg", "bold"),
+		components.Table("restore-success-table", cols, tableRows...),
+		actions,
+	)
+	return components.Card("restore-card", body)
 }
