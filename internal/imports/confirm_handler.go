@@ -30,7 +30,7 @@ func (h *ConfirmHandler) Post(c *gin.Context) {
 			return
 		}
 		if errors.Is(err, ErrSessionNotFound) {
-			tree := BuildRoot(lang)
+			tree := BuildRootColumn(lang)
 			fb := components.Snackbar("feedback", i18n.T(lang, "import.session_expired"), "warning")
 			c.JSON(http.StatusOK, components.ReplaceResponse("import-root", tree, &fb))
 			return
@@ -44,7 +44,7 @@ func (h *ConfirmHandler) Post(c *gin.Context) {
 		return
 	}
 
-	tree := BuildRoot(lang)
+	tree := BuildRootColumn(lang)
 	tmpl := i18n.T(lang, "import.success")
 	msg := strings.NewReplacer(
 		"{assets}", fmt.Sprintf("%d", res.AssetsCreated),

@@ -38,7 +38,7 @@ func (h *ResolveGapsHandler) Post(c *gin.Context) {
 			return
 		}
 		if errors.Is(err, ErrSessionNotFound) {
-			tree := BuildRoot(lang)
+			tree := BuildRootColumn(lang)
 			fb := components.Snackbar("feedback", i18n.T(lang, "import.session_expired"), "warning")
 			c.JSON(http.StatusOK, components.ReplaceResponse("import-root", tree, &fb))
 			return

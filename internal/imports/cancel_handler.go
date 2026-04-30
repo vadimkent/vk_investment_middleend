@@ -29,7 +29,7 @@ func (h *CancelHandler) Post(c *gin.Context) {
 		return
 	}
 
-	tree := BuildRoot(lang)
+	tree := BuildRootColumn(lang)
 	fb := components.Snackbar("feedback", i18n.T(lang, "import.cancelled"), "info")
 	c.JSON(http.StatusOK, components.ReplaceResponse("import-root", tree, &fb))
 }
