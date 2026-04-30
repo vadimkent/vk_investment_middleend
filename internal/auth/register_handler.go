@@ -70,16 +70,18 @@ func (h *RegisterHandler) Post(c *gin.Context) {
 	case errors.Is(err, ErrRegistrationDisabled):
 		respondReplace(c, lang, "", "auth.error_registration_disabled", true)
 	default:
-		fb := components.Snackbar("feedback", i18n.T(lang, "auth.error_transient"), "error")
-		c.JSON(http.StatusOK, components.ActionResponse{
-			Action: "none", Feedback: &fb,
-		})
+		respondReplace(c, lang, email, "auth.error_transient", false)
 	}
 }
 
+// respondReplace re-emits the register form (email preserved, passwords cleared)
+// and attaches an error snackbar carrying the localized message identified by
+// errorKey. submitDisabled toggles the disabled state of the submit button —
+// used for REGISTRATION_DISABLED to prevent further attempts.
 func respondReplace(c *gin.Context, lang, prefillEmail, errorKey string, submitDisabled bool) {
-	tree := register.BuildForm(lang, prefillEmail, i18n.T(lang, errorKey), submitDisabled)
+	tree := register.BuildForm(lang, prefillEmail, "", submitDisabled)
+	fb := components.Snackbar("feedback", i18n.T(lang, errorKey), "error")
 	c.JSON(http.StatusOK, components.ActionResponse{
-		Action: "replace", TargetID: register.FormID, Tree: &tree,
+		Action: "replace", TargetID: register.FormID, Tree: &tree, Feedback: &fb,
 	})
 }

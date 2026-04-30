@@ -121,6 +121,17 @@ func TestRegisterHandler_Transient(t *testing.T) {
 
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	assert.Equal(t, "none", resp["action"])
+	assert.Equal(t, "replace", resp["action"])
 	assert.Contains(t, w.Body.String(), "snackbar")
+}
+
+func TestRegisterHandler_EmailAlreadyExists_EmitsSnackbar(t *testing.T) {
+	reg := &fakeRegistrar{err: ErrEmailAlreadyExists}
+	w := postRegisterFake(t, `{"email":"a@b.com","password":"longpass1","confirm_password":"longpass1"}`, reg)
+	require.Equal(t, http.StatusOK, w.Code)
+
+	body := w.Body.String()
+	assert.Contains(t, body, `"type":"snackbar"`)
+	assert.Contains(t, body, `"variant":"error"`)
+	assert.Contains(t, body, "already exists")
 }
