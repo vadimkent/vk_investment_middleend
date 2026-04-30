@@ -58,7 +58,7 @@ func TestBuildRoot_Shape(t *testing.T) {
 		`"id": "import-root"`,
 		`"id": "import-section"`,
 		`"id": "ai-import-card"`,
-		`"id": "export-restore-group"`,
+		`"id": "export-restore-stack"`,
 		`"id": "export-card"`,
 		`"id": "restore-card"`,
 		`"id": "import-modal-slot"`,
