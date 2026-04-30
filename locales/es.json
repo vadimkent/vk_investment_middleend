@@ -389,7 +389,7 @@
     "title": "Importar y Exportar",
     "ai": {
       "title": "Importar datos históricos",
-      "description": "Subí un archivo de tu broker o exchange — CSV, XLS, TXT y más. La IA lo va a parsear, mapear las columnas a activos y operaciones, y vas a poder revisar todo antes de confirmar."
+      "description": "Subí un export del broker — la IA lo parsea para que lo revises antes de confirmar."
     },
     "upload": {
       "label": "Archivo",
@@ -469,12 +469,12 @@
     "failure_generic": "La importación falló. Probá de nuevo.",
     "export": {
       "title": "Exportar datos",
-      "description": "Descargá todos tus datos en un único CSV. Sirve como backup o para migrar a otra instancia.",
+      "description": "Backup completo en un CSV.",
       "submit": "Exportar todo"
     },
     "restore": {
       "title": "Restaurar desde backup",
-      "description": "Subí un CSV exportado previamente desde esta app. Los registros existentes se omiten — es seguro correrlo varias veces.",
+      "description": "Subí un CSV exportado previamente. Los registros existentes se omiten.",
       "submit": "Restaurar",
       "success_title": "Restauración exitosa",
       "col": {

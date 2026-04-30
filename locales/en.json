@@ -389,7 +389,7 @@
     "title": "Import & Export",
     "ai": {
       "title": "Import historical data",
-      "description": "Upload a file from your broker or exchange — CSV, XLS, TXT and more. The AI will parse it, map columns to assets and trades, and let you review everything before committing."
+      "description": "Upload a broker export — AI parses it for review before committing."
     },
     "upload": {
       "label": "File",
@@ -469,12 +469,12 @@
     "failure_generic": "Import failed. Please try again.",
     "export": {
       "title": "Export data",
-      "description": "Download all your data as a single CSV file. Use it as a backup or to migrate to another instance.",
+      "description": "Backup all your data as one CSV.",
       "submit": "Export all data"
     },
     "restore": {
       "title": "Restore from backup",
-      "description": "Upload a CSV file previously exported from this app. Existing records are skipped — safe to run multiple times.",
+      "description": "Upload a previously-exported CSV. Existing records are skipped.",
       "submit": "Restore",
       "success_title": "Restored successfully",
       "col": {

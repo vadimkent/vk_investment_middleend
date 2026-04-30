@@ -26,15 +26,16 @@ func BuildRoot(lang string) components.Component {
 // replace lands cleanly without nesting a Screen inside the column slot.
 func BuildRootColumn(lang string) components.Component {
 	header := buildHeader(lang)
-	section := components.Component{
-		Type: "column",
-		ID:   "import-section",
-		Props: map[string]any{"gap": "lg"},
-		Children: []components.Component{
-			BuildAIImportCardIdle(lang, "", "", ""),
-			buildExportRestoreGroup(lang),
-		},
-	}
+	rightColumn := components.ColumnWithGap("export-restore-stack", "md",
+		BuildExportCard(lang),
+		BuildRestoreCardIdle(lang, "", ""),
+	)
+	section := components.RowWithGap("import-section",
+		[]string{"2fr", "1fr"}, "md",
+		BuildAIImportCardIdle(lang, "", "", ""),
+		rightColumn,
+	)
+	section.Props["align_items"] = "start"
 	return components.Component{
 		Type: "column",
 		ID:   "import-root",
@@ -65,23 +66,6 @@ func buildHeader(lang string) components.Component {
 	}
 }
 
-func buildExportRestoreGroup(lang string) components.Component {
-	return components.Component{
-		Type: "row",
-		ID:   "export-restore-group",
-		Props: map[string]any{
-			"gap":             "md",
-			"grid_template":   []string{"1fr", "1fr"},
-			"stack_on_mobile": true,
-			"align_items":     "stretch",
-		},
-		Children: []components.Component{
-			BuildExportCard(lang),
-			BuildRestoreCardIdle(lang, "", ""),
-		},
-	}
-}
-
 // BuildAIImportCardIdle returns the ai-import-card in idle state. errorMessage,
 // prefillFilename, and prefillHint are all optional. When errorMessage is set,
 // an inline error banner is rendered above the file upload. When
@@ -93,7 +77,7 @@ func BuildAIImportCardIdle(lang, errorMessage, prefillFilename, prefillHint stri
 
 	children = append(children,
 		components.Text("ai-import-title", i18n.T(lang, "import.ai.title"), "lg", "bold"),
-		components.Text("ai-import-description", i18n.T(lang, "import.ai.description"), "sm", "normal"),
+		components.TextStyled("ai-import-description", i18n.T(lang, "import.ai.description"), "sm", "normal", "block", "muted", "", ""),
 	)
 
 	if errorMessage != "" {
@@ -181,9 +165,9 @@ func BuildExportCard(lang string) components.Component {
 		components.Spacer("export-actions-spacer", "none"),
 		exportBtn,
 	)
-	body := components.ColumnWithGap("export-card-body", "lg",
+	body := components.ColumnWithGap("export-card-body", "md",
 		components.Text("export-title", i18n.T(lang, "import.export.title"), "lg", "bold"),
-		components.Text("export-description", i18n.T(lang, "import.export.description"), "sm", "normal"),
+		components.TextStyled("export-description", i18n.T(lang, "import.export.description"), "sm", "normal", "block", "muted", "", ""),
 		actions,
 	)
 	return components.Card("export-card", body)
@@ -194,7 +178,7 @@ func BuildRestoreCardIdle(lang, errorMessage, prefillFilename string) components
 	children := make([]components.Component, 0, 6)
 	children = append(children,
 		components.Text("restore-title", i18n.T(lang, "import.restore.title"), "lg", "bold"),
-		components.Text("restore-description", i18n.T(lang, "import.restore.description"), "sm", "normal"),
+		components.TextStyled("restore-description", i18n.T(lang, "import.restore.description"), "sm", "normal", "block", "muted", "", ""),
 	)
 	if errorMessage != "" {
 		children = append(children, components.Component{
@@ -235,6 +219,6 @@ func BuildRestoreCardIdle(lang, errorMessage, prefillFilename string) components
 	)
 	children = append(children, actions)
 
-	body := components.ColumnWithGap("restore-form-body", "lg", children...)
+	body := components.ColumnWithGap("restore-form-body", "md", children...)
 	return components.Card("restore-card", components.Form("restore-form", body))
 }
