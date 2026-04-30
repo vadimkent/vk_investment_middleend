@@ -51,7 +51,7 @@ func TestBuildReviewModal_ReadyState(t *testing.T) {
 		`USD amounts`,
 		`AAPL`,
 		`/actions/import/sessions/sess-1/confirm`,
-		`/actions/import/sessions/sess-1/cancel`,
+		`"type":"dismiss"`,
 	} {
 		if !strings.Contains(js, want) {
 			t.Errorf("missing %q in review modal: %s", want, js)
@@ -103,13 +103,14 @@ func loadReviewLocales(t *testing.T) {
 				"blocking_banner": "This file has {n} issue(s) that need your input before importing.",
 				"ready_banner": "Ready to import — review the preview and confirm.",
 				"summary": "AI Summary",
-				"assumptions": "Assumptions ({n})",
+				"assumptions": "Assumptions",
 				"issues": "Issues",
-				"warnings": "{n} warning(s)",
+				"warnings": "Warnings",
 				"preview": "Preview",
-				"preview.assets": "Assets ({n})",
-				"preview.trades": "Trades ({n})",
-				"preview.snapshots": "Snapshots ({n})",
+				"preview.assets": "Assets",
+				"preview.trades": "Trades",
+				"preview.snapshots": "Snapshots",
+				"stats": { "assets": "Assets", "trades": "Trades", "snapshots": "Snapshots", "warnings": "Warnings" },
 				"confirm": "Confirm import",
 				"cancel": "Cancel",
 				"status": { "needs_review": "Needs review", "ready": "Ready" }

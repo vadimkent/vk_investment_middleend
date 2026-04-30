@@ -33,6 +33,7 @@ func BuildReviewModal(lang string, sess *Session, errorMessage string) component
 	children = append(children, buildPreview(lang, sess))
 	children = append(children, buildActionBar(lang, sess))
 
+	body := components.ColumnWithGap("review-modal-body", "lg", children...)
 	return components.Component{
 		Type: "modal",
 		ID:   "import-review-modal",
@@ -41,7 +42,7 @@ func BuildReviewModal(lang string, sess *Session, errorMessage string) component
 			"dismissible":  false,
 			"presentation": "dialog",
 		},
-		Children: children,
+		Children: []components.Component{body},
 	}
 }
 
@@ -64,29 +65,61 @@ func buildBanner(lang string, sess *Session) components.Component {
 	}
 }
 
+// buildSummary renders the AI Summary card with structured stats up top
+// (assets / trades / snapshots / warnings counts), the AI's prose summary,
+// and the assumptions list inline (always visible — no toggle).
 func buildSummary(lang string, sess *Session) components.Component {
-	children := []components.Component{
-		components.Text("summary-title", i18n.T(lang, "import.review.summary"), "md", "bold"),
-		components.Text("summary-text", sess.AISummary, "sm", "normal"),
-	}
+	stats := buildStatsRow(lang, sess)
+
+	summaryHeader := components.Text("summary-title", i18n.T(lang, "import.review.summary"), "md", "bold")
+	summaryText := components.Text("summary-text", sess.AISummary, "sm", "normal")
+
+	body := []components.Component{summaryHeader, stats, summaryText}
+
 	if len(sess.Assumptions) > 0 {
-		title := strings.ReplaceAll(i18n.T(lang, "import.review.assumptions"),
-			"{n}", strconv.Itoa(len(sess.Assumptions)))
-		bullets := make([]components.Component, 0, len(sess.Assumptions))
-		for i, a := range sess.Assumptions {
-			bullets = append(bullets, components.Text(fmt.Sprintf("assumption-%d", i), "• "+a, "sm", "normal"))
-		}
-		children = append(children, components.Component{
-			Type: "toggle", ID: "assumptions-toggle",
-			Props:    map[string]any{"label": title, "default_open": false},
-			Children: bullets,
-		})
+		body = append(body, buildAssumptions(lang, sess.Assumptions))
 	}
-	return components.Component{
-		Type: "card", ID: "summary-card",
-		Props:    map[string]any{},
-		Children: children,
+
+	content := components.ColumnWithGap("summary-card-body", "md", body...)
+	return components.Card("summary-card", content)
+}
+
+// buildStatsRow renders four count "stat" cells (assets / trades / snapshots /
+// warnings) as a horizontal row with each cell a small column of label + count.
+func buildStatsRow(lang string, sess *Session) components.Component {
+	statCell := func(id, labelKey string, count int) components.Component {
+		label := components.TextStyled(id+"-label", i18n.T(lang, labelKey), "xs", "normal", "block", "muted", "", "")
+		value := components.Text(id+"-value", strconv.Itoa(count), "lg", "bold")
+		return components.ColumnWithGap(id, "xs", value, label)
 	}
+
+	return components.RowWithGap("review-stats",
+		[]string{"1fr", "1fr", "1fr", "1fr"}, "md",
+		statCell("stat-assets", "import.review.stats.assets", len(sess.Preview.Assets)),
+		statCell("stat-trades", "import.review.stats.trades", len(sess.Preview.Trades)),
+		statCell("stat-snapshots", "import.review.stats.snapshots", len(sess.Preview.Snapshots)),
+		statCell("stat-warnings", "import.review.stats.warnings", sess.GapCounts.Warnings),
+	)
+}
+
+// buildAssumptions renders an always-visible bullet list of the AI's stated
+// assumptions. No toggle — the dismissed `toggle` primitive is the form switch,
+// not a collapsible.
+func buildAssumptions(lang string, assumptions []string) components.Component {
+	header := components.TextStyled(
+		"assumptions-title",
+		i18n.T(lang, "import.review.assumptions"),
+		"sm", "bold", "block", "muted", "", "",
+	)
+	bullets := make([]components.Component, 0, len(assumptions))
+	for i, a := range assumptions {
+		bullets = append(bullets, components.Text(
+			fmt.Sprintf("assumption-%d", i),
+			"• "+a, "sm", "normal",
+		))
+	}
+	list := components.ColumnWithGap("assumptions-list", "xs", bullets...)
+	return components.ColumnWithGap("assumptions-block", "xs", header, list)
 }
 
 func buildIssuesSection(lang string, sess *Session) components.Component {
@@ -127,7 +160,8 @@ func buildIssuesSection(lang string, sess *Session) components.Component {
 		})
 	}
 
-	saveBtn := components.Button("issues-save-btn", i18n.T(lang, "import.gaps.save"),
+	saveBtn := components.ButtonFull("issues-save-btn", i18n.T(lang, "import.gaps.save"),
+		"", "primary", "solid",
 		components.Action{
 			Trigger:  "click",
 			Type:     "submit",
@@ -137,14 +171,14 @@ func buildIssuesSection(lang string, sess *Session) components.Component {
 			Loading:  "section",
 		},
 	)
-	cards = append(cards, saveBtn)
+	saveBtn.Props["size"] = "sm"
+	saveActions := components.RowWithGap("issues-save-actions", []string{"1fr", "auto"}, "sm",
+		components.Spacer("issues-save-spacer", "none"),
+		saveBtn,
+	)
+	cards = append(cards, saveActions)
 
-	return components.Component{
-		Type:     "column",
-		ID:       "issues-section",
-		Props:    map[string]any{"gap": "sm"},
-		Children: cards,
-	}
+	return components.ColumnWithGap("issues-section", "sm", cards...)
 }
 
 func hasWarnings(sess *Session) bool {
@@ -156,86 +190,117 @@ func hasWarnings(sess *Session) bool {
 	return false
 }
 
+// buildWarnings renders an always-visible list of warnings (no toggle).
 func buildWarnings(lang string, sess *Session) components.Component {
-	count := 0
-	for _, g := range sess.Gaps {
-		if g.Severity == "warning" {
-			count++
-		}
-	}
-	label := strings.ReplaceAll(i18n.T(lang, "import.review.warnings"), "{n}", strconv.Itoa(count))
-	rows := []components.Component{}
+	header := components.Text("warnings-title", i18n.T(lang, "import.review.warnings"), "md", "bold")
+	rows := []components.Component{header}
 	for _, g := range sess.Gaps {
 		if g.Severity != "warning" {
 			continue
 		}
-		rows = append(rows, components.Component{
-			Type: "row", ID: "warning-" + g.ID,
-			Props: map[string]any{"gap": "sm", "align_items": "start"},
-			Children: []components.Component{
-				{
-					Type: "badge", ID: "warning-" + g.ID + "-badge",
-					Props: map[string]any{"label": g.Type, "variant": "secondary"},
-				},
-				components.Text("warning-"+g.ID+"-desc", g.Description, "sm", "normal"),
+		rows = append(rows, components.RowWithGap("warning-"+g.ID,
+			[]string{"auto", "1fr"}, "sm",
+			components.Component{
+				Type: "badge", ID: "warning-" + g.ID + "-badge",
+				Props: map[string]any{"label": g.Type, "variant": "secondary"},
 			},
-		})
+			components.Text("warning-"+g.ID+"-desc", g.Description, "sm", "normal"),
+		))
 	}
-	return components.Component{
-		Type: "toggle", ID: "warnings-toggle",
-		Props:    map[string]any{"label": label, "default_open": false},
-		Children: rows,
-	}
+	return components.ColumnWithGap("warnings-section", "sm", rows...)
 }
 
+// buildPreview renders three always-visible tables (Assets / Trades /
+// Snapshots) using the proper Table + TableColumn + TableRow primitives.
 func buildPreview(lang string, sess *Session) components.Component {
-	return components.Component{
-		Type: "column",
-		ID:   "preview-section",
-		Props: map[string]any{"gap": "md"},
-		Children: []components.Component{
-			components.Text("preview-title", i18n.T(lang, "import.review.preview"), "md", "bold"),
-			buildPreviewAssets(lang, sess.Preview.Assets),
-			buildPreviewTrades(lang, sess.Preview.Trades),
-			buildPreviewSnapshots(lang, sess.Preview.Snapshots),
-		},
-	}
+	header := components.Text("preview-title", i18n.T(lang, "import.review.preview"), "md", "bold")
+	return components.ColumnWithGap("preview-section", "md",
+		header,
+		buildPreviewAssets(lang, sess.Preview.Assets),
+		buildPreviewTrades(lang, sess.Preview.Trades),
+		buildPreviewSnapshots(lang, sess.Preview.Snapshots),
+	)
+}
+
+func sectionLabel(lang, key string, count int) string {
+	return fmt.Sprintf("%s (%d)", i18n.T(lang, key), count)
 }
 
 func buildPreviewAssets(lang string, assets []PreviewAsset) components.Component {
-	label := strings.ReplaceAll(i18n.T(lang, "import.review.preview.assets"),
-		"{n}", strconv.Itoa(len(assets)))
-	headers := []string{"Ticker", "Name", "Type", "Currency", "Action"}
-	rows := make([][]string, 0, len(assets))
-	for _, a := range assets {
-		rows = append(rows, []string{a.Ticker, a.Name, a.AssetType, a.Currency, a.Action})
+	heading := components.Text("preview-assets-title",
+		sectionLabel(lang, "import.review.preview.assets", len(assets)), "sm", "bold")
+	cols := []components.TableColumn{
+		{ID: "ticker", Header: "Ticker", Width: "100px"},
+		{ID: "name", Header: "Name", Width: "1fr"},
+		{ID: "type", Header: "Type", Width: "100px"},
+		{ID: "currency", Header: "Currency", Width: "100px"},
+		{ID: "action", Header: "Action", Width: "100px"},
 	}
-	return wrapTable("preview-assets", label, headers, rows)
+	rows := make([]components.Component, 0, len(assets))
+	for i, a := range assets {
+		rows = append(rows, components.TableRow(fmt.Sprintf("preview-asset-%d", i),
+			components.Text(fmt.Sprintf("preview-asset-%d-ticker", i), a.Ticker, "sm", "medium"),
+			components.Text(fmt.Sprintf("preview-asset-%d-name", i), a.Name, "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-asset-%d-type", i), a.AssetType, "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-asset-%d-currency", i), a.Currency, "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-asset-%d-action", i), a.Action, "sm", "normal"),
+		))
+	}
+	return components.ColumnWithGap("preview-assets-block", "xs", heading,
+		components.Table("preview-assets", cols, rows...),
+	)
 }
 
 func buildPreviewTrades(lang string, trades []PreviewTrade) components.Component {
-	label := strings.ReplaceAll(i18n.T(lang, "import.review.preview.trades"),
-		"{n}", strconv.Itoa(len(trades)))
-	headers := []string{"Row", "Ticker", "Type", "Date", "Qty", "Price", "Fees", "Status"}
-	rows := make([][]string, 0, len(trades))
-	for _, tr := range trades {
-		rows = append(rows, []string{
-			strconv.Itoa(tr.Row), tr.Ticker, tr.TradeType, tr.Date,
-			derefOrDash(tr.Quantity), derefOrDash(tr.PricePerUnit), tr.Fees, tr.Status,
-		})
+	heading := components.Text("preview-trades-title",
+		sectionLabel(lang, "import.review.preview.trades", len(trades)), "sm", "bold")
+	cols := []components.TableColumn{
+		{ID: "row", Header: "Row", Width: "60px", Align: "right"},
+		{ID: "ticker", Header: "Ticker", Width: "100px"},
+		{ID: "type", Header: "Type", Width: "80px"},
+		{ID: "date", Header: "Date", Width: "120px"},
+		{ID: "qty", Header: "Qty", Width: "80px", Align: "right"},
+		{ID: "price", Header: "Price", Width: "100px", Align: "right"},
+		{ID: "fees", Header: "Fees", Width: "80px", Align: "right"},
+		{ID: "status", Header: "Status", Width: "100px"},
 	}
-	return wrapTable("preview-trades", label, headers, rows)
+	rows := make([]components.Component, 0, len(trades))
+	for i, tr := range trades {
+		rows = append(rows, components.TableRow(fmt.Sprintf("preview-trade-%d", i),
+			components.Text(fmt.Sprintf("preview-trade-%d-row", i), strconv.Itoa(tr.Row), "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-trade-%d-ticker", i), tr.Ticker, "sm", "medium"),
+			components.Text(fmt.Sprintf("preview-trade-%d-type", i), tr.TradeType, "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-trade-%d-date", i), tr.Date, "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-trade-%d-qty", i), derefOrDash(tr.Quantity), "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-trade-%d-price", i), derefOrDash(tr.PricePerUnit), "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-trade-%d-fees", i), tr.Fees, "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-trade-%d-status", i), tr.Status, "sm", "normal"),
+		))
+	}
+	return components.ColumnWithGap("preview-trades-block", "xs", heading,
+		components.Table("preview-trades", cols, rows...),
+	)
 }
 
 func buildPreviewSnapshots(lang string, snapshots []PreviewSnapshot) components.Component {
-	label := strings.ReplaceAll(i18n.T(lang, "import.review.preview.snapshots"),
-		"{n}", strconv.Itoa(len(snapshots)))
-	headers := []string{"Date", "Entries", "Status"}
-	rows := make([][]string, 0, len(snapshots))
-	for _, s := range snapshots {
-		rows = append(rows, []string{s.RecordedAt, strconv.Itoa(len(s.Entries)), s.Status})
+	heading := components.Text("preview-snapshots-title",
+		sectionLabel(lang, "import.review.preview.snapshots", len(snapshots)), "sm", "bold")
+	cols := []components.TableColumn{
+		{ID: "date", Header: "Date", Width: "1fr"},
+		{ID: "entries", Header: "Entries", Width: "100px", Align: "right"},
+		{ID: "status", Header: "Status", Width: "120px"},
 	}
-	return wrapTable("preview-snapshots", label, headers, rows)
+	rows := make([]components.Component, 0, len(snapshots))
+	for i, s := range snapshots {
+		rows = append(rows, components.TableRow(fmt.Sprintf("preview-snapshot-%d", i),
+			components.Text(fmt.Sprintf("preview-snapshot-%d-date", i), s.RecordedAt, "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-snapshot-%d-entries", i), strconv.Itoa(len(s.Entries)), "sm", "normal"),
+			components.Text(fmt.Sprintf("preview-snapshot-%d-status", i), s.Status, "sm", "normal"),
+		))
+	}
+	return components.ColumnWithGap("preview-snapshots-block", "xs", heading,
+		components.Table("preview-snapshots", cols, rows...),
+	)
 }
 
 func derefOrDash(s *string) string {
@@ -245,38 +310,10 @@ func derefOrDash(s *string) string {
 	return *s
 }
 
-func wrapTable(id, label string, headers []string, rows [][]string) components.Component {
-	tableHeaders := make([]map[string]any, len(headers))
-	for i, h := range headers {
-		tableHeaders[i] = map[string]any{"label": h}
-	}
-	tableRows := make([]components.Component, 0, len(rows))
-	for i, r := range rows {
-		cells := make([]components.Component, 0, len(r))
-		for j, v := range r {
-			cells = append(cells, components.Text(fmt.Sprintf("%s-r%d-c%d", id, i, j), v, "sm", "normal"))
-		}
-		tableRows = append(tableRows, components.Component{
-			Type: "table_row", ID: fmt.Sprintf("%s-row-%d", id, i),
-			Props:    map[string]any{},
-			Children: cells,
-		})
-	}
-	return components.Component{
-		Type: "toggle", ID: id + "-toggle",
-		Props: map[string]any{"label": label, "default_open": true},
-		Children: []components.Component{
-			{
-				Type: "table", ID: id,
-				Props: map[string]any{
-					"headers": tableHeaders,
-				},
-				Children: tableRows,
-			},
-		},
-	}
-}
-
+// buildActionBar renders the modal's bottom row: status badge on the left,
+// Cancel + Confirm on the right. Cancel uses Dismiss() — purely client-side,
+// the session expires server-side via TTL. Confirm POSTs to the confirm
+// endpoint and the response replaces import-root with a fresh tree.
 func buildActionBar(lang string, sess *Session) components.Component {
 	statusKey := "import.review.status." + sess.Status
 	statusLabel := i18n.T(lang, statusKey)
@@ -290,17 +327,19 @@ func buildActionBar(lang string, sess *Session) components.Component {
 		statusVariant = "warning"
 	}
 
-	cancelBtn := components.ButtonFull("review-cancel-btn", i18n.T(lang, "import.review.cancel"), "", "ghost", "ghost",
-		components.Action{
-			Trigger:  "click",
-			Type:     "submit",
-			Endpoint: "/actions/import/sessions/" + sess.ID + "/cancel",
-			Method:   "POST",
-			TargetID: "import-root",
-			Loading:  "full",
-		},
+	statusBadge := components.Component{
+		Type: "badge", ID: "review-status-badge",
+		Props: map[string]any{"label": statusLabel, "variant": statusVariant},
+	}
+
+	cancelBtn := components.ButtonFull("review-cancel-btn", i18n.T(lang, "import.review.cancel"),
+		"", "secondary", "ghost",
+		components.Dismiss(),
 	)
-	confirmBtn := components.Button("review-confirm-btn", i18n.T(lang, "import.review.confirm"),
+	cancelBtn.Props["size"] = "sm"
+
+	confirmBtn := components.ButtonFull("review-confirm-btn", i18n.T(lang, "import.review.confirm"),
+		"", "primary", "solid",
 		components.Action{
 			Trigger:  "click",
 			Type:     "submit",
@@ -310,30 +349,16 @@ func buildActionBar(lang string, sess *Session) components.Component {
 			Loading:  "full",
 		},
 	)
+	confirmBtn.Props["size"] = "sm"
 	confirmBtn.Props["disabled"] = sess.Status != "ready"
 
-	return components.Component{
-		Type: "row",
-		ID:   "review-action-bar",
-		Props: map[string]any{
-			"sticky":      "bottom",
-			"justify":     "space_between",
-			"align_items": "center",
-			"gap":         "md",
-		},
-		Children: []components.Component{
-			{
-				Type: "badge", ID: "review-status-badge",
-				Props: map[string]any{"label": statusLabel, "variant": statusVariant},
-			},
-			{
-				Type:  "row",
-				ID:    "review-action-buttons",
-				Props: map[string]any{"gap": "sm"},
-				Children: []components.Component{cancelBtn, confirmBtn},
-			},
-		},
-	}
+	return components.RowWithGap("review-action-bar",
+		[]string{"auto", "1fr", "auto", "auto"}, "sm",
+		statusBadge,
+		components.Spacer("review-action-spacer", "none"),
+		cancelBtn,
+		confirmBtn,
+	)
 }
 
 func joinInts(rows []int) string {
