@@ -256,7 +256,7 @@ type AuthInfo struct {
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `action` | string | yes | `replace` / `navigate` / `refresh` / `none` |
+| `action` | string | yes | `replace` / `navigate` / `refresh` / `none` / `logout` |
 | `target_id` | string | no | Component ID to replace, or URL to navigate to |
 | `tree` | Component | no | New component tree (required for `replace`) |
 | `feedback` | Component | no | Temporary feedback (e.g. `snackbar`) |
@@ -270,6 +270,7 @@ type AuthInfo struct {
 | `navigate` | Navigate to URL in `target_id` | `target_id` |
 | `refresh` | Re-fetch current screen | — |
 | `none` | No navigation/replacement, show feedback only | — |
+| `logout` | Clear the stored auth token, then navigate to `target_id`. Used by destructive flows (e.g. delete account) where the session must end alongside the navigation. | `target_id` |
 
 ---
 
@@ -315,6 +316,18 @@ RefreshResponse(feedback *Component) ActionResponse
 ```go
 fb := components.Snackbar("fb", "Saved", "success")
 resp := components.RefreshResponse(&fb)
+```
+
+### LogoutResponse
+
+End the session: the frontend clears the stored auth token, then navigates to `redirectURL`. Used by destructive flows (e.g. delete account) where the session must end alongside the navigation. Emits `{action: "logout", target_id: redirectURL}`.
+
+```go
+LogoutResponse(redirectURL string) ActionResponse
+```
+
+```go
+resp := components.LogoutResponse("/screens/login")
 ```
 
 ### ErrorResponse
