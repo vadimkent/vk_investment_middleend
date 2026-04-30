@@ -37,7 +37,7 @@ func BuildScreen(lang string) components.Component {
 
 	form := components.Form("login-form",
 		components.ColumnWithGap("login-form-stack", "lg",
-			components.ColumnWithGap("login-fields", "sm",
+			components.ColumnWithGap("login-fields", "md",
 				emailInput,
 				passwordInput,
 			),

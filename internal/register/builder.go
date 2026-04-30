@@ -132,7 +132,7 @@ func BuildForm(lang, prefillEmail, errorMsg string, submitDisabled bool) compone
 		})
 	}
 	stack.Children = append(stack.Children,
-		components.ColumnWithGap("register-fields", "sm",
+		components.ColumnWithGap("register-fields", "md",
 			emailInput,
 			passwordInput,
 			confirmInput,
