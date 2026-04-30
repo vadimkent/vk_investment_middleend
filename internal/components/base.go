@@ -400,6 +400,15 @@ type InputOptions struct {
 	AutoUpper    bool
 	MinLength    int    // client-side: blocks submit if value is shorter
 	MatchField   string // client-side: blocks submit unless value equals the named sibling field's value
+
+	// Validation messages — localized copy the frontend renders when the
+	// corresponding rule fails. Each is optional; absent → frontend default.
+	// See spec/sdui-base-components.md#input.
+	RequiredMessage   string
+	PatternMessage    string
+	MinLengthMessage  string // may contain {min}
+	MaxLengthMessage  string // may contain {max}
+	MatchFieldMessage string
 }
 
 // InputAdvanced builds an input component from an options struct.
@@ -437,6 +446,21 @@ func InputAdvanced(o InputOptions) Component {
 	}
 	if o.MatchField != "" {
 		props["match_field"] = o.MatchField
+	}
+	if o.RequiredMessage != "" {
+		props["required_message"] = o.RequiredMessage
+	}
+	if o.PatternMessage != "" {
+		props["pattern_message"] = o.PatternMessage
+	}
+	if o.MinLengthMessage != "" {
+		props["min_length_message"] = o.MinLengthMessage
+	}
+	if o.MaxLengthMessage != "" {
+		props["max_length_message"] = o.MaxLengthMessage
+	}
+	if o.MatchFieldMessage != "" {
+		props["match_field_message"] = o.MatchFieldMessage
 	}
 	return Component{Type: "input", ID: o.ID, Props: props}
 }
