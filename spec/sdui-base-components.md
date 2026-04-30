@@ -336,15 +336,25 @@ Text input field. Must be inside a `form`.
 | `max_length` | int | no | Maximum character count |
 | `pattern` | string | no | ECMAScript regex validated client-side on change/blur; non-matching values block submission |
 | `auto_uppercase` | bool | no | Frontend transforms entered value to uppercase as the user types |
+| `min_length` | int | no | Minimum character count; values shorter than this block submission. Validated client-side on change/blur |
+| `match_field` | string | no | Name of another input within the same `form`; submission is blocked unless this field's value equals that sibling's value. Validated client-side on change/blur of either field |
 
 ```go
 Input(id, placeholder, name, inputType string) Component
 InputFull(id, name, inputType, label, placeholder, defaultValue string, required, disabled bool, maxLength int) Component
+InputAdvanced(o InputOptions) Component
 ```
 
 ```go
 c := components.Input("email-input", "Enter email", "email", "email")
 c := components.InputFull("name-input", "name", "text", "Full Name", "Enter name", "", true, false, 100)
+```
+
+```go
+c := components.InputAdvanced(components.InputOptions{
+    ID: "confirm", Name: "confirm_password", InputType: "password",
+    Required: true, MinLength: 8, MatchField: "password",
+})
 ```
 
 ### form

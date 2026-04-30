@@ -384,6 +384,63 @@ func InputFull(id, name, inputType, label, placeholder, defaultValue string, req
 	}
 }
 
+// InputOptions is the full prop surface for the input component.
+// Zero-valued fields are omitted from the rendered props.
+type InputOptions struct {
+	ID           string
+	Name         string
+	InputType    string
+	Label        string
+	Placeholder  string
+	DefaultValue string
+	Required     bool
+	Disabled     bool
+	MaxLength    int
+	Pattern      string
+	AutoUpper    bool
+	MinLength    int    // client-side: blocks submit if value is shorter
+	MatchField   string // client-side: blocks submit unless value equals the named sibling field's value
+}
+
+// InputAdvanced builds an input component from an options struct.
+func InputAdvanced(o InputOptions) Component {
+	props := map[string]any{
+		"name":       o.Name,
+		"input_type": o.InputType,
+	}
+	if o.Label != "" {
+		props["label"] = o.Label
+	}
+	if o.Placeholder != "" {
+		props["placeholder"] = o.Placeholder
+	}
+	if o.DefaultValue != "" {
+		props["default_value"] = o.DefaultValue
+	}
+	if o.Required {
+		props["required"] = true
+	}
+	if o.Disabled {
+		props["disabled"] = true
+	}
+	if o.MaxLength > 0 {
+		props["max_length"] = o.MaxLength
+	}
+	if o.Pattern != "" {
+		props["pattern"] = o.Pattern
+	}
+	if o.AutoUpper {
+		props["auto_uppercase"] = true
+	}
+	if o.MinLength > 0 {
+		props["min_length"] = o.MinLength
+	}
+	if o.MatchField != "" {
+		props["match_field"] = o.MatchField
+	}
+	return Component{Type: "input", ID: o.ID, Props: props}
+}
+
 // Form creates a form container that groups inputs for submission.
 func Form(id string, children ...Component) Component {
 	return Component{
