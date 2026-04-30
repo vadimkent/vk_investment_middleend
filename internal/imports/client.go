@@ -28,10 +28,12 @@ type Client struct {
 }
 
 func NewClient(baseURL string, timeout time.Duration) *Client {
-	// Override the timeout for AI parsing — analyze can take 60s+.
-	// Use a generous floor so the upload doesn't trip on the global default.
-	if timeout < 90*time.Second {
-		timeout = 90 * time.Second
+	// Override the timeout for AI parsing — the backend's Anthropic streaming
+	// uses a 5-minute timeout, so the middleend must match (or exceed) it to
+	// avoid canceling the upstream request mid-stream and surfacing AI_TIMEOUT.
+	const aiAnalysisTimeout = 6 * time.Minute
+	if timeout < aiAnalysisTimeout {
+		timeout = aiAnalysisTimeout
 	}
 	return &Client{baseURL: baseURL, httpClient: &http.Client{Timeout: timeout}}
 }
