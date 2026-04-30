@@ -153,14 +153,14 @@ Body:
 Forwarded to `DELETE /v1/user/me` with the same body.
 
 **Responses:**
-- `204` from BE → `ActionResponse{ action: "logout", redirect: "/screens/login" }`. No snackbar — the redirect is the feedback.
-  - The `logout` action is the new SDUI primitive added by this screen: the frontend clears the stored auth token and navigates to `redirect`.
+- `204` from BE → `ActionResponse{ action: "logout", target_id: "/screens/login" }`. No snackbar — the navigation is the feedback.
+  - On `logout`, the frontend clears the stored auth token and navigates to `target_id`. See `spec/sdui-actions.md` §3 for the response contract.
 - `400 MISSING_FIELDS` / `401 INVALID_CREDENTIALS` → `ActionResponse{ replace profile-modal-slot }` re-rendering the modal with `password` cleared and an inline banner inside the modal body, key per the table below.
 
 ## Cross-section rules
 
 - **Card isolation** — every mutation `replace`s only its own card subtree. `update_email`'s success path also refreshes the `Current: {email}` strip, but that strip lives inside `email-card`, so the rule still holds. No mutation ever touches a sibling card.
-- **Modal slot ownership** — the modal slot is opened only by `delete_modal` and closed by `delete_account` success (via `logout` + `redirect`) or by Cancel (empty `replace`). No card mutation touches the slot.
+- **Modal slot ownership** — the modal slot is opened only by `delete_modal` and closed by `delete_account` success (via `logout` + `target_id`) or by Cancel (empty `replace`). No card mutation touches the slot.
 - **Password echo-back** — every input of `type: password` is always returned empty in any re-emission of a card or modal (success or error).
 - **Plaintext error banners** — banners are mounted as the first child of the affected card or modal, before the form. The visual treatment is `text` with `color: error` (concretized in implementation; the spec asserts "inline red banner above the form").
 - **JSON bodies** — every `POST /actions/profile/*` accepts a JSON body. Malformed JSON returns `400 BAD_REQUEST`.
@@ -261,7 +261,7 @@ Where `common.*` already provides Save / Cancel labels, the screen reuses them; 
 - [ ] **Email update**: `POST /actions/profile/update_email` replaces only the `email-card`. Success: `Current: {email}` reflects the new email and inputs are cleared. Error: `new_email` preserved, `current_password` cleared, inline banner per the i18n table.
 - [ ] **Password change**: `POST /actions/profile/change_password` validates middleend-side first — empty fields or mismatched `new_password`/`confirm_password` short-circuit without a BE call and return an inline banner with all three inputs cleared. On success or BE error, all three inputs are cleared.
 - [ ] **Delete modal**: `GET /actions/profile/delete_modal` replaces `profile-modal-slot` with a `ModalFull` containing a single-input password form. Cancel closes the modal.
-- [ ] **Delete account**: `POST /actions/profile/delete_account` calls `DELETE /v1/user/me` with `{ password }`. On `204`, returns an `ActionResponse` whose action is `logout` and `redirect: /screens/login`, with no snackbar. On error, replaces the modal with `password` cleared and an inline banner.
+- [ ] **Delete account**: `POST /actions/profile/delete_account` calls `DELETE /v1/user/me` with `{ password }`. On `204`, returns an `ActionResponse` whose action is `logout` and `target_id: /screens/login`, with no snackbar. On error, replaces the modal with `password` cleared and an inline banner.
 - [ ] Validation errors from BE (including the BE's `401 INVALID_CREDENTIALS` on email/password/delete) are returned as `200 ActionResponse` with a partial `replace`. Only middleend-side `401`s and the BE-`401` on `GET /v1/user/me` produce a session-expiration `401` with redirect.
 - [ ] BE 5xx / network / malformed JSON in any path returns `502 BACKEND_ERROR`.
 - [ ] Every card has a stable `id`; only its own action replaces it. The modal slot is a sibling and is never touched by card mutations.
