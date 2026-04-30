@@ -1,6 +1,8 @@
 package imports
 
 import (
+	"fmt"
+
 	"github.com/project/vk-investment-middleend/internal/components"
 	"github.com/project/vk-investment-middleend/internal/i18n"
 )
@@ -149,17 +151,14 @@ func BuildAIImportCardIdle(lang, errorMessage, prefillFilename, prefillHint stri
 	return components.Card("ai-import-card", components.Form("ai-import-form", body))
 }
 
+// analyzeLoadingMessages collects the localized phrases the frontend cycles
+// through during the (potentially multi-minute) AI parse. Reads keys
+// import.loading.analyze.1 .. .25 — covering ~50s per cycle at 2s each.
 func analyzeLoadingMessages(lang string) []string {
-	keys := []string{
-		"import.loading.analyze.1",
-		"import.loading.analyze.2",
-		"import.loading.analyze.3",
-		"import.loading.analyze.4",
-		"import.loading.analyze.5",
-	}
-	out := make([]string, 0, len(keys))
-	for _, k := range keys {
-		out = append(out, i18n.T(lang, k))
+	const total = 25
+	out := make([]string, 0, total)
+	for i := 1; i <= total; i++ {
+		out = append(out, i18n.T(lang, fmt.Sprintf("import.loading.analyze.%d", i)))
 	}
 	return out
 }
