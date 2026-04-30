@@ -493,5 +493,14 @@
   },
   "common": {
     "cancel": "Cancelar"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "min_length": "Debe tener al menos {min} caracteres.",
+    "max_length": "Como máximo {max} caracteres.",
+    "pattern": "Formato inválido.",
+    "match_field": "Los valores no coinciden.",
+    "email_pattern": "Ingresá un email válido.",
+    "passwords_must_match": "Las contraseñas no coinciden."
   }
 }

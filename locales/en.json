@@ -493,5 +493,14 @@
   },
   "common": {
     "cancel": "Cancel"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "min_length": "Must be at least {min} characters.",
+    "max_length": "Must be at most {max} characters.",
+    "pattern": "Invalid format.",
+    "match_field": "Values do not match.",
+    "email_pattern": "Please enter a valid email address.",
+    "passwords_must_match": "Passwords do not match."
   }
 }

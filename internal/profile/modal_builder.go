@@ -14,8 +14,12 @@ func BuildDeleteModal(lang, errMessage string) components.Component {
 	if errMessage != "" {
 		body = append(body, components.TextStyled("delete-modal-error", errMessage, "sm", "regular", "block", "error", "", ""))
 	}
-	passwordInput := components.InputFull("input-delete-password", "password", "password",
-		i18n.T(lang, "profile.danger.modal.password_label"), "", "", true, false, 0)
+	passwordInput := components.InputAdvanced(components.InputOptions{
+		ID: "input-delete-password", Name: "password", InputType: "password",
+		Label:           i18n.T(lang, "profile.danger.modal.password_label"),
+		Required:        true,
+		RequiredMessage: i18n.T(lang, "validation.required"),
+	})
 	cancelBtn := components.ButtonFull("delete-cancel-btn",
 		i18n.T(lang, "profile.danger.modal.cancel"),
 		"", "secondary", "ghost",

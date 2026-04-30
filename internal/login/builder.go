@@ -8,19 +8,21 @@ import (
 // BuildScreen builds the standalone login screen component tree.
 // The screen has no shell — it renders on its own, full-viewport.
 func BuildScreen(lang string) components.Component {
-	emailInput := components.InputFull(
-		"login-email", "email", "email",
-		i18n.T(lang, "auth.email_label"),
-		i18n.T(lang, "auth.email_placeholder"),
-		"", true, false, 0,
-	)
+	emailInput := components.InputAdvanced(components.InputOptions{
+		ID: "login-email", Name: "email", InputType: "email",
+		Label:           i18n.T(lang, "auth.email_label"),
+		Placeholder:     i18n.T(lang, "auth.email_placeholder"),
+		Required:        true,
+		RequiredMessage: i18n.T(lang, "validation.required"),
+	})
 
-	passwordInput := components.InputFull(
-		"login-password", "password", "password",
-		i18n.T(lang, "auth.password_label"),
-		i18n.T(lang, "auth.password_placeholder"),
-		"", true, false, 0,
-	)
+	passwordInput := components.InputAdvanced(components.InputOptions{
+		ID: "login-password", Name: "password", InputType: "password",
+		Label:           i18n.T(lang, "auth.password_label"),
+		Placeholder:     i18n.T(lang, "auth.password_placeholder"),
+		Required:        true,
+		RequiredMessage: i18n.T(lang, "validation.required"),
+	})
 
 	submit := components.Button(
 		"login-submit", i18n.T(lang, "auth.submit"),

@@ -80,26 +80,31 @@ func BuildScreen(lang string, errorMsg string) components.Component {
 func BuildForm(lang, prefillEmail, errorMsg string, submitDisabled bool) components.Component {
 	emailInput := components.InputAdvanced(components.InputOptions{
 		ID: EmailID, Name: "email", InputType: "email",
-		Label:        i18n.T(lang, "auth.email_label"),
-		Placeholder:  i18n.T(lang, "auth.email_placeholder"),
-		DefaultValue: prefillEmail,
-		Required:     true,
+		Label:           i18n.T(lang, "auth.email_label"),
+		Placeholder:     i18n.T(lang, "auth.email_placeholder"),
+		DefaultValue:    prefillEmail,
+		Required:        true,
+		RequiredMessage: i18n.T(lang, "validation.required"),
 	})
 
 	passwordInput := components.InputAdvanced(components.InputOptions{
 		ID: PasswordID, Name: "password", InputType: "password",
-		Label:       i18n.T(lang, "auth.password_label"),
-		Placeholder: i18n.T(lang, "auth.password_placeholder"),
-		Required:    true,
-		MinLength:   8,
+		Label:            i18n.T(lang, "auth.password_label"),
+		Placeholder:      i18n.T(lang, "auth.password_placeholder"),
+		Required:         true,
+		MinLength:        8,
+		RequiredMessage:  i18n.T(lang, "validation.required"),
+		MinLengthMessage: i18n.T(lang, "validation.min_length"),
 	})
 
 	confirmInput := components.InputAdvanced(components.InputOptions{
 		ID: ConfirmID, Name: "confirm_password", InputType: "password",
-		Label:       i18n.T(lang, "auth.confirm_password_label"),
-		Placeholder: i18n.T(lang, "auth.confirm_password_placeholder"),
-		Required:    true,
-		MatchField:  "password",
+		Label:             i18n.T(lang, "auth.confirm_password_label"),
+		Placeholder:       i18n.T(lang, "auth.confirm_password_placeholder"),
+		Required:          true,
+		MatchField:        "password",
+		RequiredMessage:   i18n.T(lang, "validation.required"),
+		MatchFieldMessage: i18n.T(lang, "validation.passwords_must_match"),
 	})
 
 	submitProps := map[string]any{"label": i18n.T(lang, "auth.register_submit")}
