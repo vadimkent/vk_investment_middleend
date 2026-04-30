@@ -1,52 +1,85 @@
 package auth
 
 import (
+	"context"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/project/vk-investment-middleend/internal/components"
+	"github.com/project/vk-investment-middleend/internal/i18n"
+	"github.com/project/vk-investment-middleend/internal/register"
 )
 
-type RegisterHandler struct {
-	client *Client
+const minPasswordLen = 8
+
+// registrar is the contract the handler depends on. *Client implements it.
+type registrar interface {
+	Register(ctx context.Context, email, password string) error
 }
 
-func NewRegisterHandler(client *Client) *RegisterHandler {
-	return &RegisterHandler{client: client}
+type RegisterHandler struct {
+	reg registrar
+}
+
+func NewRegisterHandler(reg registrar) *RegisterHandler {
+	return &RegisterHandler{reg: reg}
 }
 
 type registerRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email           string `json:"email"`
+	Password        string `json:"password"`
+	ConfirmPassword string `json:"confirm_password"`
 }
 
 func (h *RegisterHandler) Post(c *gin.Context) {
+	lang := parseLang(c)
+
 	var req registerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": "invalid request body"}})
+		respondReplace(c, lang, "", "auth.error_validation", false)
 		return
 	}
-	if req.Email == "" || req.Password == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": "email and password are required"}})
+	email := strings.TrimSpace(req.Email)
+
+	// Middleend-side defense in depth — these errors are also gated client-side.
+	if email == "" || req.Password == "" || req.ConfirmPassword == "" {
+		respondReplace(c, lang, email, "auth.error_validation", false)
+		return
+	}
+	if len(req.Password) < minPasswordLen {
+		respondReplace(c, lang, email, "auth.error_validation", false)
+		return
+	}
+	if req.Password != req.ConfirmPassword {
+		respondReplace(c, lang, email, "auth.error_validation", false)
 		return
 	}
 
-	err := h.client.Register(c.Request.Context(), req.Email, req.Password)
+	err := h.reg.Register(c.Request.Context(), email, req.Password)
 	switch {
 	case err == nil:
-		fb := components.Snackbar("register-ok", "Account created. Please log in.", "success")
+		fb := components.Snackbar("feedback", i18n.T(lang, "auth.register_success"), "success")
 		c.JSON(http.StatusOK, components.ActionResponse{
-			Action:   "navigate",
-			TargetID: "/login",
-			Feedback: &fb,
+			Action: "navigate", TargetID: "/screens/login", Feedback: &fb,
 		})
-	case errors.Is(err, ErrRegistrationDisabled):
-		c.JSON(http.StatusForbidden, gin.H{"error": gin.H{"code": "REGISTRATION_DISABLED", "message": "registration is disabled"}})
 	case errors.Is(err, ErrEmailAlreadyExists):
-		c.JSON(http.StatusConflict, gin.H{"error": gin.H{"code": "EMAIL_ALREADY_EXISTS", "message": "email already registered"}})
+		respondReplace(c, lang, email, "auth.error_email_exists", false)
+	case errors.Is(err, ErrRegistrationDisabled):
+		respondReplace(c, lang, "", "auth.error_registration_disabled", true)
 	default:
-		c.JSON(http.StatusBadGateway, gin.H{"error": gin.H{"code": "BACKEND_ERROR", "message": "registration failed"}})
+		fb := components.Snackbar("feedback", i18n.T(lang, "auth.error_transient"), "error")
+		c.JSON(http.StatusOK, components.ActionResponse{
+			Action: "none", Feedback: &fb,
+		})
 	}
+}
+
+func respondReplace(c *gin.Context, lang, prefillEmail, errorKey string, submitDisabled bool) {
+	tree := register.BuildForm(lang, prefillEmail, i18n.T(lang, errorKey), submitDisabled)
+	c.JSON(http.StatusOK, components.ActionResponse{
+		Action: "replace", TargetID: register.FormID, Tree: &tree,
+	})
 }
