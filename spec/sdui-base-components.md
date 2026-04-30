@@ -338,6 +338,13 @@ Text input field. Must be inside a `form`.
 | `auto_uppercase` | bool | no | Frontend transforms entered value to uppercase as the user types |
 | `min_length` | int | no | Minimum character count; values shorter than this block submission. Validated client-side on change/blur |
 | `match_field` | string | no | Name of another input within the same `form`; submission is blocked unless this field's value equals that sibling's value. Validated client-side on change/blur of either field |
+| `required_message` | string | no | Localized message shown when `required` is set and the field is empty. If absent, frontend falls back to a default. |
+| `pattern_message` | string | no | Localized message shown when `pattern` is set and the value does not match. |
+| `min_length_message` | string | no | Localized message shown when `min_length` is set and the value is shorter. May contain `{min}` interpolated to the threshold. |
+| `max_length_message` | string | no | Localized message shown when `max_length` is set and the value is longer. May contain `{max}`. |
+| `match_field_message` | string | no | Localized message shown when `match_field` is set and the values differ. |
+
+**Validation message resolution.** When multiple rules fail simultaneously, the frontend renders the message for the highest-priority failure in this order: `required` > `match_field` > `pattern` > `min_length` > `max_length`. Only one message is shown at a time. The middleend decides the localized copy; the frontend only picks which prop to display based on which rule failed.
 
 ```go
 Input(id, placeholder, name, inputType string) Component
