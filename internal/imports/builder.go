@@ -127,7 +127,8 @@ func BuildAIImportCardIdle(lang, errorMessage, prefillFilename, prefillHint stri
 	}
 	children = append(children, hint)
 
-	submitBtn := components.Button("import-analyze-btn", i18n.T(lang, "import.analyze"),
+	submitBtn := components.ButtonFull("import-analyze-btn", i18n.T(lang, "import.analyze"),
+		"", "primary", "solid",
 		components.Action{
 			Trigger:  "click",
 			Type:     "submit",
@@ -137,14 +138,14 @@ func BuildAIImportCardIdle(lang, errorMessage, prefillFilename, prefillHint stri
 			Loading:  components.LoadingFullWithMessages(analyzeLoadingMessages(lang)),
 		},
 	)
-	children = append(children, submitBtn)
+	actions := components.RowWithGap("ai-import-actions", []string{"1fr", "auto"}, "sm",
+		components.Spacer("ai-import-actions-spacer", "none"),
+		submitBtn,
+	)
+	children = append(children, actions)
 
-	return components.Component{
-		Type:     "card",
-		ID:       "ai-import-card",
-		Props:    map[string]any{},
-		Children: children,
-	}
+	body := components.ColumnWithGap("ai-import-card-body", "lg", children...)
+	return components.Card("ai-import-card", body)
 }
 
 func analyzeLoadingMessages(lang string) []string {
@@ -164,18 +165,20 @@ func analyzeLoadingMessages(lang string) []string {
 
 // BuildExportCard renders the static Export card.
 func BuildExportCard(lang string) components.Component {
-	return components.Component{
-		Type: "card",
-		ID:   "export-card",
-		Props: map[string]any{},
-		Children: []components.Component{
-			components.Text("export-title", i18n.T(lang, "import.export.title"), "lg", "bold"),
-			components.Text("export-description", i18n.T(lang, "import.export.description"), "sm", "normal"),
-			components.Button("export-btn", i18n.T(lang, "import.export.submit"),
-				components.OpenURL("/actions/import/export"),
-			),
-		},
-	}
+	exportBtn := components.ButtonFull("export-btn", i18n.T(lang, "import.export.submit"),
+		"", "primary", "solid",
+		components.OpenURL("/actions/import/export"),
+	)
+	actions := components.RowWithGap("export-actions", []string{"1fr", "auto"}, "sm",
+		components.Spacer("export-actions-spacer", "none"),
+		exportBtn,
+	)
+	body := components.ColumnWithGap("export-card-body", "lg",
+		components.Text("export-title", i18n.T(lang, "import.export.title"), "lg", "bold"),
+		components.Text("export-description", i18n.T(lang, "import.export.description"), "sm", "normal"),
+		actions,
+	)
+	return components.Card("export-card", body)
 }
 
 // BuildRestoreCardIdle returns the restore-card in idle state.
@@ -206,7 +209,8 @@ func BuildRestoreCardIdle(lang, errorMessage, prefillFilename string) components
 	})
 	children = append(children, upload)
 
-	submitBtn := components.Button("restore-submit-btn", i18n.T(lang, "import.restore.submit"),
+	submitBtn := components.ButtonFull("restore-submit-btn", i18n.T(lang, "import.restore.submit"),
+		"", "primary", "solid",
 		components.Action{
 			Trigger:  "click",
 			Type:     "submit",
@@ -216,12 +220,12 @@ func BuildRestoreCardIdle(lang, errorMessage, prefillFilename string) components
 			Loading:  "section",
 		},
 	)
-	children = append(children, submitBtn)
+	actions := components.RowWithGap("restore-actions", []string{"1fr", "auto"}, "sm",
+		components.Spacer("restore-actions-spacer", "none"),
+		submitBtn,
+	)
+	children = append(children, actions)
 
-	return components.Component{
-		Type:     "card",
-		ID:       "restore-card",
-		Props:    map[string]any{},
-		Children: children,
-	}
+	body := components.ColumnWithGap("restore-card-body", "lg", children...)
+	return components.Card("restore-card", body)
 }
