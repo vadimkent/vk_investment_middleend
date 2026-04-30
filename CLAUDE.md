@@ -24,5 +24,6 @@ Per screen: decompose into layers. For each layer: write the canonical spec in `
 
 - **Ask before making any change.** No surprise refactors, no off-topic tangents, no unrequested cleanup. If you see something off, raise it and wait.
 - **Restart the middleend after code changes** (see `./cli run`).
+- **Never curl the running app** as part of development. Build + tests + restart are enough. The user verifies through the frontend and will tell you what they see. Only make API calls if explicitly asked.
 - **Commit messages** use Conventional Commits. No Claude Code co-author trailer unless explicitly requested.
 - **Terse responses.** Deliver what's asked, no unsolicited analysis or summary.
