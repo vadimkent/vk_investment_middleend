@@ -138,6 +138,7 @@ func BuildAIImportCardIdle(lang, errorMessage, prefillFilename, prefillHint stri
 			Loading:  components.LoadingFullWithMessages(analyzeLoadingMessages(lang)),
 		},
 	)
+	submitBtn.Props["size"] = "sm"
 	actions := components.RowWithGap("ai-import-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("ai-import-actions-spacer", "none"),
 		submitBtn,
@@ -169,6 +170,7 @@ func BuildExportCard(lang string) components.Component {
 		"", "primary", "solid",
 		components.OpenURL("/actions/import/export"),
 	)
+	exportBtn.Props["size"] = "sm"
 	actions := components.RowWithGap("export-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("export-actions-spacer", "none"),
 		exportBtn,
@@ -220,6 +222,7 @@ func BuildRestoreCardIdle(lang, errorMessage, prefillFilename string) components
 			Loading:  "section",
 		},
 	)
+	submitBtn.Props["size"] = "sm"
 	actions := components.RowWithGap("restore-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("restore-actions-spacer", "none"),
 		submitBtn,
