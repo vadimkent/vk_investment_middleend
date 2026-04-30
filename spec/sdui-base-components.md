@@ -372,6 +372,8 @@ Groups inputs for submission. Collects child input values for submit actions.
 |------|------|----------|-------------|
 | `loading` | bool | no | Disables all children when true |
 
+A `form` SHOULD contain at least one descendant `button` whose action is `type: "submit"`. The frontend uses that button as the Enter-key submit target: pressing Enter on any input within the form triggers a click on the first such button (in DOM order). Forms without a submit button still work for explicit clicks on whatever submit triggers exist elsewhere, but they will not respond to Enter.
+
 ```go
 Form(id string, children ...Component) Component
 ```
