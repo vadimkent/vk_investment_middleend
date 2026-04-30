@@ -21,7 +21,7 @@ func (h *RestoreHandler) Post(c *gin.Context) {
 	lang := resolveLang(c)
 
 	if err := c.Request.ParseMultipartForm(restoreMaxBytes); err != nil {
-		writeRestoreError(c, lang, "Upload exceeds the size limit.", "")
+		writeRestoreError(c, lang, "Could not read the upload.", "")
 		return
 	}
 	file, header, err := c.Request.FormFile("file")
@@ -33,6 +33,10 @@ func (h *RestoreHandler) Post(c *gin.Context) {
 	content, err := io.ReadAll(io.LimitReader(file, restoreMaxBytes+1))
 	if err != nil {
 		writeRestoreError(c, lang, "Failed to read upload.", header.Filename)
+		return
+	}
+	if len(content) == 0 {
+		writeRestoreError(c, lang, "The uploaded file is empty.", header.Filename)
 		return
 	}
 	if int64(len(content)) > restoreMaxBytes {

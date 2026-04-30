@@ -21,7 +21,7 @@ func (h *AnalyzeHandler) Post(c *gin.Context) {
 	lang := resolveLang(c)
 
 	if err := c.Request.ParseMultipartForm(analyzeMaxBytes); err != nil {
-		writeAIImportError(c, lang, "Upload exceeds the size limit.")
+		writeAIImportError(c, lang, "Could not read the upload.")
 		return
 	}
 	file, header, err := c.Request.FormFile("file")
@@ -33,6 +33,10 @@ func (h *AnalyzeHandler) Post(c *gin.Context) {
 	content, err := io.ReadAll(io.LimitReader(file, analyzeMaxBytes+1))
 	if err != nil {
 		writeAIImportError(c, lang, "Failed to read upload.")
+		return
+	}
+	if len(content) == 0 {
+		writeAIImportError(c, lang, "The uploaded file is empty.")
 		return
 	}
 	if int64(len(content)) > analyzeMaxBytes {
