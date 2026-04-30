@@ -41,17 +41,7 @@ func BuildScreen(lang string, errorMsg string) components.Component {
 	loginRow.Props["align_items"] = "center"
 
 	appName := components.Text("register-app-name", i18n.T(lang, "app.name"), "xl", "bold")
-
-	// title uses "text" prop key so tests can assert on Props["text"].
-	title := components.Component{
-		Type: "text",
-		ID:   TitleID,
-		Props: map[string]any{
-			"text":   i18n.T(lang, "auth.register_title"),
-			"size":   "lg",
-			"weight": "normal",
-		},
-	}
+	title := components.Text(TitleID, i18n.T(lang, "auth.register_title"), "lg", "normal")
 
 	content := components.ColumnWithGap("register-content", "lg",
 		appName,

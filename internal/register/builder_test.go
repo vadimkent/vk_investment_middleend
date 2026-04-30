@@ -82,7 +82,7 @@ func TestBuildScreen_Spanish(t *testing.T) {
 	tree := BuildScreen("es", "")
 	title := findByID(tree, "register-title")
 	if assert.NotNil(t, title) {
-		assert.Equal(t, "Crear cuenta", title.Props["text"])
+		assert.Equal(t, "Crear cuenta", title.Props["content"])
 	}
 }
 
