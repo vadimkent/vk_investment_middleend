@@ -78,6 +78,7 @@ func buildProfileFormWith(displayName, currency string, cfg *AppConfig, lang, er
 	saveBtn := components.ButtonFull("profile-save", i18n.T(lang, "profile.update.save"),
 		"", "primary", "solid",
 		components.Submit("/actions/profile/update", "POST", ProfileFormID))
+	saveBtn.Props["size"] = "sm"
 	actions := components.RowWithGap("profile-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("profile-actions-spacer", "none"),
 		saveBtn,
@@ -119,6 +120,7 @@ func buildEmailFormWith(currentEmail, newEmail, lang, errMessage string) compone
 	saveBtn := components.ButtonFull("email-save", i18n.T(lang, "profile.email.save"),
 		"", "primary", "solid",
 		components.Submit("/actions/profile/update_email", "POST", EmailFormID))
+	saveBtn.Props["size"] = "sm"
 	actions := components.RowWithGap("email-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("email-actions-spacer", "none"),
 		saveBtn,
@@ -154,6 +156,7 @@ func BuildPasswordForm(lang, errMessage string) components.Component {
 	saveBtn := components.ButtonFull("password-save", i18n.T(lang, "profile.password.save"),
 		"", "primary", "solid",
 		components.Submit("/actions/profile/change_password", "POST", PasswordFormID))
+	saveBtn.Props["size"] = "sm"
 	actions := components.RowWithGap("password-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("password-actions-spacer", "none"),
 		saveBtn,
@@ -184,6 +187,7 @@ func BuildDangerCard(lang string) components.Component {
 			TargetID: ModalSlotID,
 			Loading:  "full",
 		})
+	deleteBtn.Props["size"] = "sm"
 	actions := components.RowWithGap("danger-actions", []string{"1fr", "auto"}, "sm",
 		components.Spacer("danger-actions-spacer", "none"),
 		deleteBtn,
