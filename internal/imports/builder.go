@@ -134,7 +134,7 @@ func BuildAIImportCardIdle(lang, errorMessage, prefillFilename, prefillHint stri
 			Type:     "submit",
 			Endpoint: "/actions/import/analyze",
 			Method:   "POST",
-			TargetID: "import-modal-slot",
+			TargetID: "ai-import-form",
 			Loading:  components.LoadingFullWithMessages(analyzeLoadingMessages(lang)),
 		},
 	)
@@ -145,8 +145,8 @@ func BuildAIImportCardIdle(lang, errorMessage, prefillFilename, prefillHint stri
 	)
 	children = append(children, actions)
 
-	body := components.ColumnWithGap("ai-import-card-body", "lg", children...)
-	return components.Card("ai-import-card", body)
+	body := components.ColumnWithGap("ai-import-form-body", "lg", children...)
+	return components.Card("ai-import-card", components.Form("ai-import-form", body))
 }
 
 func analyzeLoadingMessages(lang string) []string {
@@ -218,7 +218,7 @@ func BuildRestoreCardIdle(lang, errorMessage, prefillFilename string) components
 			Type:     "submit",
 			Endpoint: "/actions/import/restore",
 			Method:   "POST",
-			TargetID: "restore-card",
+			TargetID: "restore-form",
 			Loading:  "section",
 		},
 	)
@@ -229,6 +229,6 @@ func BuildRestoreCardIdle(lang, errorMessage, prefillFilename string) components
 	)
 	children = append(children, actions)
 
-	body := components.ColumnWithGap("restore-card-body", "lg", children...)
-	return components.Card("restore-card", body)
+	body := components.ColumnWithGap("restore-form-body", "lg", children...)
+	return components.Card("restore-card", components.Form("restore-form", body))
 }
