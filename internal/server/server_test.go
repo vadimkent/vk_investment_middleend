@@ -70,6 +70,15 @@ func TestServer_LoginScreenIsPublic(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
+func TestServer_RegisterScreenIsPublic(t *testing.T) {
+	s := New(testConfig())
+	req := httptest.NewRequest("GET", "/screens/register", nil)
+	w := httptest.NewRecorder()
+	s.router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Contains(t, w.Body.String(), `"id":"register"`)
+}
+
 func TestRouter_HasProfileRoutes(t *testing.T) {
 	s := New(testConfig())
 	routes := s.router.Routes()

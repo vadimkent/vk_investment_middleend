@@ -15,6 +15,7 @@ import (
 	"github.com/project/vk-investment-middleend/internal/imports"
 	"github.com/project/vk-investment-middleend/internal/login"
 	"github.com/project/vk-investment-middleend/internal/portfolio"
+	"github.com/project/vk-investment-middleend/internal/register"
 	"github.com/project/vk-investment-middleend/internal/profile"
 	"github.com/project/vk-investment-middleend/internal/shared/assetscatalog"
 	"github.com/project/vk-investment-middleend/internal/shell"
@@ -41,6 +42,7 @@ func (s *Server) setupRoutes() {
 	// Public routes (no auth).
 	s.router.GET("/health", s.healthHandler)
 	s.router.GET("/screens/login", login.NewHandler().Get)
+	s.router.GET("/screens/register", register.NewHandler().Get)
 
 	authClient := auth.NewClient(s.cfg.BackendURL, s.cfg.RequestTimeout)
 	s.router.POST("/actions/login", auth.NewLoginHandler(authClient).Post)
