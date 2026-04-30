@@ -23,27 +23,24 @@ const (
 
 // BuildScreen assembles the full profile screen tree.
 //
-// Cards are laid out in two columns: Profile + Email on the left (identity /
-// contact), Password + Danger on the right (credentials / destructive
-// actions). The modal slot stays outside the row so the confirmation modal
-// can overlay full-screen.
+// Layout: Profile (full width), Email + Password side by side (50/50),
+// Danger zone (full width). The modal slot stays outside the stack so the
+// confirmation modal can overlay full-screen.
 func BuildScreen(me *User, cfg *AppConfig, lang string) components.Component {
-	leftColumn := components.ColumnWithGap("profile-cards-left", "md",
-		BuildProfileCard(me, cfg, lang, ""),
+	credentialsRow := components.RowWithGap("profile-credentials-row",
+		[]string{"1fr", "1fr"}, "md",
 		BuildEmailCard(me, lang, "", ""),
-	)
-	rightColumn := components.ColumnWithGap("profile-cards-right", "md",
 		BuildPasswordCard(lang, ""),
+	)
+	credentialsRow.Props["align_items"] = "start"
+
+	cards := components.ColumnWithGap("profile-cards", "md",
+		BuildProfileCard(me, cfg, lang, ""),
+		credentialsRow,
 		BuildDangerCard(lang),
 	)
-	cardsRow := components.RowWithGap("profile-cards-row",
-		[]string{"1fr", "1fr"}, "md",
-		leftColumn,
-		rightColumn,
-	)
-	cardsRow.Props["align_items"] = "start"
 	col := components.ColumnWithGap("profile-column", "lg",
-		cardsRow,
+		cards,
 		components.Group(ModalSlotID),
 	)
 	return components.Screen(ScreenID, i18n.T(lang, "profile.title"), col)
