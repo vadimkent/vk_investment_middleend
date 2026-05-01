@@ -27,9 +27,12 @@ func BuildRootColumn(lang string) components.Component {
 	}
 	content := BuildContentStart(lang, "", "")
 	return components.Component{
-		Type:  "column",
-		ID:    "analysis-root",
-		Props: map[string]any{"gap": "lg"},
+		Type: "column",
+		ID:   "analysis-root",
+		Props: map[string]any{
+			"gap":  "lg",
+			"fill": true,
+		},
 		Children: []components.Component{
 			header,
 			content,
@@ -49,6 +52,7 @@ func BuildContentStart(lang, focusValue, errorMessage string) components.Compone
 			"gap":           "lg",
 			"align_items":   "center",
 			"justify_items": "center",
+			"fill":          true,
 		},
 		Children: []components.Component{
 			BuildStartState(lang, focusValue, errorMessage),
@@ -143,7 +147,8 @@ func BuildContentChat(lang, focus string) components.Component {
 		Type: "column",
 		ID:   "analysis-content",
 		Props: map[string]any{
-			"gap": "md",
+			"gap":  "md",
+			"fill": true,
 		},
 		Children: []components.Component{
 			resetRow,
