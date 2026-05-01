@@ -86,3 +86,39 @@ func TestBuildStartState_PrefillAndError(t *testing.T) {
 		t.Error("missing error message")
 	}
 }
+
+func TestBuildContentChat_Shape(t *testing.T) {
+	loadAnalysisLocales(t)
+	c := BuildContentChat("en", "risk exposure")
+	b, _ := json.Marshal(c)
+	js := string(b)
+
+	for _, want := range []string{
+		`"id":"analysis-content"`,
+		`"id":"analysis-new-btn"`,
+		`"id":"analysis-chat"`,
+		`"type":"analysis_chat"`,
+		`"initial_endpoint":"/actions/analysis/stream?focus=risk+exposure"`,
+		`"followup_endpoint":"/actions/analysis/sessions/{session_id}/messages"`,
+		`"endpoint":"/actions/analysis/reset"`,
+		`AI is thinking…`,
+		`Start a new analysis`,
+	} {
+		if !strings.Contains(js, want) {
+			t.Errorf("missing %q in chat state", want)
+		}
+	}
+}
+
+func TestBuildContentChat_EmptyFocusOmitsQueryParam(t *testing.T) {
+	loadAnalysisLocales(t)
+	c := BuildContentChat("en", "")
+	b, _ := json.Marshal(c)
+	js := string(b)
+	if strings.Contains(js, `?focus=`) {
+		t.Errorf("expected no ?focus= when empty, got: %s", js)
+	}
+	if !strings.Contains(js, `"initial_endpoint":"/actions/analysis/stream"`) {
+		t.Errorf("expected initial_endpoint without query, got: %s", js)
+	}
+}
