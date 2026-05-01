@@ -93,9 +93,26 @@ func parseBackendError(httpStatus int, body []byte) *BackendError {
 	return &BackendError{HTTPStatus: httpStatus, Code: wrapper.Error.Code, Message: wrapper.Error.Message}
 }
 
+// StreamSession opens POST /v1/analysis/sessions with body {focus} and returns
+// the live SSE response. Caller must close resp.Body.
+func (c *Client) StreamSession(ctx context.Context, authorization, focus string) (*http.Response, error) {
+	body, _ := json.Marshal(map[string]string{"focus": focus})
+	if focus == "" {
+		body = []byte(`{}`)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		c.baseURL+"/v1/analysis/sessions", strings.NewReader(string(body)))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "text/event-stream")
+	if authorization != "" {
+		req.Header.Set("Authorization", authorization)
+	}
+	return c.do(req)
+}
+
 // Compile-time guard: keep helper imports referenced even if a method
 // arrives in a later task.
-var _ = strings.NewReader
 var _ = url.PathEscape
-var _ = json.Marshal
-var _ = context.Background
