@@ -16,6 +16,7 @@ type Config struct {
 	RequestTimeout     time.Duration `envconfig:"REQUEST_TIMEOUT" default:"30s"`
 	JWTSecret          string        `envconfig:"JWT_SECRET"`
 	JWTLeewaySeconds   int           `envconfig:"JWT_LEEWAY_SECONDS" default:"30"`
+	AnalysisFake       bool          `envconfig:"ANALYSIS_FAKE" default:"false"`
 }
 
 func Load() (*Config, error) {

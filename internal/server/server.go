@@ -131,8 +131,8 @@ func (s *Server) setupRoutes() {
 	protected.GET("/screens/analysis", analysis.NewHandler().Get)
 	protected.POST("/actions/analysis/start", analysis.NewStartHandler().Post)
 	protected.GET("/actions/analysis/reset", analysis.NewResetHandler().Get)
-	protected.GET("/actions/analysis/stream", analysis.NewStreamHandler(analysisClient).Get)
-	protected.POST("/actions/analysis/sessions/:id/messages", analysis.NewMessagesHandler(analysisClient).Post)
+	protected.GET("/actions/analysis/stream", analysis.NewStreamHandlerWithFake(analysisClient, s.cfg.AnalysisFake).Get)
+	protected.POST("/actions/analysis/sessions/:id/messages", analysis.NewMessagesHandlerWithFake(analysisClient, s.cfg.AnalysisFake).Post)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {

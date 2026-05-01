@@ -9,9 +9,15 @@ import (
 
 type MessagesHandler struct {
 	client *Client
+	fake   bool
 }
 
 func NewMessagesHandler(c *Client) *MessagesHandler { return &MessagesHandler{client: c} }
+
+// NewMessagesHandlerWithFake — see NewStreamHandlerWithFake for rationale.
+func NewMessagesHandlerWithFake(c *Client, fake bool) *MessagesHandler {
+	return &MessagesHandler{client: c, fake: fake}
+}
 
 type messageRequest struct {
 	Content string `json:"content"`
@@ -26,6 +32,11 @@ func (h *MessagesHandler) Post(c *gin.Context) {
 	var req messageRequest
 	if err := c.ShouldBindJSON(&req); err != nil || req.Content == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"code": "BAD_REQUEST", "message": "missing required field: content"}})
+		return
+	}
+
+	if h.fake {
+		streamFakeFollowUp(c)
 		return
 	}
 
