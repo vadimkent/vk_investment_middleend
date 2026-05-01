@@ -114,3 +114,39 @@ func TestStreamSession_RateLimited(t *testing.T) {
 		t.Fatalf("expected 429 BackendError, got %v", err)
 	}
 }
+
+func TestAddMessage_PostsAndReturnsLiveResponse(t *testing.T) {
+	var receivedBody []byte
+	var receivedPath string
+	c, cleanup := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		receivedPath = r.URL.Path
+		receivedBody, _ = io.ReadAll(r.Body)
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("event: delta\ndata: {\"text\":\"hi\"}\n\n"))
+	})
+	defer cleanup()
+
+	resp, err := c.AddMessage(context.Background(), "", "sess-1", "hello")
+	if err != nil {
+		t.Fatalf("AddMessage: %v", err)
+	}
+	defer resp.Body.Close()
+	if receivedPath != "/v1/analysis/sessions/sess-1/messages" {
+		t.Fatalf("path: %q", receivedPath)
+	}
+	if !strings.Contains(string(receivedBody), `"content":"hello"`) {
+		t.Fatalf("body: %q", receivedBody)
+	}
+}
+
+func TestAddMessage_SessionNotFound(t *testing.T) {
+	c, cleanup := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+	defer cleanup()
+	_, err := c.AddMessage(context.Background(), "", "sess-x", "x")
+	if !errors.Is(err, ErrSessionNotFound) {
+		t.Fatalf("expected ErrSessionNotFound, got %v", err)
+	}
+}

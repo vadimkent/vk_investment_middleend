@@ -113,6 +113,20 @@ func (c *Client) StreamSession(ctx context.Context, authorization, focus string)
 	return c.do(req)
 }
 
-// Compile-time guard: keep helper imports referenced even if a method
-// arrives in a later task.
-var _ = url.PathEscape
+// AddMessage opens POST /v1/analysis/sessions/:id/messages with body {content}
+// and returns the live SSE response. Caller must close resp.Body.
+func (c *Client) AddMessage(ctx context.Context, authorization, sessionID, content string) (*http.Response, error) {
+	body, _ := json.Marshal(map[string]string{"content": content})
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		c.baseURL+"/v1/analysis/sessions/"+url.PathEscape(sessionID)+"/messages",
+		strings.NewReader(string(body)))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "text/event-stream")
+	if authorization != "" {
+		req.Header.Set("Authorization", authorization)
+	}
+	return c.do(req)
+}
