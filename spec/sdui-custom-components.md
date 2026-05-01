@@ -383,7 +383,116 @@ The base SDUI catalog has no `input` variant for files. Browsers do not let Java
 
 ---
 
-## 5. Custom Attributes
+## 5. `analysis_chat`
+
+Self-contained streaming chat surface for the Analysis screen. Opens an SSE channel to a configured endpoint on mount, captures `session_id` from the first SSE event, appends `delta` events to the last assistant message, and accepts follow-up messages that open new SSE channels. Renders markdown in assistant messages and plain text in user messages.
+
+### Why custom
+
+The component combines several behaviors no base primitive offers:
+
+- SSE attachment via `fetch`+`ReadableStream`, kept alive across local re-renders triggered by message-append updates.
+- Incremental append: `delta` events extend the last assistant message in-place without an SDUI server round-trip per chunk.
+- Streaming cursor (blinking) while a response is in flight.
+- Auto-scroll on every new chunk.
+- Local `session_id` state captured from the first SSE `session` event, used to fill the `{session_id}` placeholder in `followup_endpoint`.
+- Error mode bifurcation (recoverable / terminal) with input gating, all client-side.
+
+### Props
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| `initial_endpoint` | string | yes | URL the component opens an SSE channel to **on mount**. The first event must be `session` carrying `session_id`; subsequent events are `delta`, then `done` or `error`. |
+| `followup_endpoint` | string | yes | URL template for follow-up messages. Must contain `{session_id}`, which the component substitutes at send time using the captured id. The follow-up request is a `POST` with body `{content}` and is handled as another SSE stream. |
+| `placeholder` | string | yes | Text displayed in the input when empty. Localized. |
+| `submit_label` | string | yes | Aria-label for the icon-only send button. Localized. |
+| `streaming_label` | string | no | Small muted text rendered alongside the blinking cursor while a response is streaming. If absent, only the cursor renders. Localized. |
+| `max_input_length` | int | no | Maximum characters allowed in the input. Default `2000`. |
+| `error_messages` | `map<string, string>` | yes | Map of error code to localized message. Must include `default` as fallback. Codes the component cares about: `ANALYSIS_SESSION_NOT_FOUND`, `ANALYSIS_SESSION_EXPIRED`, `ANALYSIS_TOO_MANY_MESSAGES`, `ANALYSIS_FOCUS_TOO_LONG`, `AI_PROVIDER_UNAVAILABLE`, `AI_RATE_LIMITED`, `AI_TIMEOUT`, `AI_CONTEXT_TOO_LARGE`, `RATE_LIMITED`, `INTERNAL_ERROR`, `default`. |
+| `terminal_error_codes` | `string[]` | yes | Codes that transition the component into terminal mode (input disabled + CTA visible). |
+| `terminal_cta_label` | string | yes | Label for the CTA button in terminal mode. Localized. |
+| `reset_action` | `Action` | yes | Action executed by the terminal CTA. Typically `Reload(/actions/analysis/reset, target_id="analysis-content")`. |
+
+### SSE event protocol (passed through unchanged from the backend)
+
+| Event | Payload | Component behavior |
+|---|---|---|
+| `session` | `{session_id: string}` | Stash `session_id`. Append a placeholder assistant message. Show streaming cursor. |
+| `delta` | `{text: string}` | Append `text` to the last assistant message's `content`. Auto-scroll to bottom. |
+| `done` | `{}` | Hide cursor on the last message. Re-enable input. |
+| `error` | `{code: string, message: string}` | Render inline error banner using `error_messages[code] ?? error_messages["default"]`. If code ∈ `terminal_error_codes`: disable input, show CTA. Otherwise: keep input enabled. Remove the empty placeholder assistant message if it never received any `delta`. |
+
+### Frontend behavior
+
+1. **Mount**: open SSE to `initial_endpoint`. Initialize `messages: []`, `session_id: null`, `is_streaming: true`, `error: null`, `is_terminal: false`. The first `session` event captures `session_id`; the component pushes a placeholder assistant message.
+2. **Streaming render**: messages list scrolls automatically as content grows. Each `delta` appends to the last assistant message and triggers scroll-to-bottom.
+3. **`done`**: clear cursor; `is_streaming = false`.
+4. **Send follow-up** (Enter without Shift, or Send button):
+   - Validate: trimmed length > 0 and ≤ `max_input_length`.
+   - Push `{role: "user", content}`; push `{role: "assistant", content: ""}`.
+   - Open SSE to `followup_endpoint` with `{session_id}` resolved, body `{content}`.
+   - Same delta/done/error loop.
+5. **Error inline**: banner above the input, persists until next send (recoverable) or terminal CTA click.
+6. **Terminal mode**: input disabled, send button disabled, banner persists, CTA button executes `reset_action`.
+7. **Markdown**: assistant messages via remark-gfm (tables, lists, code, headings). User messages: plain text with `whitespace: pre-wrap`.
+8. **Character counter**: bottom-right of input, only when value length crosses ~75% of `max_input_length`. Format `<current> / <max>`. Destructive color when over.
+9. **Disconnection**: `fetch` aborts (network drop, navigation) → surface as `INTERNAL_ERROR` recoverable.
+10. **Enter-to-send**: Enter (no Shift, no IME composition) invokes Send; Shift-Enter inserts newline.
+11. **Unmount cleanup**: on unmount the component aborts any in-flight `fetch`+SSE before being torn down.
+
+### Layout
+
+- Outer: column flex, fills available height of the parent slot.
+- Messages area: `flex: 1`, `overflow-y: auto`, centered max-width container; user bubbles right-aligned, assistant bubbles left-aligned with prose styling for markdown.
+- Input area: pinned bottom, border-top separator, padding; centered max-width row containing `[textarea, send-button]`. Textarea auto-resizes between 1 and ~4 rows.
+- Error banner between messages and input when `error` is set; terminal CTA below the banner when in terminal mode.
+
+### Example
+
+```json
+{
+  "type": "analysis_chat",
+  "id": "analysis-chat",
+  "props": {
+    "initial_endpoint": "/actions/analysis/stream?focus=risk%20exposure",
+    "followup_endpoint": "/actions/analysis/sessions/{session_id}/messages",
+    "placeholder": "Ask a follow-up question…",
+    "submit_label": "Send",
+    "streaming_label": "AI is thinking…",
+    "max_input_length": 2000,
+    "error_messages": {
+      "ANALYSIS_SESSION_NOT_FOUND": "Session not found.",
+      "ANALYSIS_SESSION_EXPIRED": "Session expired. Start a new analysis.",
+      "ANALYSIS_TOO_MANY_MESSAGES": "Conversation length limit reached. Start a new analysis.",
+      "ANALYSIS_FOCUS_TOO_LONG": "Focus area is too long.",
+      "AI_PROVIDER_UNAVAILABLE": "AI provider unavailable. Please retry.",
+      "AI_RATE_LIMITED": "AI rate limit reached. Please retry shortly.",
+      "AI_TIMEOUT": "AI request timed out. Please retry.",
+      "AI_CONTEXT_TOO_LARGE": "Portfolio context is too large for the AI.",
+      "RATE_LIMITED": "Too many requests. Please wait a moment before trying again.",
+      "INTERNAL_ERROR": "Connection lost. Please try again.",
+      "default": "Something went wrong. Please retry."
+    },
+    "terminal_error_codes": [
+      "ANALYSIS_SESSION_EXPIRED",
+      "ANALYSIS_SESSION_NOT_FOUND",
+      "ANALYSIS_TOO_MANY_MESSAGES"
+    ],
+    "terminal_cta_label": "Start a new analysis",
+    "reset_action": {
+      "trigger": "click",
+      "type": "reload",
+      "endpoint": "/actions/analysis/reset",
+      "target_id": "analysis-content",
+      "loading": "section"
+    }
+  }
+}
+```
+
+---
+
+## 6. Custom Attributes
 
 Project-specific props that may appear on any component. The frontend reads them alongside base shared props (`align_items`, `gap`, etc.) and applies project-specific behavior.
 
@@ -418,7 +527,7 @@ When HideValues is active, the frontend renders `"••••"` instead of `"$1
 
 ---
 
-## 6. Custom Actions
+## 7. Custom Actions
 
 Project-specific action types that extend the base set in `sdui-actions.md`. The frontend maps these types to local behavior; no server round-trip is involved.
 
