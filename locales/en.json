@@ -491,6 +491,37 @@
       "error_generic": "Restore failed. Please try again."
     }
   },
+  "analysis": {
+    "title": "Analysis",
+    "start": {
+      "description": "Get an AI-powered analysis of your portfolio — positions, allocation, risk, and opportunities.",
+      "focus_label": "Focus area (optional)",
+      "focus_placeholder": "e.g. risk exposure, crypto allocation, dividend potential",
+      "submit": "Analyze my portfolio"
+    },
+    "new_analysis": "New analysis",
+    "chat": {
+      "placeholder": "Ask a follow-up question…",
+      "submit_label": "Send",
+      "streaming_label": "AI is thinking…",
+      "terminal_cta": "Start a new analysis"
+    },
+    "error": {
+      "session_not_found": "Session not found.",
+      "session_expired": "Session expired. Start a new analysis.",
+      "too_many_messages": "Conversation length limit reached. Start a new analysis.",
+      "focus_too_long": "Focus area is too long.",
+      "provider_unavailable": "AI provider unavailable. Please retry.",
+      "rate_limited": "Too many requests. Please wait a moment before trying again.",
+      "timeout": "AI request timed out. Please retry.",
+      "context_too_large": "Portfolio context is too large for the AI.",
+      "internal": "Connection lost. Please try again.",
+      "default": "Something went wrong. Please retry."
+    },
+    "feedback": {
+      "start_failed": "Could not start analysis. Please retry."
+    }
+  },
   "common": {
     "cancel": "Cancel"
   },

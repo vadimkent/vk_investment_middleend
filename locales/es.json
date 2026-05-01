@@ -491,6 +491,37 @@
       "error_generic": "La restauración falló. Probá de nuevo."
     }
   },
+  "analysis": {
+    "title": "Análisis",
+    "start": {
+      "description": "Obtené un análisis IA de tu portafolio — posiciones, asignación, riesgo y oportunidades.",
+      "focus_label": "Área de enfoque (opcional)",
+      "focus_placeholder": "ej. exposición a riesgo, asignación cripto, potencial de dividendos",
+      "submit": "Analizar mi portafolio"
+    },
+    "new_analysis": "Nuevo análisis",
+    "chat": {
+      "placeholder": "Hacé una pregunta de seguimiento…",
+      "submit_label": "Enviar",
+      "streaming_label": "La IA está pensando…",
+      "terminal_cta": "Iniciar un nuevo análisis"
+    },
+    "error": {
+      "session_not_found": "Sesión no encontrada.",
+      "session_expired": "La sesión expiró. Iniciá un nuevo análisis.",
+      "too_many_messages": "Llegaste al límite de mensajes. Iniciá un nuevo análisis.",
+      "focus_too_long": "El área de enfoque es demasiado larga.",
+      "provider_unavailable": "Proveedor de IA no disponible. Probá de nuevo.",
+      "rate_limited": "Demasiadas solicitudes. Esperá un momento antes de reintentar.",
+      "timeout": "Tiempo de espera agotado. Probá de nuevo.",
+      "context_too_large": "El contexto del portafolio es demasiado grande para la IA.",
+      "internal": "Conexión perdida. Probá de nuevo.",
+      "default": "Algo salió mal. Probá de nuevo."
+    },
+    "feedback": {
+      "start_failed": "No se pudo iniciar el análisis. Probá de nuevo."
+    }
+  },
   "common": {
     "cancel": "Cancelar"
   },
