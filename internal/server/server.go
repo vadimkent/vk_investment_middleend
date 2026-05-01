@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
+	"github.com/project/vk-investment-middleend/internal/analysis"
 	"github.com/project/vk-investment-middleend/internal/assets"
 	"github.com/project/vk-investment-middleend/internal/auth"
 	"github.com/project/vk-investment-middleend/internal/config"
@@ -124,6 +125,14 @@ func (s *Server) setupRoutes() {
 	protected.GET("/actions/import/export", imports.NewExportHandler(importsClient).Get)
 	protected.POST("/actions/import/restore", imports.NewRestoreHandler(importsClient).Post)
 	protected.GET("/actions/import/restore_idle", imports.NewRestoreIdleHandler().Get)
+
+	// --- analysis ---
+	analysisClient := analysis.NewClient(s.cfg.BackendURL, 30*time.Second)
+	protected.GET("/screens/analysis", analysis.NewHandler().Get)
+	protected.POST("/actions/analysis/start", analysis.NewStartHandler().Post)
+	protected.GET("/actions/analysis/reset", analysis.NewResetHandler().Get)
+	protected.GET("/actions/analysis/stream", analysis.NewStreamHandler(analysisClient).Get)
+	protected.POST("/actions/analysis/sessions/:id/messages", analysis.NewMessagesHandler(analysisClient).Post)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {
