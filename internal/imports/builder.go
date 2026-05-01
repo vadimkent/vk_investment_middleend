@@ -61,7 +61,7 @@ func buildHeader(lang string) components.Component {
 			"align_items": "center",
 		},
 		Children: []components.Component{
-			components.Text("import-title", i18n.T(lang, "import.title"), "xl", "bold"),
+			components.Text("import-title", i18n.T(lang, "import.title"), "lg", "bold"),
 		},
 	}
 }

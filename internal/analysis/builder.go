@@ -22,7 +22,7 @@ func BuildRootColumn(lang string) components.Component {
 			"align_items": "center",
 		},
 		Children: []components.Component{
-			components.Text("analysis-title", i18n.T(lang, "analysis.title"), "xl", "bold"),
+			components.Text("analysis-title", i18n.T(lang, "analysis.title"), "lg", "bold"),
 		},
 	}
 	content := BuildContentStart(lang, "", "")
