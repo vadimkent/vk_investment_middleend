@@ -142,6 +142,8 @@ func BuildContentChat(lang, focus string) components.Component {
 	)
 
 	chat := buildAnalysisChat(lang, focus)
+	chatCard := components.Card("analysis-chat-card", chat)
+	chatCard.Props["fill"] = true
 
 	return components.Component{
 		Type: "column",
@@ -152,7 +154,7 @@ func BuildContentChat(lang, focus string) components.Component {
 		},
 		Children: []components.Component{
 			resetRow,
-			chat,
+			chatCard,
 		},
 	}
 }
